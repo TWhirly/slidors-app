@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
@@ -21,64 +20,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import BusinessIcon from '@mui/icons-material/Business';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-
-const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-          marginLeft: 0,
-        },
-      },
-    ],
-  }),
-);
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})
-(({ theme }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-    },
-  ],
-}));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
+import { Main, AppBar, DrawerHeader, drawerWidthValue , listItemTextStyles } from './MainStyles';
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
@@ -91,6 +33,10 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleClick = (e) => {
+    console.log(e);
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -118,10 +64,10 @@ export default function PersistentDrawerLeft() {
       </AppBar>
       <Drawer
         sx={{
-          width: drawerWidth,
+          width: drawerWidthValue,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: drawerWidthValue,
             boxSizing: 'border-box',
           },
         }}
@@ -137,29 +83,28 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <List>
           {['Компании', 'Контакты', 'События', 'Стратегия', 'Задачи'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  
-                 {index === 0 ? <BusinessIcon /> : ''}
-                 {index === 1 ? <RecentActorsIcon /> : ''}
-                 {index === 2 ? <EventNoteIcon /> : ''}
-                 
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
+            <ListItem key={text} disablePadding fontSize="small">
+                <ListItemButton onClick={() => handleClick(text)} sx={{ alignSelf: 'left' }}>
+                    <ListItemIcon sx={{ minWidth: 10,  padding: 0}}> {/* Reduced icon size */}
+                        {index === 0 ? <BusinessIcon fontSize="small" /> : ''}
+                        {index === 1 ? <RecentActorsIcon fontSize="small" /> : ''}
+                        {index === 2 ? <EventNoteIcon fontSize="small" /> : ''}
+                    </ListItemIcon>
+                    <ListItemText primary={text} slotProps={listItemTextStyles} /> {/* Reduced font size */}
+                </ListItemButton>
             </ListItem>
           ))}
         </List>
         <Divider />
-        <List>
+        <List >
           {['Экспорт E-mail', 'Пользователи', 'Ежедневный отчёт'].map((text, index) => (
-            <ListItem key={text} disablePadding>
+            <ListItem key={text} disablePadding >
               <ListItemButton>
-                <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                <ListItemIcon sx={{ minWidth: 10 }}> {/* Reduced icon size */}
+                  {index % 2 === 0 ? <InboxIcon fontSize="small" /> : <MailIcon fontSize="small" />}
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                {/* <ListItemText primary={text} slotProps={{ primary: { fontSize: '0.4rem' } }} /> Reduced font size */}
+                <ListItemText primary={text} slotProps={listItemTextStyles} /> {/* Reduced font size */}
               </ListItemButton>
             </ListItem>
           ))}
