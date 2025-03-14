@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -16,15 +17,45 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+// import MailIcon from '@mui/icons-material/Mail';
 import BusinessIcon from '@mui/icons-material/Business';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import FollowTheSignsIcon from '@mui/icons-material/FollowTheSigns';
+import TaskIcon from '@mui/icons-material/Task';
+import PeopleIcon from '@mui/icons-material/People';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import { Main, AppBar, DrawerHeader, drawerWidthValue , listItemTextStyles } from './MainStyles';
 
 export default function PersistentDrawerLeft() {
+ 
+  const navigate = useNavigate();
+    const location = useLocation();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    const tg = window.Telegram.WebApp;
+    console.log('platform', tg.platform)
+    if (tg.platform === 'tdesktop') {
+      console.log(tg)
+      if (typeof tg.requestFullscreen === 'function') {
+        // tg.requestFullscreen();
+      }
+    }
+      tg.BackButton.hide();
+    }, [navigate])
+  const menuNavigate = {
+    'Компании': '/companies',
+    'Контакты': '/contacts',
+    'События': '/events',
+    'Стратегия': '/strategy',
+    'Задачи': '/tasks',
+    'Экспорт E-mail': '/export-email',
+    'Пользователи': '/users',
+    'Ежедневный отчёт': '/daily-report',
+  }
+
+  
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -34,8 +65,11 @@ export default function PersistentDrawerLeft() {
     setOpen(false);
   };
 
-  const handleClick = (e) => {
-    console.log(e);
+  const handleClick = (name) => {
+    console.log(name);
+    const tg = window.Telegram.WebApp;
+    tg.BackButton.show();
+    navigate(menuNavigate[name]);
   }
 
   return (
@@ -82,13 +116,17 @@ export default function PersistentDrawerLeft() {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Компании', 'Контакты', 'События', 'Стратегия', 'Задачи'].map((text, index) => (
+          {Object.keys(menuNavigate).filter((el, index) => index < 5).map((text, index) => (
             <ListItem key={text} disablePadding fontSize="small">
                 <ListItemButton onClick={() => handleClick(text)} sx={{ alignSelf: 'left' }}>
-                    <ListItemIcon sx={{ minWidth: 10,  padding: 0}}> {/* Reduced icon size */}
+                    <ListItemIcon sx={{ minWidth: 10,  padding: 0, alignSelf: 'left'}}> {/* Reduced icon size */}
                         {index === 0 ? <BusinessIcon fontSize="small" /> : ''}
                         {index === 1 ? <RecentActorsIcon fontSize="small" /> : ''}
                         {index === 2 ? <EventNoteIcon fontSize="small" /> : ''}
+                        {index === 3 ? <FollowTheSignsIcon fontSize="small" /> : ''}
+                        {index === 4 ? <TaskIcon fontSize="small" /> : ''}
+
+                        
                     </ListItemIcon>
                     <ListItemText primary={text} slotProps={listItemTextStyles} /> {/* Reduced font size */}
                 </ListItemButton>
@@ -97,11 +135,13 @@ export default function PersistentDrawerLeft() {
         </List>
         <Divider />
         <List >
-          {['Экспорт E-mail', 'Пользователи', 'Ежедневный отчёт'].map((text, index) => (
-            <ListItem key={text} disablePadding >
-              <ListItemButton>
-                <ListItemIcon sx={{ minWidth: 10 }}> {/* Reduced icon size */}
-                  {index % 2 === 0 ? <InboxIcon fontSize="small" /> : <MailIcon fontSize="small" />}
+          {Object.keys(menuNavigate).filter((el, index) => index > 4).map((text, index) => (
+            <ListItem key={text} disablePadding fontSize="small">
+              <ListItemButton onClick={() => handleClick(text)} sx={{ alignSelf: 'left' }}>
+                <ListItemIcon sx={{ minWidth: 10,  padding: 0}}> {/* Reduced icon size */}
+                  {index === 0 ? <InboxIcon fontSize="small" /> : ''}
+                  {index === 1 ? <PeopleIcon fontSize="small" /> : ''}
+                  {index === 2 ? <SummarizeIcon fontSize="small" /> : ''}
                 </ListItemIcon>
                 {/* <ListItemText primary={text} slotProps={{ primary: { fontSize: '0.4rem' } }} /> Reduced font size */}
                 <ListItemText primary={text} slotProps={listItemTextStyles} /> {/* Reduced font size */}
