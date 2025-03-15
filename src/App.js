@@ -10,9 +10,12 @@ import Main from "./components/Main/Main";
 import { DataProvider } from './DataContext';
 import Companies from './components/Companies/Companies';
 
+
+
+
 function App() {
     // eslint-disable-next-line no-unused-vars
-
+    
     const navigate = useNavigate();
     const { onToggleButton, tg } = useTelegram();
     window.Telegram.WebApp.expand();

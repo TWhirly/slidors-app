@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
+import qs from 'qs';
 
 const Companies = () => {
     const [rows, setRows] = useState([]);
@@ -13,15 +14,30 @@ const Companies = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.post('https://script.google.com/macros/s/AKfycbwCzWyBGoGCMEHIRTIB5HP6VqcwpbZrJnUgT-HimZHHhVxCHlSz9USgECSYzV1FDKOqkQ/exec');
-                const data = response.data; // Adjust this based on the structure of your Google Sheets API response
+                const params = {
+                    name: 'Ваше имя', // Здесь вы можете указать любые параметры
+                    // Добавьте другие параметры по мере необходимости
+                };
+        
+                // Сериализуем параметры в формате x-www-form-urlencoded
+                const formData = JSON.stringify(params);
+        
+                const response = await axios.post(
+                    'https://script.google.com/macros/s/AKfycbx7Nn_FO_uFjbHPkMDApqIS3mtBJkMaAkTvlKXxU8rPzIRTdB24TEQmmRG5QFt47mf2/exec',
+                    formData,
+                   
+                );
+        
+                const data = response.data; // Обработка ответа
                 setRows(data);
                 setLoading(false);
+                console.log('data is', data)
             } catch (error) {
                 console.error('Error fetching data:', error);
                 setLoading(false);
             }
         };
+        
 
         fetchData();
     }, []);

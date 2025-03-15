@@ -37,6 +37,7 @@ export default function PersistentDrawerLeft() {
     const tg = window.Telegram.WebApp;
     console.log('platform', tg.platform)
     if (tg.platform === 'tdesktop') {
+      
       console.log(tg)
       if (typeof tg.requestFullscreen === 'function') {
         // tg.requestFullscreen();
