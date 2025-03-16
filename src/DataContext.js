@@ -13,7 +13,7 @@ export const DataProvider = ({ children }) => {
 
    
 
-    console.log('DataContext', stationId)
+    console.log('DataContext', initDataRaw)
 
     return (
         <DataContext.Provider value={{ initDataRaw , initData }}>

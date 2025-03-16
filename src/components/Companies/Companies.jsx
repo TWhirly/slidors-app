@@ -6,16 +6,22 @@ import qs from 'qs';
 
 const Companies = () => {
     const [rows, setRows] = useState([]);
+    const [regionRows, setRegionRows] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [regionsListShow, setRegionsListShow] = useState(true);
 
     const tg = window.Telegram.WebApp;
+    const params = new URLSearchParams(window.Telegram.WebApp.initData);
+    const chat_id = JSON.parse(params.get('user')).id;
+    console.log('chat_id', chat_id)
     tg.BackButton.show();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const params = {
-                    name: 'Ваше имя', // Здесь вы можете указать любые параметры
+                    name: 'Ваше имя',
+                    chatID: chat_id // Здесь вы можете указать любые параметры
                     // Добавьте другие параметры по мере необходимости
                 };
         
@@ -23,13 +29,19 @@ const Companies = () => {
                 const formData = JSON.stringify(params);
         
                 const response = await axios.post(
-                    'https://script.google.com/macros/s/AKfycbx7Nn_FO_uFjbHPkMDApqIS3mtBJkMaAkTvlKXxU8rPzIRTdB24TEQmmRG5QFt47mf2/exec',
+                    'https://script.google.com/macros/s/AKfycbyIMtJO_s6n2I7QiYjaFGykwDKL6yUuobMDMvPdu2Z6BkYG4MNLZ5ZMe9fZt1Ux2v54tA/exec',
                     formData,
                    
                 );
         
                 const data = response.data; // Обработка ответа
                 setRows(data);
+                setRegionRows(data.reduce((acc, item) => {
+                    if (!acc.find(({ id }) => id === item.region)) {
+                        acc.push({ id: item.region });
+                    }
+                    return acc;
+                }, []));
                 setLoading(false);
                 console.log('data is', data)
             } catch (error) {
@@ -42,18 +54,38 @@ const Companies = () => {
         fetchData();
     }, []);
 
+    const handleRowClick = (params) => {
+        const id = params.id;
+        console.log('Row clicked, id:', id);
+        // Add your logic here to handle the row click event
+    };
+
+    const regionColumns = [
+        
+        { field: 'id', headerName: 'Регион', width: 340 }
+        
+        // Add more columns as needed
+    ];
+
     const columns = [
-        { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'name', headerName: 'Name', width: 150 },
-        { field: 'industry', headerName: 'Industry', width: 150 },
-        { field: 'location', headerName: 'Location', width: 150 },
+        { field: 'name', headerName: 'Наименование', width: 150 },
+        { field: 'type', headerName: 'Тип', width: 150 },
+        { field: 'region', headerName: 'Регион', width: 150 },
+        { field: 'city', headerName: 'Город', width: 150 },
         // Add more columns as needed
     ];
 
     return (
         <div style={{ height: 400, width: '100%' }}>
             <Paper sx={{ height: 400, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} loading={loading} />
+                {regionsListShow && (
+                    <DataGrid 
+                        rows={regionRows} 
+                        columns={regionColumns} 
+                        loading={loading} 
+                        onRowClick={handleRowClick} 
+                    />
+                )}
             </Paper>
         </div>
     );
