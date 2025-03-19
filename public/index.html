@@ -13,7 +13,21 @@
     
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+    <style>
+      :root {
+        --fontFamily: system-ui, sans-serif;
+        --bgColor: #ffffff;
+        --textColor: #000000;
+      }
+
+      body {
+        font-family: var(--fontFamily);
+        background-color: var(--bgColor);
+        color: var(--textColor);
+        margin: 0;
+        padding: 0;
+      }
+    </style>
     <title>React App</title>
   </head>
   <body>

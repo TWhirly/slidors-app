@@ -35,7 +35,7 @@ const Header = () => {
 
     return (
 
-        <div >
+        <div style={{ fontFamily: 'var(--fontFamily)', color: 'var(--textColor)' }}>
             {/* <button className={'header'} onClick={onClick}>Закрыть</button>
             {useLocation().pathname} */}
             

@@ -13,6 +13,9 @@ export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
+    backgroundColor: 'var(--bgColor)',
+    color: 'var(--textColor)',
+    fontFamily: 'var(--fontFamily)',
     variants: [
       {
         props: ({ open }) => open,
@@ -36,6 +39,9 @@ export const AppBar = styled(MuiAppBar, {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
+  backgroundColor: 'var(--bgColor)',
+  color: 'var(--textColor)',
+  fontFamily: 'var(--fontFamily)',
   variants: [
     {
       props: ({ open }) => open,
