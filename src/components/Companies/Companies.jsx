@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
-import { Button, CircularProgress, IconButton } from '@mui/material';
+import { CircularProgress } from '@mui/material';
+import styles from './Companies.module.css';
 import { themeParams } from '@telegram-apps/sdk';
-
-
 
 const Companies = () => {
     if (themeParams) {
@@ -62,13 +61,14 @@ const Companies = () => {
                 data.sort((a, b) => a.name.localeCompare(b.name)); // Sort data by company name
                 setRows(data);
                 const regions = data.reduce((acc, item) => {
-                    const existingRegion = acc.find(({ id }) => id === item.region);
-                    if (existingRegion) {
-                        existingRegion.count += 1;
-                    } else {
-                        acc.push({ id: item.region, count: 1 });
-                    }
-                    return acc;
+                  const existingRegion = acc.find(({ id }) => id === item.region);
+                  if (existingRegion) {
+                    existingRegion.count += 1;
+                    existingRegion.companies.push(item);
+                  } else {
+                    acc.push({ id: item.region, count: 1, companies: [item] });
+                  }
+                  return acc;
                 }, []);
                 regions.sort((a, b) => a.id.localeCompare(b.id));
                 setRegionRows(regions);
@@ -115,76 +115,36 @@ const Companies = () => {
         const region = rows.find((row) => row.region === regionId);
         return region ? region.region : regionId;
     };
-    console.log('reg rows', regionRows)
+    console.log('reg rows', regionRows, typeof(rows))
+    
     return (
-      <div
-        style={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <div className={styles.container}>
         {loading ? (
-          <CircularProgress
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "45vh",
-            }}
-          />
+          <CircularProgress className={styles.loading} />
         ) : (
-          <Paper sx={{ height: `100%`, width: "100%" }}>
+          <Paper className={styles.paper}>
             <div>
               {regionRows.map((region) => (
                 <div key={region.id} style={{ marginBottom: "10px" }}>
                   <button
                     onClick={() => handleRegionClick(region.id)}
-                    style={{
-                      backgroundColorcolor: themeParams?.buttonColor || "black",
-                      width: "100%",
-                      justifyContent: "flex-start",
-                      border: "none",
-                      padding: "1px 0",
-                      background: "none",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      height: "auto",
-                    }}
+                    className={styles.regionButton}
                   >
-                    <span
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        fontSize: "16px",
-                      }}
-                    >
+                    <span>
                       {region.id} ({region.count})
-                      <div
-                        style={{
-                          width: 0,
-                          height: 0,
-                          marginLeft: "8px",
-                          borderLeft: "6px solid transparent",
-                          borderRight: "6px solid transparent",
-                          borderTop: "6px solid black",
-                          // borderTop: selectedRegion === region.id ? 'none' : '6px solid black',
-                          // borderBottom: selectedRegion === region.id ? '6px solid black' : 'none',
-                        }}
-                      />
+                      <div className={styles.regionButtonArrow} />
                     </span>
                   </button>
-                  {selectedRegion === region.id && (
-                    <div style={{ marginTop: "10px" }}>
-                      <DataGrid
-                        rows={rows.filter(
+                  {/* {selectedRegion === region.id && ( */}
+                  {selectedRegion && (
+                    <div className={styles.dataGridContainer}>
+                      <div className={styles.regionName}
+                        {...regionRows.filter(
                           (row) => row.region === selectedRegion
-                        )}
-                        columns={columns}
-                        loading={loading}
-                        autoHeight
+                        ).map((row) => (
+                          <div key={row.id}>{regionRows.companies.name}</div>
+                        ))}
+                        
                       />
                     </div>
                   )}

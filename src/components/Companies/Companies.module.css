@@ -1,0 +1,58 @@
+.container {
+    background-image: url('https://i.pinimg.com/736x/23/38/86/2338869c2b41eac1628c43dc6372934d.jpg');
+    background-size: cover; /* Фон покрывает весь контейнер */
+    background-position: center; /* Центрирование фона */
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    position: relative; /* Для управления слоями */
+}
+
+.paper {
+    background: none; /* Полупрозрачный белый фон */
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* Для управления слоями */
+    z-index: 1; /* Элемент поверх фона */
+}
+
+.regionButton {
+    width: 100%;
+    justify-content: flex-start;
+    border: none;
+    padding: 1px 0;
+    background: none; /* Прозрачный фон у кнопки */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+    font-size: 16px;
+    color: var(--headerBgColor, black);
+    position: relative; /* Элемент будет поверх фона */
+    z-index: 1; /* Устанавливаем слой выше фона */
+}
+
+.regionButton span {
+    display: flex;
+    align-items: center;
+    color: #008ad1;
+    background: none; /* Прозрачный фон у текста */
+    position: relative; /* Для корректного позиционирования */
+    z-index: 1; /* Текст поверх фона */
+}
+
+.regionButtonArrow {
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #008ad1;
+    position: relative; /* Для корректного позиционирования */
+    z-index: 1; /* Стрелка поверх фона */
+}
