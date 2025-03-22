@@ -1,24 +1,34 @@
 .container {
-    background-image: url('https://i.pinimg.com/736x/23/38/86/2338869c2b41eac1628c43dc6372934d.jpg');
-    background-size: cover; /* Фон покрывает весь контейнер */
-    background-position: center; /* Центрирование фона */
+    background-image: url('../../icons/background.jpg');
+    background-size: auto; /* Убедитесь, что фон покрывает весь контейнер */
+    background-position: auto;
     height: 100%;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
-    justify-content: left;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    position: relative; /* Для управления слоями */
+    position: relative;
+    z-index: var(--z-base);
 }
 
 .paper {
-    background: none; /* Полупрозрачный белый фон */
+    background-image: url('../../icons/background.jpg');
     padding: 20px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    position: relative; /* Для управления слоями */
-    z-index: 1; /* Элемент поверх фона */
+    justify-content: flex-start; /* Выравнивание содержимого по началу */
+    align-items: flex-start; /* Выравнивание по левому краю */
+    position: absolute; /* Фиксируем позицию относительно контейнера */
+    left: 0; /* Располагаем блок у левого края контейнера */
+    top: 0; /* При необходимости можно задать отступ сверху */
+    z-index: var(--z-content); /* Уровень слоя */
+    width: 100%; /* Убедитесь, что ширина адаптируется к контейнеру */
+    max-width: 400px; /* Ограничиваем максимальную ширину блока */
+    pointer-events: auto; /* Убедитесь, что клики проходят через прозрачные области */
 }
 
 .regionButton {
@@ -26,24 +36,35 @@
     justify-content: flex-start;
     border: none;
     padding: 1px 0;
-    background: none; /* Прозрачный фон у кнопки */
+    background: none; /* Прозрачный фон */
     cursor: pointer;
     display: flex;
     align-items: center;
     height: auto;
     font-size: 16px;
     color: var(--headerBgColor, black);
-    position: relative; /* Элемент будет поверх фона */
-    z-index: 1; /* Устанавливаем слой выше фона */
+    position: relative;
+    z-index: 1;
 }
 
 .regionButton span {
     display: flex;
     align-items: center;
     color: #008ad1;
-    background: none; /* Прозрачный фон у текста */
-    position: relative; /* Для корректного позиционирования */
-    z-index: 1; /* Текст поверх фона */
+    background: rgba(255, 255, 255, 0);
+    /* Прозрачный фон */
+    position: relative;
+    z-index: 1;
+}
+
+.factoryIcon {
+    display: flex;
+    
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    position: relative;
+    z-index: 1;
 }
 
 .regionButtonArrow {
@@ -53,6 +74,52 @@
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 6px solid #008ad1;
-    position: relative; /* Для корректного позиционирования */
-    z-index: 1; /* Стрелка поверх фона */
+    position: relative;
+    /* Для корректного позиционирования */
+    z-index: 1;
+    /* Стрелка поверх фона */
+}
+
+.dataGridContainer {
+    font-size: 16px;
+    background: none; /* Прозрачный фон */
+    padding: 1px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    position: relative;
+    z-index: var(--z-content);
+}
+
+.companyItem {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1px;
+    padding: 0px  0px;
+    background: none; /* Прозрачный фон */
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0;
+}
+
+.companyName{
+    color: white;
+}
+
+.companyStatus{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    padding: 0 0px;
+    margin-top: -7px;
+    border-radius: 50%;
+    background: none;
+    color: white;
+    font-size: 0.5rem;
+    position: relative;
+    z-index: 1;
 }
