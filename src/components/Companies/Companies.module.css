@@ -2,7 +2,7 @@
     background-image: url('../../icons/background.jpg');
     background-size: auto; /* Убедитесь, что фон покрывает весь контейнер */
     background-position: auto;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -16,7 +16,7 @@
 
 .paper {
     background-image: url('../../icons/background.jpg');
-    padding: 20px;
+    padding: 10px  2px 2px 10px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -48,6 +48,7 @@
 }
 
 .regionButton span {
+    width: 100%;
     display: flex;
     align-items: center;
     color: #008ad1;
@@ -81,6 +82,7 @@
 }
 
 .dataGridContainer {
+    width: 100%;
     font-size: 16px;
     background: none; /* Прозрачный фон */
     padding: 1px 0;
@@ -92,9 +94,10 @@
 }
 
 .companyItem {
+    width: 100%;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    /* align-items: flex-start; */
     gap: 1px;
     padding: 0px  0px;
     background: none; /* Прозрачный фон */
@@ -120,6 +123,29 @@
     background: none;
     color: white;
     font-size: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.loading {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 45vh;
+}
+
+.checksContainer{
+  
+    margin-right: 0;
+}
+
+.checkIcon {
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+    width: 16px;
+    height: 16px;
     position: relative;
     z-index: 1;
 }

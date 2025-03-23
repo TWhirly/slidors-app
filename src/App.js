@@ -18,11 +18,13 @@ import Companies from './components/Companies/Companies';
 
 
 function App() {
+    
     // eslint-disable-next-line no-unused-vars
     const navigate = useNavigate();
     const { onToggleButton, tg } = useTelegram();
     window.Telegram.WebApp.expand();
     window.Telegram.WebApp.disableVerticalSwipes()
+    
     tg.MainButton.hide()
     tg.MainButton.setParams({
         text: `Отправить`
@@ -63,9 +65,17 @@ function App() {
         document.documentElement.style.setProperty('--textColor', textColor);
 
         document.body.style.fontFamily = fontFamily;
-        // document.body.style.backgroundColor = bgColor;
+        window.Telegram.WebApp.expand();
         document.body.style.color = textColor;
     }, [tg])
+
+    useEffect(() => {
+        // Проверяем, что код выполняется внутри Telegram WebView
+        if (window.Telegram?.WebApp?.expand) {
+          // Расширяем приложение на весь экран
+          window.Telegram.WebApp.expand();
+        }
+      }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
 
     const divContainer = document.getElementById("App");
     

@@ -4,9 +4,9 @@ import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
-import { Factory , Dealer, YellowStarIcon} from '../../icons/SVG';
+import { Factory, Dealer, YellowStarIcon } from '../../icons/SVG';
 const Companies = () => {
-  
+
   const [rows, setRows] = useState([]);
   const [regionRows, setRegionRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +41,7 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        ); ; // переработчик
+        );; // переработчик
       case 'дистрибьютор':
         return (
           <img
@@ -50,7 +50,7 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        ); ;  // Дистрибьютор
+        );;  // Дистрибьютор
       case 'дилер':
         return (
           <img
@@ -82,25 +82,25 @@ const Companies = () => {
           chatID: chat_id,
           api: 'getCompanies'
         };
-    
+
         // Сериализуем параметры в формате x-www-form-urlencoded
         const formData = JSON.stringify(params);
-    
+
         const response = await axios.post(
-          'https://script.google.com/macros/s/AKfycbxU87ggm05TZS2PTVxyzxv9ixJBZCH6Uz-blFlq4QhJx3S0R4EWjb4LAo1tarSfL6g6BQ/exec',
+          'https://script.google.com/macros/s/AKfycbwIqJE3RNiNjNF5B18Jd_Uj-qexLCZKB2-4WSY3v08dYyairkAXzgQCTffBGdsB6HZE7Q/exec',
           formData,
         );
-    
+
         const data = response.data; // Обработка ответа
         data.sort((a, b) => a.name.localeCompare(b.name)); // Sort data by company name
         setRows(data);
         const regions = data.reduce((acc, item) => {
           const existingRegion = acc.find(({ id }) => id === item.region);
           if (existingRegion) {
-          existingRegion.count += 1;
-          existingRegion.companies.push(item);
+            existingRegion.count += 1;
+            existingRegion.companies.push(item);
           } else {
-          acc.push({ id: item.region, count: 1, companies: [item] });
+            acc.push({ id: item.region, count: 1, companies: [item] });
           }
           return acc;
         }, []);
@@ -113,7 +113,7 @@ const Companies = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
 
     // Add event listener for back button
@@ -149,8 +149,8 @@ const Companies = () => {
     const region = rows.find((row) => row.region === regionId);
     return region ? region.region : regionId;
   };
-  console.log('reg rows', regionRows, typeof(regionRows), typeof(regionRows?.companies))
-  
+  console.log('reg rows', regionRows, typeof (regionRows), typeof (regionRows?.companies))
+
   return (
     <div className={styles.container}>
       {loading ? (
@@ -183,15 +183,27 @@ const Companies = () => {
                           {company.name}
                         </div>
                         {/* <Factory className={styles.factoryIcon} /> */}
-                      {getCompanyTypeIcon(company.type)}
-                      </div><div
-                        className={styles.companyStatus}
-                        style={{
-                          color: getStatusColor(company.status),
-                          fontSize: '0.5rem'
-                        }}
-                      >
-                          {company.status? company.status : 'Неизвестно'}
+                        {getCompanyTypeIcon(company.type)}
+                        <div className={styles.checksContainer}>
+                          <div>
+                            {company.handled ? (<img
+                              src={require('../../icons/checkedRed.png')}
+                              alt="переработчик"
+                              fill="#008ad1"
+                              className={styles.checkIcon}
+                            />) : ''}
+                          </div>
+                        </div>
+                      </div>
+
+                        <div
+                          className={styles.companyStatus}
+                          style={{
+                            color: getStatusColor(company.status),
+                            fontSize: '0.5rem'
+                          }}
+                        >
+                          {company.status ? company.status : 'Неизвестно'}
                         </div></>
                     ))}
                   </div>

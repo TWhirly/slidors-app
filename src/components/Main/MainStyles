@@ -1,19 +1,23 @@
 import { styled } from '@mui/material/styles';
 import MuiAppBar from '@mui/material/AppBar';
+import MuiDrawer from '@mui/material/Drawer';
 
 const drawerWidth = 200;
 
 export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme }) => ({
-    
     flexGrow: 1,
+    backgroundImage: 'url(../../icons/background.jpg)',
+    backgroundSize: 'cover', // Убедитесь, что фон покрывает весь контейнер
+    backgroundPosition: 'center', // Центрирование фона
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    backgroundColor: 'var(--bgColor)',
+    zIndex: 1, // Установите z-index ниже sidebar
+    position: 'relative', // Убедитесь, что Main располагается относительно контейнера
     color: 'var(--textColor)',
     fontFamily: 'var(--fontFamily)',
     variants: [
@@ -34,7 +38,6 @@ export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open
 export const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme }) => ({
-    
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -42,13 +45,13 @@ export const AppBar = styled(MuiAppBar, {
   backgroundColor: 'var(--bgColor)',
   color: 'var(--textColor)',
   fontFamily: 'var(--fontFamily)',
+  zIndex: 2, // Убедитесь, что AppBar выше Main
   variants: [
     {
       props: ({ open }) => open,
       style: {
         width: `calc(100% - ${drawerWidth}px)`,
         marginLeft: `${drawerWidth}px`,
-        
         transition: theme.transitions.create(['margin', 'width'], {
           easing: theme.transitions.easing.easeOut,
           duration: theme.transitions.duration.enteringScreen,
@@ -71,8 +74,17 @@ export const DrawerHeader = styled('div')(({ theme }) => ({
 export const listItemTextStyles = {
     primary: {
         fontSize: '0.7rem',
+        color: 'black',
+        fontFamily: 'var(--fontFamily)',
     }
 };
 
-
 export const drawerWidthValue = drawerWidth;
+
+export const Drawer = styled(MuiDrawer)(({ theme }) => ({
+  '& .MuiDrawer-paper': {
+    width: drawerWidth,
+    background: 'rgba(255, 255, 255, 0.8)', // Прозрачный фон
+    zIndex: 3, // Убедитесь, что sidebar выше Main, но ниже AppBar
+  },
+}));

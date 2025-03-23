@@ -1,0 +1,115 @@
+.container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+    background-image: url('../../icons/background.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    position: relative;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 45vh;
+}
+
+.box {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.drawerPaper {
+    width: var(--drawerWidthValue, 240px); /* Используем переменную для ширины */
+    flex-shrink: 0;
+    box-sizing: border-box;
+    /* background: rgba(255, 255, 255, 0.8); */
+}
+
+.appBar {
+    position: fixed;
+    z-index: 1201; /* Убедитесь, что AppBar выше Drawer */
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.typography {
+    margin-bottom: 2rem;
+    color: black;
+}
+
+.nameText{
+    margin-top: 2rem;
+    text-align: center;
+    color: #008ad1;
+}
+
+.roleText {
+    margin-bottom: 0.5rem;
+    font-size: 0.5rem;
+    text-align: center;
+    color: #008ad1;
+}
+
+.logo {
+    position: flex-start;
+    
+}
+
+.menuIcons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* 3 элемента в ряд на мобильных */
+    gap: 16px; /* Расстояние между элементами */
+    justify-content: center;
+    align-items: center;
+    margin: 30px 10rem; /* Отступы сверху и снизу */
+    max-width: 100%; /* Ограничение ширины в пределах контейнера */
+    overflow: hidden; /* Предотвращение выхода содержимого за пределы */
+    padding: 8px 16px;
+    /* padding-top: 8px;
+    padding-bottom: 8px; */
+    box-sizing: border-box; /* Учитываем отступы в ширине */
+}
+
+.menuItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100px; /* Фиксированная ширина */
+    height: 100px; /* Фиксированная высота */
+    color: #008ad1;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    border: 1px solid gray; /* Легкая рамка для визуального разделения */
+    border-radius: 8px; /* Скругленные углы */
+    background: none; /* Светлый фон */
+    user-select: none; /* Запрещаем выделение элемента */
+}
+
+.menuItem:hover {
+    transform: scale(1.1); /* Увеличение при наведении */
+    z-index: 1; /* Поднимаем элемент над соседними */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Добавляем тень для визуального эффекта */
+}
+
+.icon {
+    width: 50px; /* Размер изображения */
+    height: 50px;
+    object-fit: cover; /* Убедитесь, что изображение не искажается */
+    margin-bottom: 8px; /* Отступ между иконкой и текстом */
+}
+
+.iconText {
+    font-size: 0.9rem; /* Размер текста */
+    color: #008ad1; /* Цвет текста */
+    text-align: center;
+}
