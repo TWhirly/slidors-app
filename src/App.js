@@ -65,7 +65,7 @@ function App() {
         document.documentElement.style.setProperty('--textColor', textColor);
 
         document.body.style.fontFamily = fontFamily;
-        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.exitFullscreen();
         document.body.style.color = textColor;
     }, [tg])
 

@@ -87,7 +87,7 @@ const Companies = () => {
         const formData = JSON.stringify(params);
 
         const response = await axios.post(
-          'https://script.google.com/macros/s/AKfycbwIqJE3RNiNjNF5B18Jd_Uj-qexLCZKB2-4WSY3v08dYyairkAXzgQCTffBGdsB6HZE7Q/exec',
+          'https://script.google.com/macros/s/AKfycbwIShN9qi_vkO6h1w9jIFX-qjlchDc39QBeuwQFGAuXbv_g0ScCCYx0dx83xeMq28wbrg/exec',
           formData,
         );
 
@@ -154,12 +154,14 @@ const Companies = () => {
   return (
     <div className={styles.container}>
       {loading ? (
-        <CircularProgress className={styles.loading} />
+        <CircularProgress 
+        color='008ad1' className={styles.loading} />
       ) : (
         <div className={styles.paper}>
-          <div>
+          <div className={styles.paper}>
             {regionRows.map((region) => (
-              <div key={region.id}>
+              <div key={region.id}
+              className={styles.regionContainer}>
                 <button
                   onClick={() => handleRegionClick(region.id)}
                   className={styles.regionButton}
@@ -188,6 +190,22 @@ const Companies = () => {
                           <div>
                             {company.handled ? (<img
                               src={require('../../icons/checkedRed.png')}
+                              alt="переработчик"
+                              fill="#008ad1"
+                              className={styles.checkIcon}
+                            />) : ''}
+                          </div>
+                          <div>
+                            {company.wa ? (<img
+                              src={require('../../icons/checkedGreen.png')}
+                              alt="переработчик"
+                              fill="#008ad1"
+                              className={styles.checkIcon}
+                            />) : ''}
+                          </div>
+                          <div>
+                            {company.tg ? (<img
+                              src={require('../../icons/checkedBlue.png')}
                               alt="переработчик"
                               fill="#008ad1"
                               className={styles.checkIcon}

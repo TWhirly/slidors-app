@@ -14,6 +14,16 @@
     z-index: var(--z-base);
 }
 
+.regionContainer{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    position: relative;
+    z-index: var(--z-content);
+    background: none; /* Прозрачный фон */
+}
+
 .paper {
     background-image: url('../../icons/background.jpg');
     padding: 10px  2px 2px 10px;
@@ -60,7 +70,8 @@
 
 .factoryIcon {
     display: flex;
-    
+    align-items: center;
+    justify-content: center;
     width: 20px;
     height: 20px;
     margin-left: 10px;
@@ -97,13 +108,13 @@
     width: 100%;
     display: flex;
     flex-direction: row;
-    /* align-items: flex-start; */
     gap: 1px;
-    padding: 0px  0px;
+    padding: 0px 0px;
     background: none; /* Прозрачный фон */
     position: relative;
     z-index: 1;
     margin-bottom: 0;
+    max-width: 400px; /* Совпадает с max-width paper */
 }
 
 .companyName{
@@ -135,15 +146,20 @@
     margin-top: 45vh;
 }
 
-.checksContainer{
-  
+.checksContainer {
     margin-right: 0;
+    margin-left: auto;
+   
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .checkIcon {
     display: flex;
     align-self: flex-end;
     justify-self: flex-end;
+    margin: 0 2px 0 2px;
     width: 16px;
     height: 16px;
     position: relative;
