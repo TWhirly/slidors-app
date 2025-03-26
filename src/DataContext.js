@@ -1,14 +1,11 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { localUrl } from './localSettings'
 import { retrieveLaunchParams } from '@telegram-apps/sdk';
 import axios from 'axios';
-const APIURL = localUrl.APIURL;
 
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-    const { initDataRaw, initData } = retrieveLaunchParams();
-    const [stationId, setData] = useState(null);
+    const { initDataRaw } = retrieveLaunchParams();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [name, setName] = useState('');
@@ -52,7 +49,7 @@ export const DataProvider = ({ children }) => {
     console.log('DataContext', initDataRaw)
 
     return (
-        <DataContext.Provider value={{ name , loading }}>
+        <DataContext.Provider value={{ name , loading , error}}>
             {children}
         </DataContext.Provider>
     );

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
-import { Factory, Dealer, YellowStarIcon } from '../../icons/SVG';
+import { YellowStarIcon } from '../../icons/SVG';
 const Companies = () => {
 
-  const [rows, setRows] = useState([]);
   const [regionRows, setRegionRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState(null);
@@ -93,7 +90,6 @@ const Companies = () => {
 
         const data = response.data; // Обработка ответа
         data.sort((a, b) => a.name.localeCompare(b.name)); // Sort data by company name
-        setRows(data);
         const regions = data.reduce((acc, item) => {
           const existingRegion = acc.find(({ id }) => id === item.region);
           if (existingRegion) {
@@ -125,7 +121,7 @@ const Companies = () => {
       // Clean up the event listener
       tg.BackButton.offClick();
     };
-  }, []);
+  }, [chat_id, tg.BackButton]);
 
   const handleRegionClick = (regionId) => {
     if (selectedRegion === regionId) {
@@ -135,21 +131,8 @@ const Companies = () => {
     }
   };
 
-  const columns = [
-    { field: 'name', headerName: 'Наименование', width: 150 },
-    { field: 'type', headerName: 'Тип', width: 150 },
-    { field: 'status', headerName: 'Статус', width: 150 },
-    { field: 'tt', headerName: 'Торговых точек', width: 150 },
-    { field: 'dealers', headerName: 'Дилеров', width: 150 },
-    { field: 'manager', headerName: 'Менеджер', width: 150 },
-    // Add more columns as needed
-  ];
 
-  const formatRegionName = (regionId) => {
-    const region = rows.find((row) => row.region === regionId);
-    return region ? region.region : regionId;
-  };
-  console.log('reg rows', regionRows, typeof (regionRows), typeof (regionRows?.companies))
+  
 
   return (
     <div className={styles.container}>

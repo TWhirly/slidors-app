@@ -1,5 +1,4 @@
 // import '../src/css/theme.css';
-import styles from './App.module.css'
 import * as React from 'react';
 import {  useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
@@ -21,7 +20,7 @@ function App() {
     
     // eslint-disable-next-line no-unused-vars
     const navigate = useNavigate();
-    const { onToggleButton, tg } = useTelegram();
+    const { tg } = useTelegram();
     window.Telegram.WebApp.expand();
     window.Telegram.WebApp.disableVerticalSwipes()
     
@@ -39,16 +38,12 @@ function App() {
         }
           tg.BackButton.hide();
         }, [navigate])
-    var appStyleClassName = ''
-    const bgColorInput = document.getElementById("bg-color");
 
     if (window.Telegram.WebApp.colorScheme === 'dark') {
-        appStyleClassName = 'AppDark';
         document.documentElement.style.setProperty("--bgColor", "#000000");
         tg.setHeaderColor("#000000");
     }
     else {
-        appStyleClassName = 'AppLight';
         document.documentElement.style.setProperty("--bgColor", "#ffffff");
         tg.setHeaderColor("#ffffff")
     }
@@ -77,7 +72,6 @@ function App() {
         }
       }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
 
-    const divContainer = document.getElementById("App");
     
 
     return (
