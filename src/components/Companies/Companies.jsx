@@ -201,7 +201,7 @@ const Companies = () => {
                           className={styles.companyStatus}
                           style={{
                             color: getStatusColor(company.status),
-                            fontSize: '0.5rem'
+                            fontSize: '0.8rem'
                           }}
                         >
                           {company.status ? company.status : 'Неизвестно'}
