@@ -1,0 +1,170 @@
+.container {
+    background-image: url('../../icons/background.jpg');
+    background-size: auto; /* Убедитесь, что фон покрывает весь контейнер */
+    background-position: auto;
+    height: 100vh;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+    z-index: var(--z-base);
+}
+
+.regionContainer{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    position: relative;
+    z-index: var(--z-content);
+    background: none; /* Прозрачный фон */
+}
+
+.paper {
+    background-image: url('../../icons/background.jpg');
+    padding: 10px  2px 2px 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Выравнивание содержимого по началу */
+    align-items: flex-start; /* Выравнивание по левому краю */
+    position: absolute; /* Фиксируем позицию относительно контейнера */
+    left: 0; /* Располагаем блок у левого края контейнера */
+    top: 0; /* При необходимости можно задать отступ сверху */
+    z-index: var(--z-content); /* Уровень слоя */
+    width: 100%; /* Убедитесь, что ширина адаптируется к контейнеру */
+    max-width: 400px; /* Ограничиваем максимальную ширину блока */
+    pointer-events: auto; /* Убедитесь, что клики проходят через прозрачные области */
+}
+
+.regionButton {
+    width: 100%;
+    justify-content: flex-start;
+    border: none;
+    padding: 1px 0;
+    background: none; /* Прозрачный фон */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: auto;
+    font-size: 16px;
+    color: var(--headerBgColor, black);
+    position: relative;
+    z-index: 1;
+}
+
+.regionButton span {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    color: #008ad1;
+    background: rgba(255, 255, 255, 0);
+    /* Прозрачный фон */
+    position: relative;
+    z-index: 1;
+}
+
+.factoryIcon {
+    display: flex;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.regionButtonArrow {
+    width: 0;
+    height: 0;
+    margin-left: 8px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #008ad1;
+    position: relative;
+    /* Для корректного позиционирования */
+    z-index: 1;
+    /* Стрелка поверх фона */
+}
+
+.dataGridContainer {
+    width: 100%;
+    font-size: 16px;
+    background: none; /* Прозрачный фон */
+    padding: 1px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    position: relative;
+    z-index: var(--z-content);
+}
+
+.companyItem {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 1px;
+    padding: 0px 0px;
+    background: none; /* Прозрачный фон */
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0;
+    max-width: 400px; /* Совпадает с max-width paper */
+}
+
+.companyName{
+    color: white;
+    font-size: 1rem;
+}
+
+.companyStatus{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    padding: 0 0px;
+    margin-top: -7px;
+    margin-bottom: 5px;
+    border-radius: 50%;
+    background: none;
+    color: white;
+    font-size: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.loading {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 45vh;
+}
+
+.checksContainer {
+    margin-right: 0;
+    margin-left: auto;
+   
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.checkIcon {
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+    margin: 0 2px 0 2px;
+    width: 16px;
+    height: 16px;
+    position: relative;
+    z-index: 1;
+}

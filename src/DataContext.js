@@ -46,7 +46,7 @@ export const DataProvider = ({ children }) => {
 
    
 
-    console.log('DataContext', initDataRaw)
+    console.log('DataContext', name.regions)
 
     return (
         <DataContext.Provider value={{ name , loading , error}}>

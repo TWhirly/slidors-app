@@ -10,7 +10,7 @@ export default function PersistentDrawerLeft() {
 
   const menu = [
     { name: 'Компании', path: '/companies', icon: require('../../icons/companiesIcon.png') },
-    { name: 'Контакты', path: '/', icon: require('../../icons/contactsIcon.png') },
+    { name: 'Контакты', path: '/companiestest', icon: require('../../icons/contactsIcon.png') },
     { name: 'События', path: '/', icon: require('../../icons/eventsIcon.png') },
     { name: 'Стратегия', path: '/', icon: require('../../icons/strategyIcon.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/tasksIcon.png') },
