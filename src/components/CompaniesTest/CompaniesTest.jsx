@@ -91,7 +91,7 @@ const CompaniesTest = () => {
                     formData,
                 );
 
-                const recievedData = response.data; // Обработка ответа
+                const recievedData = response.data.companies; // Обработка ответа
                 const headers = recievedData[0].map(el => {
                     return el.charAt(0).toLowerCase() + el.slice(1)
                 });
