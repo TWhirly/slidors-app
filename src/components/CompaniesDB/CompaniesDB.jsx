@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
-import styles from '../Companies/Companies.module.css';
+import styles from './CompaniesDB.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
 const Companies = () => {
-
   const [regionRows, setRegionRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState(null);
+  const [loadingRegion, setLoadingRegion] = useState(null); // Для отслеживания загрузки конкретного региона
 
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
-  console.log('chat_id', chat_id)
+  console.log('chat_id', chat_id);
   tg.BackButton.show();
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case ('работает'):
+      case 'работает':
         return 'lightgreen'; // Активный статус
       case 'не работает':
         return 'var(--hintColor, #888)'; // Неактивный статус
@@ -38,7 +38,7 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        );; // переработчик
+        );
       case 'дистрибьютор':
         return (
           <img
@@ -47,7 +47,7 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        );;  // Дистрибьютор
+        );
       case 'дилер':
         return (
           <img
@@ -56,9 +56,9 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        ); // Дилер
+        );
       case 'избранный':
-        return <YellowStarIcon className={styles.factoryIcon} />; // Избранный
+        return <YellowStarIcon className={styles.factoryIcon} />;
       default:
         return (
           <img
@@ -67,42 +67,26 @@ const Companies = () => {
             fill="#008ad1"
             className={styles.factoryIcon}
           />
-        ); // Неизвестно
+        );
     }
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const params = {
-          name: 'Ваше имя',
-          chatID: chat_id,
-          api: 'getCompanies'
+          region: 'Москва и МО',
         };
 
-        // Сериализуем параметры в формате x-www-form-urlencoded
-        const formData = JSON.stringify(params);
-
         const response = await axios.post(
-            "https://24gsr.ru:8000/slidors/"
+          "https://24gsr.ru:8000/slidors/",
+          params
         );
 
-        const data = response.data; // Обработка ответа
-        data.sort((a, b) => a.name.localeCompare(b.name)); // Sort data by company name
-        const regions = data.reduce((acc, item) => {
-          const existingRegion = acc.find(({ id }) => id === item.region);
-          if (existingRegion) {
-            existingRegion.count += 1;
-            existingRegion.companies.push(item);
-          } else {
-            acc.push({ id: item.region, count: 1, companies: [item] });
-          }
-          return acc;
-        }, []);
-        regions.sort((a, b) => a.id.localeCompare(b.id));
+        const regions = response.data;
         setRegionRows(regions);
         setLoading(false);
-        console.log('data is', data)
+        console.log('data is', regions);
       } catch (error) {
         console.error('Error fetching data:', error);
         setLoading(false);
@@ -111,106 +95,138 @@ const Companies = () => {
 
     fetchData();
 
-    // Add event listener for back button
     tg.BackButton.onClick(() => {
       window.history.back();
     });
 
     return () => {
-      // Clean up the event listener
       tg.BackButton.offClick();
     };
   }, [chat_id, tg.BackButton]);
 
-  const handleRegionClick = (regionId) => {
+
+
+  const handleRegionClick = async (regionId) => {
+    setLoadingRegion(regionId); // Устанавливаем регион, который загружается
     if (selectedRegion === regionId) {
       setSelectedRegion(null);
-    } else {
-      setSelectedRegion(regionId);
+      setLoadingRegion(null);
+      return;
+    }
+
+    
+
+    try {
+      const response = await axios.post(
+        "https://24gsr.ru:8000/slidors-getregion/",
+        { region: regionId }
+      );
+      console.log('response', response.data);
+      const updatedRegions = regionRows.map((region) =>
+        region.region === regionId
+          ? { ...region, companies: response.data }
+          : region
+      );
+
+      setRegionRows(updatedRegions);
+      setSelectedRegion(regionId); // Устанавливаем выбранный регион
+    } catch (error) {
+      console.error('Error fetching region data:', error);
+    } finally {
+      setLoadingRegion(null); // Сбрасываем состояние загрузки региона
     }
   };
-
-
   
-
+  console.log('regionRows', regionRows);
   return (
     <div className={styles.container}>
       {loading ? (
-        <CircularProgress 
-        color='008ad1' className={styles.loading} />
+        <CircularProgress color="primary" className={styles.loading} />
       ) : (
         <div className={styles.paper}>
-          <div className={styles.paper}>
-            {regionRows.map((region) => (
-              <div key={region.id}
-              className={styles.regionContainer}>
-                <button
-                  onClick={() => handleRegionClick(region.id)}
-                  className={styles.regionButton}
-                >
-                  <span>
-                    {region.id
-                      .split(" ")
-                      .filter((item) => {
-                        return item !== "область";
-                      })
-                      .join(" ")}{" "}
-                    ({region.count})
-                    <div className={styles.regionButtonArrow} />
-                  </span>
-                </button>
-                {selectedRegion === region.id && (
-                  <div className={styles.dataGridContainer}>
-                    {region.companies.map((company) => (
-                      <><div key={company.id} className={styles.companyItem}>
+          {regionRows.map((region) => (
+            <div key={region.region} className={styles.regionContainer}>
+              <button
+                onClick={() => handleRegionClick(region.region)}
+                className={styles.regionButton}
+              >
+                <span>
+                  {region.region
+                    .split(' ')
+                    .filter((item) => item !== 'область')
+                    .join(' ')}{' '}
+                  ({region.company_count})
+                  <div className={styles.regionButtonArrow} />
+                </span>
+              </button>
+              {loadingRegion === region.region ? (<span className={styles.loadingdots}>Загрузка</span>) : ''}
+              {selectedRegion === region.region && (
+                <div className={styles.dataGridContainer}>
+                  {loadingRegion === region.region ? (
+                    <span>Loading...</span>
+                  ) : (
+                    region.companies.map((company) => (
+                      <div key={company.id} className={styles.companyItem}>
+                        <div className={styles.companyInfo}>
                         <div className={styles.companyName}>
                           {company.name}
                         </div>
-                        {/* <Factory className={styles.factoryIcon} /> */}
                         {getCompanyTypeIcon(company.type)}
                         <div className={styles.checksContainer}>
                           <div>
-                            {company.handled ? (<img
-                              src={require('../../icons/checkedRed.png')}
-                              alt="переработчик"
-                              fill="#008ad1"
-                              className={styles.checkIcon}
-                            />) : ''}
+                            {company.handled ? (
+                              <img
+                                src={require('../../icons/checkedRed.png')}
+                                alt="переработчик"
+                                fill="#008ad1"
+                                className={styles.checkIcon}
+                              />
+                            ) : (
+                              ''
+                            )}
                           </div>
                           <div>
-                            {company.wa ? (<img
-                              src={require('../../icons/checkedGreen.png')}
-                              alt="переработчик"
-                              fill="#008ad1"
-                              className={styles.checkIcon}
-                            />) : ''}
+                            {company.wa ? (
+                              <img
+                                src={require('../../icons/checkedGreen.png')}
+                                alt="переработчик"
+                                fill="#008ad1"
+                                className={styles.checkIcon}
+                              />
+                            ) : (
+                              ''
+                            )}
                           </div>
                           <div>
-                            {company.tg ? (<img
-                              src={require('../../icons/checkedBlue.png')}
-                              alt="переработчик"
-                              fill="#008ad1"
-                              className={styles.checkIcon}
-                            />) : ''}
+                            {company.tg ? (
+                              <img
+                                src={require('../../icons/checkedBlue.png')}
+                                alt="переработчик"
+                                fill="#008ad1"
+                                className={styles.checkIcon}
+                              />
+                            ) : (
+                              ''
+                            )}
                           </div>
                         </div>
-                      </div>
-
+                        </div>
                         <div
                           className={styles.companyStatus}
                           style={{
                             color: getStatusColor(company.status),
-                            fontSize: '0.8rem'
+                            fontSize: '0.8rem',
                           }}
                         >
                           {company.status ? company.status : 'Неизвестно'}
-                        </div></>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
