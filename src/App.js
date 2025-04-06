@@ -8,8 +8,7 @@ import { Route, Routes } from 'react-router-dom'
 import Main from "./components/Main/Main";
 import { DataProvider } from './DataContext';
 import Companies from './components/Companies/Companies';
-import CompaniesTest from './components/CompaniesTest/CompaniesTest';
-import CompaniesDB from './components/CompaniesDB/CompaniesDB';
+
 
 
 
@@ -83,8 +82,6 @@ function App() {
             <Routes>
                 <Route path="/" element={<Main />} />
                 <Route path="/companies" element={<Companies />} />
-                <Route path="/companiestest" element={<CompaniesTest />} />
-                <Route path="/companiesDB" element={<CompaniesDB />} />
             </Routes>
         </div>
        
