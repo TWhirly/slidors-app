@@ -3,8 +3,13 @@ import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
-const Companies = () => {
+import Avatar from '@mui/material/Avatar';
+import AvatarGroup  from '@mui/material/AvatarGroup';
+import { avatar , avatarGroup } from './sx'
 
+const Companies = () => {
+    const avatarStyle = avatar();
+    const avatarGroupStyle = avatarGroup();
     const [regionRows, setRegionRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -112,6 +117,8 @@ const Companies = () => {
 
         fetchData();
 
+      
+
         // Add event listener for back button
         tg.BackButton.onClick(() => {
             window.history.back();
@@ -122,6 +129,14 @@ const Companies = () => {
             tg.BackButton.offClick();
         };
     }, [chat_id, tg.BackButton]);
+
+    // useEffect(() => {
+    //     selectedRegion ? setSelectedRegion(selectedRegion) : setSelectedRegion(null)
+    // }, [selectedRegion])
+
+    const collapseRegion = () => {
+        setSelectedRegion(null)
+    }
 
     const handleRegionClick = (regionId) => {
         if (selectedRegion === regionId) {
@@ -136,12 +151,32 @@ const Companies = () => {
 
     return (
         <div className={styles.container}>
+            
             {loading ? (
                 <CircularProgress
                     color='008ad1' className={styles.loading} />
             ) : (
+
                 <div className={styles.paper}>
-                    <div className={styles.paper}>
+                         <div 
+                        className={styles.naviPanel}
+                        onClick={() => collapseRegion()}
+                        >
+                            <div className={styles.companyNamePanel} onClick={() => collapseRegion()}>
+                            Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
+                                            .filter((item) => {
+                                                return item !== "область";
+                                            })
+                                            .join(" ")}` : ""}
+                            </div>
+                  <AvatarGroup  direction="row" spacing={10} sx={avatarGroupStyle} >
+                        <Avatar sx={avatarStyle} alt="Remy Sharp" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F112290193.jpg?alt=media" />
+                        <Avatar sx={avatarStyle} alt="Travis Howard" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F388749388.jpg?alt=media" />
+                        <Avatar sx={avatarStyle} alt="Cindy Baker" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F1621781004.jpg?alt=media" />
+                    </AvatarGroup>
+                    </div>
+                    <div className={styles.allRegions}>
+                     
                         {regionRows.map((region) => (
                             <div key={region.id}
                                 className={styles.regionContainer}>
@@ -166,14 +201,13 @@ const Companies = () => {
                                         {region.companies.map((company) => (
                                             <div key={company.id} className={styles.companyItem}>
                                                 <div className={styles.companyInfo}>
-                                                <div className={styles.nameAndIcon}>
-                                                    <div className={styles.companyName}>
-                                                        {company.name}
-                                                    </div>
-                                                    {/* <Factory className={styles.factoryIcon} /> */}
-                                                    <div className={styles.iconContainer}>
-                                                    {getCompanyTypeIcon(company.type)}
-                                                    </div>
+                                                    <div className={styles.nameAndIcon}>
+                                                        <div className={styles.companyName}>
+                                                            {company.name}
+                                                        </div>
+                                                        <div className={styles.iconContainer}>
+                                                            {getCompanyTypeIcon(company.type)}
+                                                        </div>
                                                     </div>
                                                     <div className={styles.checksContainer}>
                                                         <div>
