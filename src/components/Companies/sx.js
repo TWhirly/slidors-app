@@ -9,10 +9,12 @@ export const avatar = () => {
 export const avatarGroup = () => {
     return({
         display: "flex",
-    position: "absolute",
+    alignSelf: "right",
     height: "1.7rem",
-    width: "100%",
-    marginRight: "3rem"
+    // alignItems: "center",
+    // width: "fit-content",
+    marginTop: "2px",
+    marginRight: "3px"
     }
     )
 }

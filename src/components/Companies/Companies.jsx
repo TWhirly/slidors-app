@@ -13,6 +13,7 @@ const Companies = () => {
     const [regionRows, setRegionRows] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedRegion, setSelectedRegion] = useState(null);
+    const [loadingRegion, setLoadingRegion] = useState(null);
 
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
@@ -78,57 +79,41 @@ const Companies = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const params = {
-                    name: 'Ваше имя',
-                    chatID: chat_id,
-                    api: 'getAllCompanies'
-                };
-
-                // Сериализуем параметры в формате x-www-form-urlencoded
-                const formData = JSON.stringify(params);
-
-                const response = await axios.post(
-                    process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                    formData,
-                );
-
-                const data = response.data; // Обработка ответа
-                data.sort((a, b) => a.name.localeCompare(b.name)); // Sort data by company name
-                const regions = data.reduce((acc, item) => {
-                    const existingRegion = acc.find(({ id }) => id === item.region);
-                    if (existingRegion) {
-                        existingRegion.count += 1;
-                        existingRegion.companies.push(item);
-                    } else {
-                        acc.push({ id: item.region, count: 1, companies: [item] });
-                    }
-                    return acc;
-                }, []);
-                regions.sort((a, b) => a.id.localeCompare(b.id));
-                setRegionRows(regions);
-                setLoading(false);
-                console.log('data is', data)
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            }
+          try {
+            const params = {
+              name: 'Ваше имя',
+              chatID: chat_id,
+              api: 'getRegions'
+          };
+    
+          // Сериализуем параметры в формате x-www-form-urlencoded
+          const formData = JSON.stringify(params);
+    
+          const response = await axios.post(
+              process.env.REACT_APP_GOOGLE_SHEETS_URL,
+              formData,
+          );
+    
+            const regions = response.data;
+            setRegionRows(regions);
+            setLoading(false);
+            console.log('data is', regions);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+            setLoading(false);
+          }
         };
-
+    
         fetchData();
-
-      
-
-        // Add event listener for back button
+    
         tg.BackButton.onClick(() => {
-            window.history.back();
+          window.history.back();
         });
-
+    
         return () => {
-            // Clean up the event listener
-            tg.BackButton.offClick();
+          tg.BackButton.offClick();
         };
-    }, [chat_id, tg.BackButton]);
+      }, [chat_id, tg.BackButton]);
 
     // useEffect(() => {
     //     selectedRegion ? setSelectedRegion(selectedRegion) : setSelectedRegion(null)
@@ -138,13 +123,45 @@ const Companies = () => {
         setSelectedRegion(null)
     }
 
-    const handleRegionClick = (regionId) => {
+    const handleRegionClick = async (regionId) => {
+        setLoadingRegion(regionId); // Устанавливаем регион, который загружается
         if (selectedRegion === regionId) {
-            setSelectedRegion(null);
-        } else {
-            setSelectedRegion(regionId);
+          setSelectedRegion(null);
+          setLoadingRegion(null);
+          return;
         }
-    };
+    
+        
+    
+        try {
+          const params = {
+            name: regionId,
+            chatID: chat_id,
+            api: 'getCompanies'
+        };
+    
+        // Сериализуем параметры в формате x-www-form-urlencoded
+        const formData = JSON.stringify(params);
+    
+        const response = await axios.post(
+            process.env.REACT_APP_GOOGLE_SHEETS_URL,
+            formData,
+        );
+          console.log('response', response.data);
+          const updatedRegions = regionRows.map((region) =>
+            region.region === regionId
+              ? { ...region, companies: response.data }
+              : region
+          );
+    
+          setRegionRows(updatedRegions);
+          setSelectedRegion(regionId); // Устанавливаем выбранный регион
+        } catch (error) {
+          console.error('Error fetching region data:', error);
+        } finally {
+          setLoadingRegion(null); // Сбрасываем состояние загрузки региона
+        }
+      };
 
 
 
@@ -181,22 +198,22 @@ const Companies = () => {
                             <div key={region.id}
                                 className={styles.regionContainer}>
                                 <button
-                                    onClick={() => handleRegionClick(region.id)}
+                                    onClick={() => handleRegionClick(region.region)}
                                     className={styles.regionButton}
                                 >
                                     <span>
-                                        {region.id
+                                        {region.region
                                             .split(" ")
                                             .filter((item) => {
                                                 return item !== "область";
                                             })
                                             .join(" ")}{" "}
-                                        ({region.count})
+                                        ({region.company_count})
                                         <div className={styles.regionButtonArrow} />
                                     </span>
                                 </button>
-                                <span></span>
-                                {selectedRegion === region.id && (
+                                {loadingRegion === region.region ? (<span className={styles.loadingdots}>Загрузка</span>) : ''}
+                                {selectedRegion === region.region && (
                                     <div className={styles.dataGridContainer}>
                                         {region.companies.map((company) => (
                                             <div key={company.id} className={styles.companyItem}>
@@ -240,7 +257,7 @@ const Companies = () => {
                                                     className={styles.companyStatus}
                                                     style={{
                                                         color: getStatusColor(company.status),
-                                                        fontSize: '0.8rem'
+                                                        fontSize: '0.7rem'
                                                     }}
                                                 >
                                                     {company.status ? company.status : 'Неизвестно'}

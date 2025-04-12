@@ -1,50 +1,55 @@
 .container {
     background-image: url('../../icons/background.jpg');
-    background-size: auto; /* Убедитесь, что фон покрывает весь контейнер */
+    background-size: auto;
+    /* Убедитесь, что фон покрывает весь контейнер */
     background-position: center;
     height: 100%;
-    min-height: 100vh;
-    width: 100vw;
+    min-height: 100%;
+    width: 100%;
     /* max-width: 1200px; */
-    max-width: 100%;
-    margin: 0 auto;
+    /* max-width: 800px; */
+    margin: 0;
+    margin-right: 0;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    position: relative;
+    position: absolute;
     z-index: var(--z-base);
     /* overflow-x: hidden; */
 }
 
-.allRegions{
+.allRegions {
     width: 100%;
     margin-top: 2rem;
-    padding:  5px  2px 2px 2px;
+    padding: 5px 8px 2px 10px;
 }
 
-.regionContainer{
+.regionContainer {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 1px;
     position: relative;
     z-index: var(--z-content);
-    background: none; /* Прозрачный фон */
+    background: none;
+    /* Прозрачный фон */
 }
 
-.naviPanel{
+.naviPanel {
     position: fixed;
     margin-top: 0;
     z-index: var(--z-content);
-    height: 2rem;
+    height: 2.2rem;
     width: 100vw;
     display: flex;
     background-color: var(--tg-theme-button-color);
     z-index: 200;
 }
 
-.companyNamePanel{
+.companyNamePanel {
+    display: flex;
+    flex-grow: 1;    
     align-self: center;
     margin-left: 5px;
 }
@@ -53,19 +58,28 @@
 
 .paper {
     background-image: url('../../icons/background.jpg');
-    padding: 0  2px 2px 0px;
+    padding: 0 2px 2px 0px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Выравнивание содержимого по началу */
-    align-items: flex-start; /* Выравнивание по левому краю */
-    position: absolute; /* Фиксируем позицию относительно контейнера */
-    left: 0; /* Располагаем блок у левого края контейнера */
-    top: 0; /* При необходимости можно задать отступ сверху */
-    z-index: var(--z-content); /* Уровень слоя */
-    width: 100%; /* Убедитесь, что ширина адаптируется к контейнеру */
-    max-width: 400px; /* Ограничиваем максимальную ширину блока */
-    pointer-events: auto; /* Убедитесь, что клики проходят через прозрачные области */
+    justify-content: flex-start;
+    /* Выравнивание содержимого по началу */
+    align-items: flex-start;
+    /* Выравнивание по левому краю */
+    position: absolute;
+    /* Фиксируем позицию относительно контейнера */
+    left: 0;
+    /* Располагаем блок у левого края контейнера */
+    top: 0;
+    /* При необходимости можно задать отступ сверху */
+    z-index: var(--z-content);
+    /* Уровень слоя */
+    width: 100%;
+    /* Убедитесь, что ширина адаптируется к контейнеру */
+    max-width: 400px;
+    /* Ограничиваем максимальную ширину блока */
+    pointer-events: auto;
+    /* Убедитесь, что клики проходят через прозрачные области */
 }
 
 .regionButton {
@@ -73,22 +87,25 @@
     justify-content: flex-start;
     border: none;
     padding: 1px 0;
-    background: none; /* Прозрачный фон */
+    background: none;
+    /* Прозрачный фон */
     cursor: pointer;
     display: flex;
     align-items: center;
     height: auto;
     font-size: 16px;
-    color: var(--headerBgColor, black);
+    color: #729fcf;
     position: relative;
     z-index: 1;
 }
 
 .regionButton span {
+    font-family: sans-serif;
     width: 100%;
+    margin-bottom: 0.8rem;
     display: flex;
     align-items: center;
-    color: #008ad1;
+    color: #729fcf;
     background: rgba(255, 255, 255, 0);
     /* Прозрачный фон */
     position: relative;
@@ -99,9 +116,9 @@
     display: flex;
     width: 20px;
     height: 20px;
-    flex-shrink: 0; 
-    margin-left: 0; 
-   
+    flex-shrink: 0;
+    margin-left: 0;
+
 }
 
 .regionButtonArrow {
@@ -120,7 +137,8 @@
 .dataGridContainer {
     width: 100%;
     font-size: 16px;
-    background: none; /* Прозрачный фон */
+    background: none;
+    /* Прозрачный фон */
     padding: 1px 0;
     display: flex;
     flex-direction: column;
@@ -135,12 +153,14 @@
     flex-direction: column;
     gap: 1px;
     padding: 0px 0px;
-    background: none; /* Прозрачный фон */
+    background: none;
+    /* Прозрачный фон */
     position: relative;
     z-index: 1;
     margin-bottom: 0;
-    
-    max-width: 400px; /* Совпадает с max-width paper */
+
+    /* max-width: 400px; */
+    /* Совпадает с max-width paper */
 }
 
 .companyInfo {
@@ -152,46 +172,37 @@
 
 .nameAndIcon {
     display: flex;
-    padding-right: 0;
-    align-items: center;
-    flex-grow: 1;
-    /* width: fit-content; */
-    max-width: calc(100% - 90px);
-    min-width: 0; 
-    
+    align-items: center;   
+    min-width: 0;          
+    flex-grow: 1;          
+    width: 100%;           
 }
-
-
 
 .companyName {
     color: white;
     font-size: 1rem;
-    white-space: wrap;
-    /* white-space: word-break; */
-    /* word-break: break-word; */
-    display: flex;
-    overflow: visible;
-    /* max-width: calc(100% - 90px); */
-    /* width: fit-content; */
-    width: fit-content;
-    min-width: min-content;
-    /* width: fit-content; */
-    padding-right: 8px; /* отступ перед иконкой */
+    white-space: nowrap;   
+    overflow: hidden;      
+    text-overflow: ellipsis; 
+    max-width: calc(100% - 95px);
+    min-width: 0;            
+    padding-right: 8px;     
+    display: block;         
 }
 
-.companyStatus{
+.companyStatus {
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     width: auto;
     height: auto;
     padding: 0 0px;
-    margin-top: -7px;
+    margin-top: -4px;
     margin-bottom: 5px;
     border-radius: 50%;
     background: none;
     color: white;
-    font-size: 10px;
+    font-size: 1rem;
     position: relative;
     z-index: 1;
 }
@@ -205,7 +216,7 @@
 }
 
 .checksContainer {
-    margin-right: 0;
+    margin-right: 10px;
     margin-left: auto;
     display: flex;
     align-items: center;
@@ -229,29 +240,41 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
-    font-size: 1rem; /* Размер соответствует размеру шрифта названий компаний */
+    font-size: 1rem;
+    /* Размер соответствует размеру шрифта названий компаний */
     vertical-align: middle;
-  }
+}
 
-  @keyframes dot-animation {
-    0%, 20% {
-      content: "";
+@keyframes dot-animation {
+
+    0%,
+    20% {
+        content: "";
     }
+
     40% {
-      content: ".";
+        content: ".";
     }
+
     60% {
-      content: "..";
+        content: "..";
     }
-    80%, 100% {
-      content: "...";
+
+    80%,
+    100% {
+        content: "...";
     }
-  }
-  
-  .loadingdots::after {
+}
+
+.loadingdots{
+    display: inline;
+    margin-top: -1rem;
+}
+
+.loadingdots::after {
     content: "...";
     animation: dot-animation 1.5s infinite;
     display: inline-block;
     width: 20px;
     text-align: left;
-  }
+}
