@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
 import Avatar from '@mui/material/Avatar';
-import AvatarGroup  from '@mui/material/AvatarGroup';
-import { avatar , avatarGroup } from './sx'
+import AvatarGroup from '@mui/material/AvatarGroup';
+import { avatar, avatarGroup} from './sx'
 
 const Companies = () => {
-    const avatarStyle = avatar();
     const avatarGroupStyle = avatarGroup();
     const [regionRows, setRegionRows] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -39,7 +38,7 @@ const Companies = () => {
             case 'переработчик':
                 return (
                     <img
-                        src={require('../../icons/factory-svgrepo-com.png')}
+                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
                         alt="переработчик"
                         fill="#008ad1"
                         className={styles.factoryIcon}
@@ -48,7 +47,7 @@ const Companies = () => {
             case 'дистрибьютор':
                 return (
                     <img
-                        src={require('../../icons/boxes-svgrepo-com.png')}
+                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
                         alt="дистрибьютор"
                         fill="#008ad1"
                         className={styles.factoryIcon}
@@ -57,63 +56,73 @@ const Companies = () => {
             case 'дилер':
                 return (
                     <img
-                        src={require('../../icons/construction-worker-svgrepo-com.png')}
+                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
                         alt="Дилер"
                         fill="#008ad1"
                         className={styles.factoryIcon}
                     />
                 ); // Дилер
+            case 'смешанный':
+                return (
+                    <img
+                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
+                        alt="Смешанный"
+                        fill="#008ad1"
+                        className={styles.factoryIcon}
+                    />
+                ); // Смешанный
             case 'избранный':
                 return <YellowStarIcon className={styles.factoryIcon} />; // Избранный
             default:
                 return (
-                    <img
-                        src={require('../../icons/rectangles-mixed-svgrepo-com.png')}
-                        alt="Неизвестно"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
+                    // <img
+                    //     src={require('../../icons/rectangles-mixed-svgrepo-com.png')}
+                    //     alt="Неизвестно"
+                    //     fill="#008ad1"
+                    //     className={styles.factoryIcon}
+                    // />
+                    <></>
                 ); // Неизвестно
         }
     }
 
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const params = {
-              name: 'Ваше имя',
-              chatID: chat_id,
-              api: 'getRegions'
-          };
-    
-          // Сериализуем параметры в формате x-www-form-urlencoded
-          const formData = JSON.stringify(params);
-    
-          const response = await axios.post(
-              process.env.REACT_APP_GOOGLE_SHEETS_URL,
-              formData,
-          );
-    
-            const regions = response.data;
-            setRegionRows(regions);
-            setLoading(false);
-            console.log('data is', regions);
-          } catch (error) {
-            console.error('Error fetching data:', error);
-            setLoading(false);
-          }
+            try {
+                const params = {
+                    name: 'Ваше имя',
+                    chatID: chat_id,
+                    api: 'getRegions'
+                };
+
+                // Сериализуем параметры в формате x-www-form-urlencoded
+                const formData = JSON.stringify(params);
+
+                const response = await axios.post(
+                    process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                    formData,
+                );
+
+                const regions = response.data;
+                setRegionRows(regions);
+                setLoading(false);
+                console.log('data is', regions);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setLoading(false);
+            }
         };
-    
+
         fetchData();
-    
+
         tg.BackButton.onClick(() => {
-          window.history.back();
+            window.history.back();
         });
-    
+
         return () => {
-          tg.BackButton.offClick();
+            tg.BackButton.offClick();
         };
-      }, [chat_id, tg.BackButton]);
+    }, [chat_id, tg.BackButton]);
 
     // useEffect(() => {
     //     selectedRegion ? setSelectedRegion(selectedRegion) : setSelectedRegion(null)
@@ -126,74 +135,76 @@ const Companies = () => {
     const handleRegionClick = async (regionId) => {
         setLoadingRegion(regionId); // Устанавливаем регион, который загружается
         if (selectedRegion === regionId) {
-          setSelectedRegion(null);
-          setLoadingRegion(null);
-          return;
+            setSelectedRegion(null);
+            setLoadingRegion(null);
+            return;
         }
-    
-        
-    
+
+
+
         try {
-          const params = {
-            name: regionId,
-            chatID: chat_id,
-            api: 'getCompanies'
-        };
-    
-        // Сериализуем параметры в формате x-www-form-urlencoded
-        const formData = JSON.stringify(params);
-    
-        const response = await axios.post(
-            process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            formData,
-        );
-          console.log('response', response.data);
-          const updatedRegions = regionRows.map((region) =>
-            region.region === regionId
-              ? { ...region, companies: response.data }
-              : region
-          );
-    
-          setRegionRows(updatedRegions);
-          setSelectedRegion(regionId); // Устанавливаем выбранный регион
+            const params = {
+                name: regionId,
+                chatID: chat_id,
+                api: 'getCompanies'
+            };
+
+            // Сериализуем параметры в формате x-www-form-urlencoded
+            const formData = JSON.stringify(params);
+
+            const response = await axios.post(
+                process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                formData,
+            );
+            console.log('response', response.data);
+            const updatedRegions = regionRows.map((region) =>
+                region.region === regionId
+                    ? { ...region, companies: response.data }
+                    : region
+            );
+
+            setRegionRows(updatedRegions);
+            setSelectedRegion(regionId); // Устанавливаем выбранный регион
         } catch (error) {
-          console.error('Error fetching region data:', error);
+            console.error('Error fetching region data:', error);
         } finally {
-          setLoadingRegion(null); // Сбрасываем состояние загрузки региона
+            setLoadingRegion(null); // Сбрасываем состояние загрузки региона
         }
-      };
+    };
 
 
-
+    console.log('reg rows', regionRows)
 
     return (
         <div className={styles.container}>
-            
+
             {loading ? (
                 <CircularProgress
                     color='008ad1' className={styles.loading} />
             ) : (
-
                 <div className={styles.paper}>
-                         <div 
+                    <div
                         className={styles.naviPanel}
                         onClick={() => collapseRegion()}
-                        >
-                            <div className={styles.companyNamePanel} onClick={() => collapseRegion()}>
+                    >
+                        <div className={styles.companyNamePanel} onClick={() => collapseRegion()}>
                             Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
-                                            .filter((item) => {
-                                                return item !== "область";
-                                            })
-                                            .join(" ")}` : ""}
-                            </div>
-                  <AvatarGroup  direction="row" spacing={10} sx={avatarGroupStyle} >
-                        <Avatar sx={avatarStyle} alt="Remy Sharp" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F112290193.jpg?alt=media" />
-                        <Avatar sx={avatarStyle} alt="Travis Howard" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F388749388.jpg?alt=media" />
-                        <Avatar sx={avatarStyle} alt="Cindy Baker" src="https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/avatars%2F1621781004.jpg?alt=media" />
-                    </AvatarGroup>
+                                .filter((item) => {
+                                    return item !== "область";
+                                })
+                                .join(" ")}` : ""}
+                        </div>
+                        <AvatarGroup direction="row" spacing={10} sx={avatarGroupStyle} >
+                            {selectedRegion ? regionRows.filter((item) => item.region === selectedRegion)[0].regionUsers.map((user) => (
+                                <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
+                                    {`${user.name.split('')[0]}${user.name.split('')[1]}`}
+                                </Avatar>
+                            )) : ''
+                            }
+                        </AvatarGroup>
                     </div>
                     <div className={styles.allRegions}>
-                     
+
                         {regionRows.map((region) => (
                             <div key={region.id}
                                 className={styles.regionContainer}>

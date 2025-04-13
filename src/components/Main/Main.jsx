@@ -13,7 +13,7 @@ export default function PersistentDrawerLeft() {
     { name: 'Контакты', path: '/', icon: require('../../icons/contactsIcon.png') },
     { name: 'События', path: '/', icon: require('../../icons/eventsIcon.png') },
     { name: 'Стратегия', path: '/', icon: require('../../icons/strategyIcon.png') },
-    { name: 'Задачи', path: '/', icon: ('https://disk.yandex.ru/client/disk?idApp=client&dialog=slider&idDialog=%2Fdisk%2F%D0%9C%D0%BE%D1%80%D0%B5.jpg') },
+    { name: 'Задачи', path: '/', icon: require('../../icons/tasksIcon.png') },
   ];
 
   return (

@@ -46,7 +46,7 @@ export const DataProvider = ({ children }) => {
 
    
 
-    console.log('DataContext', name.regions)
+    console.log('DataContext', name)
 
     return (
         <DataContext.Provider value={{ name , loading , error}}>
