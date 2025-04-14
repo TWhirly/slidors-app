@@ -33,7 +33,7 @@ export default function PersistentDrawerLeft() {
               <div
                 key={item.name}
                 className={styles.menuItem}
-                onClick={() => navigate(item.path)}
+                onClick={() => navigate(item.path, { replace: true })}
               >
                 <img
                   src={item.icon}
