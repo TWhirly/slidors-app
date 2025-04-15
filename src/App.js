@@ -84,7 +84,7 @@ function App() {
                 <Route path="/" element={<Main />} />
                 <Route path="/companies" element={<Companies />} />
                 <Route 
-          path="/companies/:id" 
+          path="/company" 
           element={<CompanyDetails />} 
         />
             </Routes>
