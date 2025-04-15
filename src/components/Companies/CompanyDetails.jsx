@@ -56,7 +56,7 @@ function CompanyDetails() {
           <h1>{company.name}</h1>
           {/* Основные данные из preloadedData */}
           <p>{company.description}</p>
-          
+          <div>{JSON.stringify(window.Telegram?.WebApp.BackButton)}</div>
           {/* Доп данные могут подгружаться с задержкой */}
           {!company.details && <LoadingSpinner small />}
           {company.details && (
