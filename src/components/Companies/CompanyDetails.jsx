@@ -11,7 +11,7 @@ function CompanyDetails() {
   const { state } = useLocation();
   const [company, setCompany] = useState(state?.preloadedData || null);
   const [isLoading, setIsLoading] = useState(!state?.preloadedData);
-  const { tg } = useTelegram();
+  const tg = window.Telegram.WebApp;
 
   useEffect(() => {
     const initializeBackButton = () => {
