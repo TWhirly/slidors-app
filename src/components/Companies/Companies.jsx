@@ -176,7 +176,7 @@ const Companies = () => {
     
         return () => {
           tg.BackButton.offClick();
-          tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
+        //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
       }, [navigate]);
 
