@@ -12,11 +12,9 @@ function CompanyDetails() {
   const [company, setCompany] = useState(state?.preloadedData || null);
   const [isLoading, setIsLoading] = useState(!state?.preloadedData);
   const tg = window.Telegram.WebApp;
-  // const data = JSON.stringify({ is_visible: true });
-
-// window
-//   .TelegramWebviewProxy
-//   .postEvent('web_app_setup_back_button', data);
+  // tg.ready();
+  // tg.BackButton.show(); // Hide the back button initially
+  
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -33,7 +31,7 @@ function CompanyDetails() {
       tg.BackButton.offClick();
       // tg.BackButton.hide(); // Optionally hide the button when unmounting
     };
-  }, [navigate, tg]);
+  }, [navigate, tg.BackButton, tg]);
 
   useEffect(() => {
     if (!state?.preloadedData) {

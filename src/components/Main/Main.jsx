@@ -7,6 +7,24 @@ import styles from './Main.module.css';
 export default function PersistentDrawerLeft() {
   const { name, loading } = useContext(DataContext);
   const navigate = useNavigate();
+  const tg = window.Telegram.WebApp;
+
+  useEffect(() => {
+    const initializeBackButton = () => {
+      if (!tg) return;
+
+      tg.ready(); // Ensure Telegram WebApp is fully initialized
+      tg.BackButton.hide();
+      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+    };
+
+    initializeBackButton();
+
+    return () => {
+      tg.BackButton.offClick();
+      // tg.BackButton.hide(); // Optionally hide the button when unmounting
+    };
+  }, [navigate, tg]);
 
   const menu = [
     { name: 'Компании', path: '/companies', icon: require('../../icons/companiesIcon.png') },

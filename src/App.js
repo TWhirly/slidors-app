@@ -30,10 +30,10 @@ function App() {
     tg.MainButton.setParams({
         text: `Отправить`
     })
-     React.useEffect(() => {
-        const tg = window.Telegram.WebApp;
-          tg.BackButton.hide();
-        }, [navigate])
+    //  React.useEffect(() => {
+    //     const tg = window.Telegram.WebApp;
+    //       tg.BackButton.hide();
+    //     }, [navigate])
 
     if (window.Telegram.WebApp.colorScheme === 'dark') {
         document.documentElement.style.setProperty("--bgColor", "#000000");
