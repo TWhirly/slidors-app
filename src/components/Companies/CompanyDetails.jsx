@@ -5,7 +5,7 @@ import Skeleton from '@mui/material/Skeleton';
 import LoadingSpinner from '@mui/material/Skeleton';
 
 function CompanyDetails() {
-  tg.BackButton.show();
+  window.Telegram?.WebApp.BackButton.show();
     const navigate = useNavigate();
   const { id } = useParams();
   const { state } = useLocation();
