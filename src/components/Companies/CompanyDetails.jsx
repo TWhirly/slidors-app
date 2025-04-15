@@ -5,8 +5,7 @@ import Skeleton from '@mui/material/Skeleton';
 import LoadingSpinner from '@mui/material/Skeleton';
 
 function CompanyDetails() {
-  window.Telegram?.WebApp.BackButton.show();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { id } = useParams();
   const { state } = useLocation();
   const [company, setCompany] = useState(state?.preloadedData || null);
@@ -17,14 +16,13 @@ function CompanyDetails() {
     if (!tg) return;
     
     tg.BackButton.show();
-    tg.BackButton.onClick(() => navigate((-1), { replace: true })); // Вернуться на предыдущую страницу'));
+    tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
 
     return () => {
       tg.BackButton.offClick();
-    //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
+      tg.BackButton.hide(); // Optionally hide the button when unmounting
     };
   }, [navigate]);
-
 
   useEffect(() => {
     if (!state?.preloadedData) {
