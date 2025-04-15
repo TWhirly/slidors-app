@@ -155,8 +155,7 @@ const Companies = () => {
     };
 
     const handleSelectCompany = (company) => {
-        // navigate(`/companies/${company.id}`, {
-        navigate(`/company/`, {
+        navigate(`/companies/${company.id}`, {
             state: {
                 preloadedData: company
             }

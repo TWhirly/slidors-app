@@ -32,12 +32,6 @@ function App() {
     })
      React.useEffect(() => {
         const tg = window.Telegram.WebApp;
-        if (tg.platform === 'desktop') {
-          tg.setViewSettings({
-            width: 800,
-            height: 600,
-          });
-        }
           tg.BackButton.hide();
         }, [navigate])
 
@@ -84,7 +78,7 @@ function App() {
                 <Route path="/" element={<Main />} />
                 <Route path="/companies" element={<Companies />} />
                 <Route 
-          path="/company" 
+          path="/companies/:id" 
           element={<CompanyDetails />} 
         />
             </Routes>

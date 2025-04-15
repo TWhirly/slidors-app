@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import LoadingSpinner from '@mui/material/Skeleton';
 import { useTelegram } from '../../hooks/useTelegram';
-import { backButton } from '@telegram-apps/sdk-react';
 
 function CompanyDetails() {
   const navigate = useNavigate();
@@ -14,27 +13,22 @@ function CompanyDetails() {
   const [isLoading, setIsLoading] = useState(!state?.preloadedData);
   const { tg } = useTelegram();
 
-  tg.BackButton.show();
-
   useEffect(() => {
-    
-    if (!tg) return;
-    
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+    const initializeBackButton = () => {
+      if (!tg) return;
+
+      tg.ready(); // Ensure Telegram WebApp is fully initialized
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+    };
+
+    initializeBackButton();
 
     return () => {
       tg.BackButton.offClick();
       tg.BackButton.hide(); // Optionally hide the button when unmounting
     };
   }, [navigate, tg]);
-
-  // useEffect(() => {
-  //   backButton.show();
-  //   return () => {
-  //     backButton.hide();
-  //   };
-  // }, []);
 
   useEffect(() => {
     if (!state?.preloadedData) {
@@ -44,7 +38,6 @@ function CompanyDetails() {
       // Если есть базовые данные - подгружаем остальное в фоне
       loadAdditionalData();
     }
-    
   }, [state?.preloadedData, id]);
 
   const loadFullData = async () => {
