@@ -58,17 +58,19 @@ const Companies = () => {
     });
 
     useEffect(() => {
-        if (regionRows) {
-            setRegionsWithCompanies(regionRows.map(region => ({
+        const savedRegions = sessionStorage.getItem('regionsWithCompanies');
+        if (savedRegions) {
+            setRegionsWithCompanies(JSON.parse(savedRegions));
+        } else if (regionRows) {
+            const initialRegions = regionRows.map(region => ({
                 ...region,
                 companies: null // Показываем, что компании ещё не загружены
-            })));
+            }));
+            setRegionsWithCompanies(initialRegions);
+            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(initialRegions));
         }
     }, [regionRows]);
 
-   
-
-    // Обработчик клика по региону
     const handleRegionClick = async (regionId) => {
         setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
@@ -79,15 +81,13 @@ const Companies = () => {
 
         try {
             const companies = await fetchCompanies(regionId);
-            
-            setRegionsWithCompanies(prevRegions => 
-                prevRegions.map(region =>
-                    region.region === regionId
-                        ? { ...region, companies }
-                        : region
-                )
+            const updatedRegions = regionsWithCompanies.map(region =>
+                region.region === regionId
+                    ? { ...region, companies }
+                    : region
             );
-            
+            setRegionsWithCompanies(updatedRegions);
+            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions));
             setSelectedRegion(regionId);
         } catch (error) {
             console.error('Error fetching region data:', error);
