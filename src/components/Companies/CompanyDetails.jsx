@@ -3,8 +3,8 @@ import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import LoadingSpinner from '@mui/material/Skeleton';
-import { useTelegram } from '../../hooks/useTelegram';
-import { backButton } from '@telegram-apps/sdk';
+// import { useTelegram } from '../../hooks/useTelegram';
+import { backButton,  } from '@telegram-apps/sdk-react';
 
 function CompanyDetails() {
   const navigate = useNavigate();
@@ -12,22 +12,29 @@ function CompanyDetails() {
   const { state } = useLocation();
   const [company, setCompany] = useState(state?.preloadedData || null);
   const [isLoading, setIsLoading] = useState(!state?.preloadedData);
-  const { tg } = useTelegram();
+  // const { tg } = useTelegram();
 
-  tg.BackButton.show();
+  // tg.BackButton.show();
+
+  // useEffect(() => {
+    
+  //   if (!tg) return;
+    
+  //   tg.BackButton.show();
+  //   tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+
+  //   return () => {
+  //     tg.BackButton.offClick();
+  //     tg.BackButton.hide(); // Optionally hide the button when unmounting
+  //   };
+  // }, [navigate, tg]);
 
   useEffect(() => {
-    
-    if (!tg) return;
-    
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
-
+    backButton.show();
     return () => {
-      tg.BackButton.offClick();
-      tg.BackButton.hide(); // Optionally hide the button when unmounting
+      backButton.hide();
     };
-  }, [navigate, tg]);
+  }, []);
 
   useEffect(() => {
     if (!state?.preloadedData) {
