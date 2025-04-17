@@ -9,6 +9,7 @@ export const DataProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [name, setName] = useState('');
+    const [regions, setRegions] = useState('');
 
     const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(tg.initData);
@@ -33,6 +34,7 @@ export const DataProvider = ({ children }) => {
     
             const data = response.data; // Обработка ответа
             setName(data);
+            setRegions(data.regions);
           } catch (error) {
             console.error('Error fetching data:', error);
             setError(error);
@@ -49,7 +51,7 @@ export const DataProvider = ({ children }) => {
     console.log('DataContext', name)
 
     return (
-        <DataContext.Provider value={{ name , loading , error}}>
+        <DataContext.Provider value={{ name , loading , error, regions}}>
             {children}
         </DataContext.Provider>
     );

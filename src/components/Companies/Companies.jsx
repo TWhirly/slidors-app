@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -8,8 +8,11 @@ import { YellowStarIcon } from '../../icons/SVG';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
+import { DataContext } from '../../DataContext';
 
 const Companies = () => {
+    const { regions: contextRegions } = useContext(DataContext);
+    console.log('regions', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -21,8 +24,35 @@ const Companies = () => {
     const chat_id = JSON.parse(params.get('user')).id;
     tg.BackButton.show();
 
+    useEffect(() => {
+        console.log('sessionStorage first load', sessionStorage.getItem('regionsWithCompanies'))
+        const savedRegions = sessionStorage.getItem('regionsWithCompanies');
+        const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
+
+        if (savedRegions) {
+            setRegionsWithCompanies(JSON.parse(savedRegions));
+        }
+
+        if (savedSelectedRegion) {
+            setSelectedRegion(savedSelectedRegion);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (contextRegions && contextRegions.length > 0 && !sessionStorage.getItem('regionsWithCompanies')) {
+            console.log('contextRegions', contextRegions);
+            const data =[]
+           for(let i = 0; i < contextRegions.length; i++){
+            data.push({region: contextRegions[i], company_count: null, companies: null})
+              }
+              console.log('data', data)
+            setRegionsWithCompanies(data);
+        }
+    }, [contextRegions]);
+
     // Функция для получения регионов
     const fetchRegions = async () => {
+        console.log('fetchRegions')
         const params = {
             name: 'Ваше имя',
             chatID: chat_id,
@@ -38,6 +68,7 @@ const Companies = () => {
 
     // Функция для получения компаний по региону
     const fetchCompanies = async (regionId) => {
+        console.log('fetchCompanies')
         const params = {
             name: regionId,
             chatID: chat_id,
@@ -58,23 +89,42 @@ const Companies = () => {
     });
 
     useEffect(() => {
-        const savedRegions = sessionStorage.getItem('regionsWithCompanies');
-        if (savedRegions) {
-            setRegionsWithCompanies(JSON.parse(savedRegions));
-        } else if (regionRows) {
-            const initialRegions = regionRows.map(region => ({
+        if (regionRows) {
+           
+            const updatedRegions = regionRows.map(region => ({
                 ...region,
-                companies: null // Показываем, что компании ещё не загружены
+                companies: regionsWithCompanies.find(r => r.region === region.region)?.companies || 
+                (JSON.parse(sessionStorage.getItem('regionsWithCompanies')))?.find(r => r.region === region.region)?.companies ||
+                null
             }));
-            setRegionsWithCompanies(initialRegions);
-            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(initialRegions));
+            setRegionsWithCompanies(prevRegions => {
+                const hasChanges = JSON.stringify(prevRegions) !== JSON.stringify(updatedRegions);
+                if (hasChanges) {
+                    sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save to sessionStorage
+                }
+                console.log('regionRows query', regionsWithCompanies, regionRows)
+                return hasChanges ? updatedRegions : prevRegions;
+            });
         }
-    }, [regionRows]);
+    }, [isLoading, regionRows, regionsWithCompanies]);
 
     const handleRegionClick = async (regionId) => {
         setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
             setSelectedRegion(null);
+            sessionStorage.removeItem('selectedRegion'); // Clear expanded region state
+            setLoadingRegion(null);
+            return;
+        }
+
+        if ((JSON.parse(sessionStorage.getItem('regionsWithCompanies'))).find(r => r.region === regionId)?.companies) {
+            // If companies are already loaded, just set the selected region
+            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
+            if (savedRegions) {
+                setRegionsWithCompanies(savedRegions); // Update regionsWithCompanies from sessionStorage
+            }
+            setSelectedRegion(regionId);
+            sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
             setLoadingRegion(null);
             return;
         }
@@ -87,8 +137,9 @@ const Companies = () => {
                     : region
             );
             setRegionsWithCompanies(updatedRegions);
-            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions));
+            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save updated regions
             setSelectedRegion(regionId);
+            sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
         } catch (error) {
             console.error('Error fetching region data:', error);
         } finally {
@@ -180,7 +231,7 @@ const Companies = () => {
         };
       }, [navigate]);
 
-    if (isLoading) {
+    if (isLoading && regionsWithCompanies.length === 0) {
         return (
             <div className={styles.container}>
                 <CircularProgress color='008ad1' className={styles.loading} />

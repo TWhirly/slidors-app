@@ -14,7 +14,7 @@ function CompanyDetails() {
   const tg = window.Telegram.WebApp;
   // tg.ready();
   // tg.BackButton.show(); // Hide the back button initially
-  
+    console.log('sessionStorage', sessionStorage.getItem('regionsWithCompanies'))
 
   useEffect(() => {
     const initializeBackButton = () => {
