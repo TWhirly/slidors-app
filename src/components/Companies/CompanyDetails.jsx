@@ -1,20 +1,30 @@
-// В компоненте деталей компании
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { CircularProgress } from '@mui/material'
+import styles from './Companies.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import LoadingSpinner from '@mui/material/Skeleton';
-import { useTelegram } from '../../hooks/useTelegram';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
 function CompanyDetails() {
   const navigate = useNavigate();
-  const { id } = useParams();
   const { state } = useLocation();
-  const [company, setCompany] = useState(state?.preloadedData || null);
-  const [isLoading, setIsLoading] = useState(!state?.preloadedData);
   const tg = window.Telegram.WebApp;
-  // tg.ready();
-  // tg.BackButton.show(); // Hide the back button initially
-    console.log('sessionStorage', sessionStorage.getItem('regionsWithCompanies'))
+
+  const fetchCompanyData = async () => {
+    console.log('fetchCompanyData', state.id);
+    const params = {
+      name: 'Ваше имя',
+      companyId: state.id,
+      api: 'getCompany',
+    };
+    const formData = JSON.stringify(params);
+    const response = await axios.post(
+      process.env.REACT_APP_GOOGLE_SHEETS_URL,
+      formData
+    );
+    return response.data;
+  };
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -29,50 +39,47 @@ function CompanyDetails() {
 
     return () => {
       tg.BackButton.offClick();
-      // tg.BackButton.hide(); // Optionally hide the button when unmounting
     };
-  }, [navigate, tg.BackButton, tg]);
+  }, [navigate, tg]);
 
-  useEffect(() => {
-    if (!state?.preloadedData) {
-      // Если пришли напрямую (без предзагрузки) - грузим все
-      loadFullData();
-    } else {
-      // Если есть базовые данные - подгружаем остальное в фоне
-      loadAdditionalData();
-    }
-    tg.BackButton.show();
-  }, [state?.preloadedData, id]);
+  const { data: companyData, isLoading, error } = useQuery({
+    queryKey: ['company', state.id],
+    queryFn: fetchCompanyData,
+    enabled: !!state?.id, // Only run the query if state.id is available
+    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+  });
+  console.log('companyData', companyData);
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+          <CircularProgress color='008ad1' className={styles.loading} />
+      </div>
+  );
+  }
 
-  const loadFullData = async () => {
-    setIsLoading(true);
-    const data = await fetch(`/api/companies/${id}`).then(r => r.json());
-    setCompany(data);
-    setIsLoading(false);
-  };
+  if (error) {
+    return <div>Error loading company details</div>;
+  }
 
-  const loadAdditionalData = async () => {
-    const additionalData = await fetch(`/api/companies/${id}/details`).then(r => r.json());
-    setCompany(prev => ({ ...prev, ...additionalData }));
-  };
+  const company = companyData?.[0];
+  if (!company) {
+    return <div>Company not found</div>;
+  }
 
   return (
-    <div>
-      {isLoading ? (
-        <Skeleton />
-      ) : (
-        <>
-          <h1>{company.name}</h1>
-          {/* Основные данные из preloadedData */}
-          <p>{company.description}</p>
-          <div>{JSON.stringify(window.Telegram?.WebApp.BackButton)}</div>
-          {/* Доп данные могут подгружаться с задержкой */}
-          {!company.details && <LoadingSpinner small />}
-          {company.details && (
-            <div>{/* Детализированная информация */}</div>
-          )}
-        </>
-      )}
+    <div className={styles.container}>
+      <h1>{company.name}</h1>
+      <p>{company.type}</p>
+      <div>{company.status}</div>
+      <div>{company.region}</div>
+      <div>{company.city}</div>
+      <div>{company.phone1}</div>
+      <div>{company.phone2}</div>
+      <div>{company.whatsapp}</div>
+      <div>{company.telegram}</div>
+      <div>{company.address}</div>
+      <div>{company.description}</div>
+      <div>{company.manager}</div>
     </div>
   );
 }

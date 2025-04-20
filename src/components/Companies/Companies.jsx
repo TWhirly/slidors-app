@@ -9,8 +9,10 @@ import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
 import { DataContext } from '../../DataContext';
+import sha256 from 'crypto-js/sha256'; // Import the hashing library
 
 const Companies = () => {
+    
     const { regions: contextRegions } = useContext(DataContext);
     console.log('regions', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
     const navigate = useNavigate();
@@ -18,6 +20,8 @@ const Companies = () => {
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
     const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
 
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
@@ -25,30 +29,23 @@ const Companies = () => {
     tg.BackButton.show();
 
     useEffect(() => {
-        console.log('sessionStorage first load', sessionStorage.getItem('regionsWithCompanies'))
+        // Load regionsWithCompanies from sessionStorage on component mount
         const savedRegions = sessionStorage.getItem('regionsWithCompanies');
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
 
         if (savedRegions) {
-            setRegionsWithCompanies(JSON.parse(savedRegions));
+            setRegionsWithCompanies(JSON.parse(savedRegions)); // Load from sessionStorage
+            setLoading(false); // Stop loading if data is available
         }
 
         if (savedSelectedRegion) {
-            setSelectedRegion(savedSelectedRegion);
+            setSelectedRegion(savedSelectedRegion); // Restore selected region
         }
     }, []);
 
     useEffect(() => {
-        if (contextRegions && contextRegions.length > 0 && !sessionStorage.getItem('regionsWithCompanies')) {
-            console.log('contextRegions', contextRegions);
-            const data =[]
-           for(let i = 0; i < contextRegions.length; i++){
-            data.push({region: contextRegions[i], company_count: null, companies: null})
-              }
-              console.log('data', data)
-            setRegionsWithCompanies(data);
-        }
-    }, [contextRegions]);
+        
+    }, [selectedRegion]);
 
     // Функция для получения регионов
     const fetchRegions = async () => {
@@ -56,7 +53,7 @@ const Companies = () => {
         const params = {
             name: 'Ваше имя',
             chatID: chat_id,
-            api: 'getRegions'
+            api: 'getCompanies'
         };
         const formData = JSON.stringify(params);
         const response = await axios.post(
@@ -85,31 +82,72 @@ const Companies = () => {
     // Запрос для получения регионов с использованием нового синтаксиса v5+
     const { data: regionRows, isLoading, error } = useQuery({
         queryKey: ['regions'],
-        queryFn: fetchRegions
+        queryFn: fetchRegions,
+        staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+        refetchInterval: 60000, // Refetch data every 60 seconds in the background
     });
+
+    // Utility function to compute a hash of an object or array
+    const computeHash = (data) => {
+        return sha256(JSON.stringify(data)).toString(); // Compute hash and convert to string
+    };
 
     useEffect(() => {
         if (regionRows) {
-           
-            const updatedRegions = regionRows.map(region => ({
-                ...region,
-                companies: regionsWithCompanies.find(r => r.region === region.region)?.companies || 
-                (JSON.parse(sessionStorage.getItem('regionsWithCompanies')))?.find(r => r.region === region.region)?.companies ||
-                null
-            }));
-            setRegionsWithCompanies(prevRegions => {
-                const hasChanges = JSON.stringify(prevRegions) !== JSON.stringify(updatedRegions);
-                if (hasChanges) {
-                    sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save to sessionStorage
-                }
-                console.log('regionRows query', regionsWithCompanies, regionRows)
-                return hasChanges ? updatedRegions : prevRegions;
-            });
+            // console.log(`query result, got at ${currentTime.toLocaleTimeString()} ${JSON.stringify(regionRows)}`);
+
+            // Compute hashes for comparison
+            const savedRegionsHash = sessionStorage.getItem('savedRegionHash') || [];
+            const regionRowsHash = computeHash(JSON.stringify(regionRows));
+
+            if (savedRegionsHash !== regionRowsHash) {
+                console.log('Data has changed, updating sessionStorage');
+
+                // Build updatedRegions only if data has changed
+                const updatedRegions = regionRows.reduce((acc, company) => {
+                    const existingRegion = acc.find(r => r.region === company.region);
+                    if (existingRegion) {
+                        existingRegion.companies.push({
+                            id: company.id, // Store only essential fields
+                            name: company.name,
+                            type: company.type,
+                            status: company.status,
+                            handled: company.handled,
+                            wa: company.wa,
+                            tg: company.tg,
+                        });
+                        existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
+                    } else {
+                        acc.push({
+                            region: company.region,
+                            companies: [{
+                                id: company.id, // Store only essential fields
+                                name: company.name,
+                                type: company.type,
+                                status: company.status,
+                                handled: company.handled,
+                                wa: company.wa,
+                                tg: company.tg,
+                            }],
+                            company_count: regionRows.filter(r => r.region === company.region).length,
+                        });
+                    }
+                    return acc;
+                }, []);
+
+                sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save to sessionStorage
+                sessionStorage.setItem('savedRegionHash', computeHash(JSON.stringify(regionRows))); // Save to sessionStorage
+                setRegionsWithCompanies(updatedRegions); // Update state
+            } else {
+                console.log('No changes in data, rendering from sessionStorage');
+            }
+
+            setLoading(false); // Stop loading
         }
-    }, [isLoading, regionRows, regionsWithCompanies]);
+    }, [regionRows]);
 
     const handleRegionClick = async (regionId) => {
-        setLoadingRegion(regionId);
+        // setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
             setSelectedRegion(null);
             sessionStorage.removeItem('selectedRegion'); // Clear expanded region state
@@ -117,34 +155,10 @@ const Companies = () => {
             return;
         }
 
-        if ((JSON.parse(sessionStorage.getItem('regionsWithCompanies'))).find(r => r.region === regionId)?.companies) {
-            // If companies are already loaded, just set the selected region
-            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
-            if (savedRegions) {
-                setRegionsWithCompanies(savedRegions); // Update regionsWithCompanies from sessionStorage
-            }
-            setSelectedRegion(regionId);
-            sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-            setLoadingRegion(null);
-            return;
-        }
+      
+        setSelectedRegion(regionId);
+        sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
 
-        try {
-            const companies = await fetchCompanies(regionId);
-            const updatedRegions = regionsWithCompanies.map(region =>
-                region.region === regionId
-                    ? { ...region, companies }
-                    : region
-            );
-            setRegionsWithCompanies(updatedRegions);
-            sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save updated regions
-            setSelectedRegion(regionId);
-            sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-        } catch (error) {
-            console.error('Error fetching region data:', error);
-        } finally {
-            setLoadingRegion(null);
-        }
     };
 
     const getStatusColor = (status) => {
@@ -205,10 +219,11 @@ const Companies = () => {
         }
     };
 
-    const handleSelectCompany = (company) => {
-        navigate(`/companies/${company.id}`, {
+    const handleSelectCompany = (id) => {
+        console.log('handleSelectCompany', id)
+        navigate(`/companies/${id}`, {
             state: {
-                preloadedData: company
+                id: id
             }
         });
     };
@@ -221,17 +236,19 @@ const Companies = () => {
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        
+
         tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
-    
-        return () => {
-          tg.BackButton.offClick();
-        //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
-        };
-      }, [navigate]);
 
-    if (isLoading && regionsWithCompanies.length === 0) {
+        return () => {
+            tg.BackButton.offClick();
+            //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
+        };
+    }, [navigate]);
+
+    console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
+
+    if (isLoading || loading) {
         return (
             <div className={styles.container}>
                 <CircularProgress color='008ad1' className={styles.loading} />
@@ -248,7 +265,7 @@ const Companies = () => {
             </div>
         );
     }
-    console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion)
+
     return (
         <div className={styles.container}>
             <div className={styles.paper}>
@@ -261,8 +278,8 @@ const Companies = () => {
                             .filter((item) => item !== "область")
                             .join(" ")}` : ""}
                     </div>
-                    <AvatarGroup direction="row" spacing={10} sx={avatarGroupStyle}>
-                        {selectedRegion ? regionsWithCompanies.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
+                    <AvatarGroup direction="row" spacing={10} sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}>
+                        {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
                             <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
                                 {`${user.name.split('')[0]}${user.name.split('')[1]}`}
                             </Avatar>
@@ -293,7 +310,7 @@ const Companies = () => {
                                             <div className={styles.companyInfo}>
                                                 <div className={styles.nameAndIcon}>
                                                     <div
-                                                        onClick={() => handleSelectCompany(company)}
+                                                        onClick={() => handleSelectCompany(company.id)}
                                                         className={styles.companyName}
                                                     >
                                                         {company.name}

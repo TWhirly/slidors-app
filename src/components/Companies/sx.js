@@ -1,5 +1,7 @@
 export const avatar = (name) => {
+
     return({
+      
     height: "1.7rem",
     width: "1.7rem",
     bgcolor: name ? stringToColor(name) : ''
