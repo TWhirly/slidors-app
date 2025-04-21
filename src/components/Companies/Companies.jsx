@@ -115,6 +115,15 @@ const Companies = () => {
                             handled: company.handled,
                             wa: company.wa,
                             tg: company.tg,
+                            city: company.city,
+                            address: company.address,
+                            region: company.region,
+                            description: company.description,
+                            phone1: company.phone1,
+                            phone2: company.phone2,
+                            manager: company.manager,
+                            whatsapp: company.whatsapp,
+                            telegram: company.telegram,
                         });
                         existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
                     } else {
@@ -122,12 +131,21 @@ const Companies = () => {
                             region: company.region,
                             companies: [{
                                 id: company.id, // Store only essential fields
-                                name: company.name,
-                                type: company.type,
-                                status: company.status,
-                                handled: company.handled,
-                                wa: company.wa,
-                                tg: company.tg,
+                            name: company.name,
+                            type: company.type,
+                            status: company.status,
+                            handled: company.handled,
+                            wa: company.wa,
+                            tg: company.tg,
+                            city: company.city,
+                            address: company.address,
+                            region: company.region,
+                            description: company.description,
+                            phone1: company.phone1,
+                            phone2: company.phone2,
+                            manager: company.manager,
+                            whatsapp: company.whatsapp,
+                            telegram: company.telegram,
                             }],
                             company_count: regionRows.filter(r => r.region === company.region).length,
                         });
@@ -219,12 +237,12 @@ const Companies = () => {
         }
     };
 
-    const handleSelectCompany = (id) => {
-        console.log('handleSelectCompany', id)
-        navigate(`/companies/${id}`, {
-            state: {
-                id: id
-            }
+    const handleSelectCompany = (company) => {
+        console.log('handleSelectCompany', company);
+        navigate(`/companies/${company.id}`, {
+            state:
+                company
+            
         });
     };
 
@@ -310,7 +328,7 @@ const Companies = () => {
                                             <div className={styles.companyInfo}>
                                                 <div className={styles.nameAndIcon}>
                                                     <div
-                                                        onClick={() => handleSelectCompany(company.id)}
+                                                        onClick={() => handleSelectCompany(company)}
                                                         className={styles.companyName}
                                                     >
                                                         {company.name}
