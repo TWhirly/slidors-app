@@ -1,31 +1,62 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect , useState} from 'react';
 import { CircularProgress } from '@mui/material'
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import { Pix } from '@mui/icons-material';
+import Typography from '@mui/material/Typography';
 
 function CompanyDetails() {
+
+  
   const navigate = useNavigate();
   const { state : company} = useLocation();
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const tg = window.Telegram.WebApp;
+  const params = new URLSearchParams(window.Telegram.WebApp.initData);
+    const chat_id = JSON.parse(params.get('user')).id;
 
-  const fetchCompanyData = async () => {
-    console.log('fetchCompanyData', company.id);
-    const params = {
-      name: 'Ваше имя',
-      companyId: company.id,
-      api: 'getCompany',
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData
-    );
-    return response.data;
-  };
+   
+
+      //  const { data: contacts, isContactsLoading, error } = useQuery({
+      //         queryKey: ['contacts'],
+      //         queryFn: fetchContacts,
+      //         staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+      //         refetchInterval: 60000, // Refetch data every 60 seconds in the background
+      //     });
+
+          useEffect(() => {
+            const fetchContacts = async () => {
+              console.log('fecthcontacts')
+              const params = {
+                  name: 'Ваше имя',
+                  companyId: company.id,
+                  api: 'getContacts'
+              };
+              const formData = JSON.stringify(params);
+              const response = await axios.post(
+                  process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                  formData,
+              );
+              return response.data;
+          };
+            async function fetchData() {
+              let fetchedContacts = await fetchContacts();
+              if (fetchedContacts) {
+                setLoading(false);
+                console.log('contacts', fetchedContacts);
+              }
+              setContacts(fetchedContacts);
+            }
+            fetchData();
+          }, [company.id]);
+
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -113,6 +144,35 @@ function CompanyDetails() {
       <div>{company.phone2}</div>
       <div>{company.whatsapp}</div>
       <div>{company.telegram}</div>
+      <div className={styles.companyRowHeader}>Контакты ({contacts ? contacts.length : ''})</div>
+      {
+  !loading ? (
+    <div className={styles.contactsContainer}>
+      {contacts.map((contact, index) => (
+        <div key={index} className={styles.contactItem}>
+          <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
+          <div className={styles.contactPhone}>{contact.surname}</div>
+          <div className={styles.contactEmail}>{contact.email}</div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    // <Card sx={{ width: '100%', marginRight: 5, height: '2.5rem', my: 2, display: 'flex', backgroundColor: 'transparent', boxShadow: 'none' }}>
+    
+    <>
+                <Skeleton variant="rectangular" width={'15rem'} height={'100%'} sx={{ bgcolor: 'grey.100' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem' }}>
+                    gg
+                  </span>
+                </Skeleton><Skeleton variant="rectangular" width={'15rem'} height={'100%'} sx={{ bgcolor: 'grey.100' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem',  }}>
+                    gg
+                  </span>
+                </Skeleton></>
+    
+   
+  )
+}
       <div>{company.address}</div>
       <div>{company.description}</div>
       <div>{company.manager}</div>

@@ -312,7 +312,7 @@ const Companies = () => {
                                 className={styles.regionButton}
                             >
                                 <span>
-                                    {region.region
+                                    {region?.region
                                         .split(" ")
                                         .filter((item) => item !== "область")
                                         .join(" ")}{" "}
