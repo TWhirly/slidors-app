@@ -160,11 +160,12 @@ function CompanyDetails() {
     // <Card sx={{ width: '100%', marginRight: 5, height: '2.5rem', my: 2, display: 'flex', backgroundColor: 'transparent', boxShadow: 'none' }}>
     
     <>
-                <Skeleton variant="rectangular" width={'15rem'} height={'100%'} sx={{ bgcolor: 'grey.100' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem' }}>
+                <Skeleton variant="rectangular" width={'15rem'} height={'1rem'} sx={{ bgcolor: 'grey.100', marginBottom: '0.7rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem', bgcolor: 'grey.900'}}>
                     gg
-                  </span>
-                </Skeleton><Skeleton variant="rectangular" width={'15rem'} height={'100%'} sx={{ bgcolor: 'grey.100' }}>
+                  </div>
+                </Skeleton>
+                <Skeleton variant="rectangular" width={'15rem'} height={'1rem'} sx={{ bgcolor: 'grey.100' }}>
                   <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem',  }}>
                     gg
                   </span>
