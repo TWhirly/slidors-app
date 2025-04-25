@@ -22,7 +22,7 @@ function CompanyDetails() {
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const chat_id = JSON.parse(params.get('user')).id;
 
-   
+   const id = company.id;
 
       //  const { data: contacts, isContactsLoading, error } = useQuery({
       //         queryKey: ['contacts'],
@@ -36,7 +36,7 @@ function CompanyDetails() {
               console.log('fecthcontacts')
               const params = {
                   name: 'Ваше имя',
-                  companyId: company.id,
+                  companyId: id,
                   api: 'getContacts'
               };
               const formData = JSON.stringify(params);
@@ -44,18 +44,17 @@ function CompanyDetails() {
                   process.env.REACT_APP_GOOGLE_SHEETS_URL,
                   formData,
               );
-              return response.data;
-          };
-            async function fetchData() {
-              let fetchedContacts = await fetchContacts();
+              let fetchedContacts = response.data;
+              console.log('fetchedContacts', fetchedContacts)
               if (fetchedContacts) {
                 setLoading(false);
                 console.log('contacts', fetchedContacts);
               }
               setContacts(fetchedContacts);
-            }
-            fetchData();
-          }, [company.id]);
+          };
+          fetchContacts();
+
+          }, [id]);
 
 
   useEffect(() => {
@@ -76,8 +75,6 @@ function CompanyDetails() {
 
  console.log('company', company);
 
- useEffect(() => {
- },[company]);
 
  const getCompanyTypeIcon = (type) => {
   switch (type?.toLowerCase()) {
@@ -144,7 +141,7 @@ function CompanyDetails() {
       <div>{company.phone2}</div>
       <div>{company.whatsapp}</div>
       <div>{company.telegram}</div>
-      <div className={styles.companyRowHeader}>Контакты ({contacts ? contacts.length : ''})</div>
+      <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length})` : ''}</div>
       {
   !loading ? (
     <div className={styles.contactsContainer}>
@@ -160,16 +157,20 @@ function CompanyDetails() {
     // <Card sx={{ width: '100%', marginRight: 5, height: '2.5rem', my: 2, display: 'flex', backgroundColor: 'transparent', boxShadow: 'none' }}>
     
     <>
-                <Skeleton variant="rectangular" width={'15rem'} height={'1rem'} sx={{ bgcolor: 'grey.100', marginBottom: '0.7rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem', bgcolor: 'grey.900'}}>
+                <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
+                <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
+                 
+                  {/* <div style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem', bgcolor: 'grey.900'}}>
                     gg
-                  </div>
-                </Skeleton>
-                <Skeleton variant="rectangular" width={'15rem'} height={'1rem'} sx={{ bgcolor: 'grey.100' }}>
+                  </div> */}
+                {/* </Skeleton>
+                <Skeleton variant="rectangular" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', marginBottom: '0.5rem',
+                  marginTop: '0', borderRadius: '0.3rem' }}>
                   <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem',  }}>
                     gg
                   </span>
-                </Skeleton></>
+                </Skeleton> */}
+                </>
     
    
   )
