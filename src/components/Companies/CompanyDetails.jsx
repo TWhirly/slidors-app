@@ -21,6 +21,12 @@ function CompanyDetails() {
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const chat_id = JSON.parse(params.get('user')).id;
+    const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
+  const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
+  const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
+  const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
+  const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
+  const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
 
    const id = company.id;
 
@@ -137,7 +143,19 @@ function CompanyDetails() {
       <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус</div><div className={styles.companyRowVal}>{company.status}</div> <div className={styles.buttonArrow} >▼</div></div>
       <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион</div><div className={styles.companyRowVal}>{company.region}</div></div>
       <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город</div><div className={styles.companyRowVal}>{company.city}</div></div>
-      <div>{company.phone1}</div>
+      {company.phone1 && (
+        <div
+          className={styles.companyRowInfo}
+          onClick={() => window.location.href = `tel:${company.phone1}`}
+          style={{ cursor: 'pointer' }}
+        >
+          <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
+          <div className={styles.companyRowVal}>{company.phone1}</div>
+        </div>
+      )}
+      {company.phone2 && (<div className={styles.companyRowInfo}> <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.phone1}</div></div>)}
+      {company.whatsapp && (<div className={styles.companyRowInfo}> <img src={whatsappIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.whatsapp}</div></div>)}
+      {company.telegram && (<div className={styles.companyRowInfo}> <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.telegram}</div></div>)}
       <div>{company.phone2}</div>
       <div>{company.whatsapp}</div>
       <div>{company.telegram}</div>
@@ -148,31 +166,16 @@ function CompanyDetails() {
       {contacts.map((contact, index) => (
         <div key={index} className={styles.contactItem}>
           <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-          <div className={styles.contactPhone}>{contact.surname}</div>
+         
           <div className={styles.contactEmail}>{contact.email}</div>
         </div>
       ))}
     </div>
   ) : (
-    // <Card sx={{ width: '100%', marginRight: 5, height: '2.5rem', my: 2, display: 'flex', backgroundColor: 'transparent', boxShadow: 'none' }}>
-    
     <>
                 <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
                 <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
-                 
-                  {/* <div style={{ display: 'flex', alignItems: 'center', width: '1.5rem', marginTop: '5rem', bgcolor: 'grey.900'}}>
-                    gg
-                  </div> */}
-                {/* </Skeleton>
-                <Skeleton variant="rectangular" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', marginBottom: '0.5rem',
-                  marginTop: '0', borderRadius: '0.3rem' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', width: '1.5rem',  }}>
-                    gg
-                  </span>
-                </Skeleton> */}
                 </>
-    
-   
   )
 }
       <div>{company.address}</div>
