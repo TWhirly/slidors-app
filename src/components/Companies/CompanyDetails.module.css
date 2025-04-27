@@ -110,5 +110,18 @@
     margin-left: 0;
 }
 
+.activityRowVal {
+    display: flex;
+    white-space: pre;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 0.5rem;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
+    gap: 1rem; /* Добавлено для создания пробела между разными данными */
+}
+
 /* Пример ховера для масштабирования */
 

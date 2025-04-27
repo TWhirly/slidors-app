@@ -17,7 +17,11 @@ function CompanyDetails() {
   const navigate = useNavigate();
   const { state : company} = useLocation();
   const [contacts, setContacts] = useState([]);
+  const [activity, setActivity] = useState([]);
+  const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMail, setLoadingMail] = useState(true);
+  const [loadingActivity, setLoadingActivity] = useState(true);
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const chat_id = JSON.parse(params.get('user')).id;
@@ -59,6 +63,54 @@ function CompanyDetails() {
               setContacts(fetchedContacts);
           };
           fetchContacts();
+
+          }, [id]);
+
+          useEffect(() => {
+            const fetchActivity = async () => {
+              console.log('fecthActivity')
+              const params = {
+                  name: 'Ваше имя',
+                  companyId: id,
+                  api: 'getActivities'
+              };
+              const formData = JSON.stringify(params);
+              const response = await axios.post(
+                  process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                  formData,
+              );
+              let fetchedActivity = response.data;
+              if (fetchedActivity) {
+                setLoadingActivity(false);
+                console.log('Activity', fetchedActivity);
+              }
+              setActivity(fetchedActivity);
+          };
+          fetchActivity();
+
+          }, [id]);
+
+          useEffect(() => {
+            const fetchMail = async () => {
+              console.log('fecthcMail')
+              const params = {
+                  name: 'Ваше имя',
+                  companyId: id,
+                  api: 'getEmails'
+              };
+              const formData = JSON.stringify(params);
+              const response = await axios.post(
+                  process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                  formData,
+              );
+              let fetchedMails = response.data;
+              if (fetchedMails) {
+                setLoadingMail(false);
+                console.log('mails', fetchedMails);
+              }
+              setMails(fetchedMails);
+          };
+          fetchMail();
 
           }, [id]);
 
@@ -156,9 +208,6 @@ function CompanyDetails() {
       {company.phone2 && (<div className={styles.companyRowInfo}> <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.phone1}</div></div>)}
       {company.whatsapp && (<div className={styles.companyRowInfo}> <img src={whatsappIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.whatsapp}</div></div>)}
       {company.telegram && (<div className={styles.companyRowInfo}> <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.telegram}</div></div>)}
-      <div>{company.phone2}</div>
-      <div>{company.whatsapp}</div>
-      <div>{company.telegram}</div>
       <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length})` : ''}</div>
       {
   !loading ? (
@@ -178,9 +227,44 @@ function CompanyDetails() {
                 </>
   )
 }
-      <div>{company.address}</div>
-      <div>{company.description}</div>
-      <div>{company.manager}</div>
+
+{mails.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+{
+  
+  !loadingMail ? (
+    <div className={styles.companyRowVal}>
+      {mails.map(item => item.email).join(', ')}
+    </div>
+  ) : (
+    <>
+                <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
+                </>
+  )
+}
+</div>)}
+<div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length})` : ''}</div>
+{
+  !loadingActivity ? (
+    <div className={styles.contactItem}>
+      {activity.map((activity, index) => (
+        <div key={index} className={styles.contactItem}>
+          <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
+             {activity.purpose}</div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <>
+                <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
+                <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem'}} />
+                </>
+  )
+}
+
+
+<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>
+{company.description && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Примечание</div><div className={styles.companyRowVal}>{company.description}</div></div>)}
+{company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
       </div>
      
     </div>
