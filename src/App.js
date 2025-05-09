@@ -10,20 +10,14 @@ import { DataProvider } from './DataContext';
 import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
 
-
-
-
-
-
-
-
-
 function App() {
     
+   
+
     // eslint-disable-next-line no-unused-vars
     const navigate = useNavigate();
     const { tg } = useTelegram();
-    window.Telegram.WebApp.expand();
+    // window.Telegram.WebApp.expand();
     window.Telegram.WebApp.disableVerticalSwipes()
     
     tg.MainButton.hide()
@@ -35,21 +29,22 @@ function App() {
     //       tg.BackButton.hide();
     //     }, [navigate])
 
-    if (window.Telegram.WebApp.colorScheme === 'dark') {
+    // if (window.Telegram.WebApp.colorScheme === 'dark') {
         document.documentElement.style.setProperty("--bgColor", "#000000");
         tg.setHeaderColor("#000000");
-    }
-    else {
-        document.documentElement.style.setProperty("--bgColor", "#ffffff");
-        tg.setHeaderColor("#ffffff")
-    }
-    console.log('scheme', window.Telegram.WebApp.colorScheme)
+    // }
+    // else {
+    //     document.documentElement.style.setProperty("--bgColor", "#ffffff");
+    //     tg.setHeaderColor("#ffffff")
+    // }
+    // console.log('scheme', window.Telegram.WebApp.colorScheme)
 
     useEffect(() => {
         tg.ready();
         const fontFamily = tg.platform === 'desktop' ? 'Open Sans, sans-serif' : 'system-ui, sans-serif';
         // const bgColor = tg.colorScheme === 'dark' ? '#000000' : '#ffffff';
-        const textColor = tg.colorScheme === 'dark' ? '#ffffff' : '#000000';
+        // const textColor = tg.colorScheme === 'dark' ? '#ffffff' : '#000000';
+        const textColor = '#ffffff';
 
         document.documentElement.style.setProperty('--fontFamily', fontFamily);
         // document.documentElement.style.setProperty('--bgColor', bgColor);
@@ -60,13 +55,13 @@ function App() {
         document.body.style.color = textColor;
     }, [tg])
 
-    useEffect(() => {
-        // Проверяем, что код выполняется внутри Telegram WebView
-        if (window.Telegram?.WebApp?.expand) {
-          // Расширяем приложение на весь экран
-          window.Telegram.WebApp.expand();
-        }
-      }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
+    // useEffect(() => {
+    //     // Проверяем, что код выполняется внутри Telegram WebView
+    //     if (window.Telegram?.WebApp?.expand) {
+    //       // Расширяем приложение на весь экран
+    //       window.Telegram.WebApp.expand();
+    //     }
+    //   }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
 
     
 

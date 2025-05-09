@@ -84,7 +84,7 @@ const Companies = () => {
         queryKey: ['regions'],
         queryFn: fetchRegions,
         staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
-        refetchInterval: 60000, // Refetch data every 60 seconds in the background
+        refetchInterval: 600000, // Refetch data every 60 seconds in the background
     });
 
     // Utility function to compute a hash of an object or array
@@ -180,12 +180,14 @@ const Companies = () => {
     };
 
     const getStatusColor = (status) => {
+        if (status.toLowerCase().includes('уточнить'))
+            return 'orange';
         switch (status?.toLowerCase()) {
             case 'работает':
                 return 'lightgreen';
             case 'не работает':
                 return 'var(--hintColor, #888)';
-            case 'уточнить номер':
+            case 'уточнить тел.':
                 return 'orange';
             default:
                 return 'var(--hintColor, #888)';

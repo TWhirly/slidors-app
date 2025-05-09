@@ -133,6 +133,54 @@ function CompanyDetails() {
 
  console.log('company', company);
 
+ const getContactIcons = (contact) => {
+  const icons = [];
+  if (contact.phone1) {
+      icons.push(
+          <img
+              key="phone1"
+              src={phoneIcon}
+              className={styles.contactPhone}
+              alt="Phone icon"
+          />
+      );
+  }
+  
+  if (contact.phone2) {
+      icons.push(
+          <img
+              key="phone2"
+              src={phoneIcon}
+              className={styles.contactPhone}
+              alt="Phone icon"
+          />
+      );
+  }
+
+  if (contact.whatsapp) {
+      icons.push(
+          <img
+              key="whatsapp"
+              src={whatsappIcon}
+              className={styles.contactPhone}
+              alt="WhatsApp icon"
+          />
+      );
+  }
+
+  if (contact.telegram) {
+      icons.push(
+          <img
+              key="telegram"
+              src={telegramIcon}
+              className={styles.contactPhone}
+              alt="Telegram icon"
+          />
+      );
+  }
+  return icons;
+}
+
 
  const getCompanyTypeIcon = (type) => {
   switch (type?.toLowerCase()) {
@@ -191,10 +239,10 @@ function CompanyDetails() {
                                                     </div></span>
       </div>
       <div className={styles.CompanyDetails}>
-      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип</div><div className={styles.companyRowVal}>{company.type}</div> <div className={styles.buttonArrow} >▼</div></div>
-      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус</div><div className={styles.companyRowVal}>{company.status}</div> <div className={styles.buttonArrow} >▼</div></div>
-      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион</div><div className={styles.companyRowVal}>{company.region}</div></div>
-      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город</div><div className={styles.companyRowVal}>{company.city}</div></div>
+      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div> <div className={styles.buttonArrow} >▼</div></div>
+      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div> <div className={styles.buttonArrow} >▼</div></div>
+      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
+      <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
       {company.phone1 && (
         <div
           className={styles.companyRowInfo}
@@ -208,14 +256,14 @@ function CompanyDetails() {
       {company.phone2 && (<div className={styles.companyRowInfo}> <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.phone1}</div></div>)}
       {company.whatsapp && (<div className={styles.companyRowInfo}> <img src={whatsappIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.whatsapp}</div></div>)}
       {company.telegram && (<div className={styles.companyRowInfo}> <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" /><div className={styles.companyRowVal}>{company.telegram}</div></div>)}
-      <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length})` : ''}</div>
+      <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>
       {
   !loading ? (
     <div className={styles.contactsContainer}>
       {contacts.map((contact, index) => (
-        <div key={index} className={styles.contactItem}>
+        <div key={index} className={styles.contactPerson}>
           <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-         
+         <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
           <div className={styles.contactEmail}>{contact.email}</div>
         </div>
       ))}
@@ -242,7 +290,7 @@ function CompanyDetails() {
   )
 }
 </div>)}
-<div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length})` : ''}</div>
+<div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}</div>
 {
   !loadingActivity ? (
     <div className={styles.contactItem}>
@@ -262,9 +310,9 @@ function CompanyDetails() {
 }
 
 
-<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>
-{company.description && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Примечание</div><div className={styles.companyRowVal}>{company.description}</div></div>)}
-{company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
+<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>
+{company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
+{company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
       </div>
      
     </div>

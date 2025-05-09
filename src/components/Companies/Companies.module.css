@@ -160,6 +160,7 @@
     position: relative;
     z-index: 1;
     margin-bottom: 0;
+    
 
     /* max-width: 400px; */
     /* Совпадает с max-width paper */
@@ -189,7 +190,8 @@
     max-width: calc(100% - 95px);
     min-width: 0;            
     padding-right: 8px;     
-    display: block;         
+    display: block;
+    cursor: pointer;         
 }
 
 .companyStatus {
