@@ -40,9 +40,10 @@
 .CompanyDetails {
     margin-top: 2.5rem;
     margin-left: 0px; /* Add margin to account for the fixed naviPanel */
-    padding: 0 0 0 0rem;
+    padding: 0 0 0 2rem;
     display: flex;
     flex-direction: column;
+    width: 100%;
     gap: 0rem;
     background-color: var(--background-color);
     color: var(--text-color);
@@ -84,6 +85,8 @@
 }
 
 .companyRowHeader{
+    display: flex;
+    flex-direction: row;
     color:  #729fcf;
 }
 .companyRowDescriptionHeader{
@@ -105,9 +108,11 @@
     font-size: 0.6rem; /* Увеличьте размер шрифта для масштабирования */
     font-weight: bold; /* Увеличьте жирность шрифта для выделения */
     z-index: 1; /* Стрелка поверх фона */
-    margin-top: auto; /* Помещает стрелку внизу внутри родительского контейнера */
-    padding: 0 0 0.5rem;
+    margin-bottom: 0; /* Помещает стрелку внизу внутри родительского контейнера */
+    padding: 0 0 0.1rem 0.5rem;
     align-self: flex-end; /* Выравнивает стрелку по нижнему краю */
+    cursor: pointer; /* Указывает, что элемент кликабельный */
+    transition: transform 0.3s ease; /* Плавный переход для эффекта наведения */
 }
 
 .nameAndIcon {
@@ -136,6 +141,16 @@
     margin-left: 0;
 }
 
+.checkIcon {
+    display: flex;
+    align-self: flex-end;
+    justify-self: flex-end;
+    margin: 0 2px 0 2px;
+    width: 16px;
+    height: 16px;
+    position: relative;
+    z-index: 1;
+}
 
 
 .contactsContainer{
