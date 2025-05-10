@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { Pix } from '@mui/icons-material';
 import Typography from '@mui/material/Typography';
+import LongMenu from './CompanyDetailMenu';
 
 function CompanyDetails() {
 
@@ -32,6 +33,7 @@ function CompanyDetails() {
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
+  
 
   const id = company.id;
 
@@ -243,9 +245,13 @@ function CompanyDetails() {
   return (
     <div className={styles.container}>
       <div className={styles.naviPanel}>
-        <span className={styles.nameAndIcon}>{company.name} <div className={styles.iconContainer}>
-          {getCompanyTypeIcon(company.type)}
-        </div></span>
+        <span className={styles.nameAndIcon}>
+          {company.name}
+          <div className={styles.iconContainer}>
+            {getCompanyTypeIcon(company.type)}
+          </div>
+        </span>
+        <div className={styles.menu}><LongMenu /></div>
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
