@@ -6,24 +6,30 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import styles from './CompanyDetails.module.css';
 
 const options = [
-  'Редактировать',
- 
+  'Редактировать'
 ];
 
 const ITEM_HEIGHT = 48;
 
-export default function LongMenu() {
+const LongMenu = ({ onSelect }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  
   const handleClose = () => {
     setAnchorEl(null);
   };
+  
+  const handleMenuItemClick = (option) => {
+    handleClose();
+    onSelect(option); // Передача выбранного значения в родительский компонент
+  };
 
   return (
-    <div >
+    <div className={styles.menuButton}>
       <IconButton
         aria-label="more"
         id="long-button"
@@ -36,26 +42,29 @@ export default function LongMenu() {
       </IconButton>
       <Menu
         id="long-menu"
-        anchorEl={anchorEl} // Position the menu relative to the IconButton
+        anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         slotProps={{
-            list: {
+          list: {
             'aria-labelledby': 'long-button',
           },
           paper: {
             style: {
               maxHeight: ITEM_HEIGHT * 4.5,
               width: '20ch',
-                backgroundColor: 'var(--bgColor)',
-                color: 'var(--textColor)',
-                fontFamily: 'var(--fontFamily)',
+              backgroundColor: 'var(--bgColor)',
+              color: 'var(--textColor)',
+              fontFamily: 'var(--fontFamily)',
             },
           },
         }}
       >
         {options.map((option) => (
-          <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleClose}>
+          <MenuItem 
+            key={option} 
+            onClick={() => handleMenuItemClick(option)}
+          >
             {option}
           </MenuItem>
         ))}
@@ -63,3 +72,5 @@ export default function LongMenu() {
     </div>
   );
 }
+
+export default LongMenu;

@@ -1,15 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { CircularProgress } from '@mui/material'
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import { Pix } from '@mui/icons-material';
-import Typography from '@mui/material/Typography';
 import LongMenu from './CompanyDetailMenu';
 
 function CompanyDetails() {
@@ -24,6 +18,7 @@ function CompanyDetails() {
   const [loadingMail, setLoadingMail] = useState(true);
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const [menuSelection, setMenuSelection] = useState(null);
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
@@ -136,6 +131,12 @@ function CompanyDetails() {
 
   console.log('company', company);
 
+  const handleMenuSelection = (selectedOption) => {
+    if (selectedOption === 'Редактировать') {
+      navigate(`/companies/${company.id}/edit`, { state: company });
+  }
+  };
+
   const getContactIcons = (contact) => {
     const icons = [];
     if (contact.phone1) {
@@ -238,6 +239,8 @@ function CompanyDetails() {
     }
   };
 
+  console.log('menuSelection', menuSelection)
+
   if (!company) {
     return <div>Company not found</div>;
   }
@@ -251,7 +254,9 @@ function CompanyDetails() {
             {getCompanyTypeIcon(company.type)}
           </div>
         </span>
-        <div className={styles.menu}><LongMenu /></div>
+        <LongMenu
+        onSelect={handleMenuSelection} 
+        />
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>

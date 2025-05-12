@@ -9,6 +9,7 @@ import Main from "./components/Main/Main";
 import { DataProvider } from './DataContext';
 import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
+import CompanyEditForm from './components/Companies/CompanyEditForm';
 
 function App() {
     
@@ -32,6 +33,7 @@ function App() {
     // if (window.Telegram.WebApp.colorScheme === 'dark') {
         document.documentElement.style.setProperty("--bgColor", "#000000");
         tg.setHeaderColor("#000000");
+        tg.setBottomBarColor("#000000");
     // }
     // else {
     //     document.documentElement.style.setProperty("--bgColor", "#ffffff");
@@ -76,6 +78,7 @@ function App() {
           path="/companies/:id" 
           element={<CompanyDetails />} 
         />
+        <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
             </Routes>
         </div>
        

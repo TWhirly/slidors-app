@@ -288,7 +288,7 @@ const Companies = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.paper}>
+            
                 <div
                     className={styles.naviPanel}
                     onClick={collapseRegion}
@@ -382,7 +382,7 @@ const Companies = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            
         </div>
     );
 };

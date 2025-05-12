@@ -1,40 +1,34 @@
 .container {
     background-image: url('../../icons/background.jpg');
-    background-size: auto; /* Ensure the background image covers the entire container */
-    /* background-repeat: no-repeat;  */
-    background-attachment: local;
+    background-size: cover;
+    background-repeat: repeat;
+    background-attachment: fixed;
     background-position: center;
-    height: fit-content;
-    min-height: 100%;
+    min-height: 100vh;
     width: 100%;
-    /* max-width: 1200px; */
-    /* max-width: 800px; */
-    margin: 0;
-    margin-right: 0;
+    max-width: 800px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    position: absolute;
     z-index: var(--z-base);
-    /* overflow-x: hidden; */
+    overflow-x: visible;
+    padding-top: 0;
+    margin-top: 0;
 }
 
 .naviPanel {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
+    margin-top: 0;
+    z-index: var(--z-content);
     height: 2.2rem;
-    background-color: var(--tg-theme-button-color);
+    width: 100%;
+    max-width: 800px;
     display: flex;
-    align-items: center;
-    justify-content: left;
+    background-color: var(--tg-theme-button-color);
     z-index: 200;
-    color: var(--tg-theme-button-text-color);
-    font-size: 1rem;
-    padding: 0 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* padding: 0 0 0 30px; */
 }
 
 .menu {
@@ -42,12 +36,29 @@
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    width: 100%;
+    width: 40px;
     height: 2rem;
     right: 1rem;
     margin-right: 2rem;
     padding: 0 0;
     margin-bottom: 0;
+}
+
+.menuButton{
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0 0;
+    margin-bottom: 0;
+    border-radius: 50%;
+    background-color: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .CompanyDetails {
@@ -134,7 +145,8 @@
     min-width: 0;          
     flex-grow: 1;          
     width: 100%;  
-    gap: 0.5rem; /* Добавлено для отступа между иконкой и текстом */        
+    gap: 0.5rem; 
+    margin-left: 1rem;
 }
 
 .factoryIcon {

@@ -1,0 +1,141 @@
+.container {
+    background-image: url('../../icons/background.jpg');
+    background-size: cover;
+    background-repeat: repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    z-index: var(--z-base);
+    overflow-x: visible;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.naviPanel {
+    position: fixed;
+    margin-top: 0;
+    z-index: var(--z-content);
+    height: 2.2rem;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    background-color: var(--tg-theme-button-color);
+    z-index: 200;
+}
+
+.nameAndIcon {
+    display: flex;
+    align-items: center;   
+    min-width: 0;          
+    flex-grow: 1;          
+    width: 100%;  
+    gap: 0.5rem; 
+    margin-left: 1rem;
+    color: var(--tg-theme-button-text-color);
+}
+
+.formContainer {
+    margin-top: 2.5rem;
+    padding: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.formGroup {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.label {
+    position: absolute;
+    left: 1.5rem;
+    top: 0.8rem;
+    font-size: 0.8rem;
+    color: #729fcf;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    background-color:transparent;
+    padding: 0 0.2rem;
+    transform-origin: left center;
+}
+
+.labelFocused {
+    transform: translateY(-1.2rem) scale(0.9);
+    color: #729fcf;
+    background-image: url('../../icons/background.jpg');
+    background-color: transparent;
+    z-index: 1;
+}
+
+.option {
+    color: #ffffff; /* Белый цвет шрифта */
+    background-color: darkgray;
+    padding: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.option:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Легкий прозрачный фон при наведении */
+}
+
+.input {
+    width: calc(100% - 2rem);
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding: 0.8rem;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    background-color: transparent;
+    color: var(--textColor);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box; /* Добавили это свойство */
+}
+
+.inputSelect {
+    width: calc(100% - 2rem);
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding: 0.8rem;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    background-color: transparent;
+    color: var(--textColor);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box; /* Добавили это свойство */
+}
+
+.input:focus {
+    outline: none;
+    border-color: #729fcf;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 4rem;
+}
+
+select.input {
+    width: 100%; /* Явно задаем такую же ширину */
+    padding-right: 2rem; /* Добавляем место для стрелки */
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+    box-sizing: border-box; /* Добавили это свойство */
+}
