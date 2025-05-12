@@ -13,7 +13,7 @@
     justify-content: flex-start;
     align-items: center;
     z-index: var(--z-base);
-    overflow-x: visible;
+    overflow-x: hidden;
     padding-top: 0;
     margin-top: 0;
 }
@@ -60,7 +60,10 @@
 .label {
     position: absolute;
     left: 1.5rem;
-    top: 0.8rem;
+    top: 1rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    justify-items: center;
     font-size: 0.8rem;
     color: #729fcf;
     transition: all 0.2s ease;
@@ -71,7 +74,7 @@
 }
 
 .labelFocused {
-    transform: translateY(-1.2rem) scale(0.9);
+    transform: translateY(-1.4rem) scale(0.9);
     color: #729fcf;
     background-image: url('../../icons/background.jpg');
     background-color: transparent;
@@ -92,6 +95,7 @@
 }
 
 .input {
+    height: 3rem;
     width: calc(100% - 2rem);
     margin-left: 1rem;
     margin-right: 1rem;
@@ -117,6 +121,11 @@
     font-size: 1rem;
     transition: border-color 0.2s ease;
     box-sizing: border-box; /* Добавили это свойство */
+}
+
+.inputSelect:focus {
+    outline: none;
+    border-color: #729fcf;
 }
 
 .input:focus {

@@ -94,7 +94,7 @@ const Companies = () => {
 
     useEffect(() => {
         if (regionRows) {
-            // console.log(`query result, got at ${currentTime.toLocaleTimeString()} ${JSON.stringify(regionRows)}`);
+            console.log(`query result, ${JSON.stringify(regionRows)}`);
 
             // Compute hashes for comparison
             const savedRegionsHash = sessionStorage.getItem('savedRegionHash') || [];
@@ -124,6 +124,12 @@ const Companies = () => {
                             manager: company.manager,
                             whatsapp: company.whatsapp,
                             telegram: company.telegram,
+                            recyclers: company.recyclers,
+                            tt: company.tt,
+                            dealers: company.dealers,
+                            url: company.url,
+                            logo: company.logo
+
                         });
                         existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
                     } else {
@@ -146,6 +152,11 @@ const Companies = () => {
                             manager: company.manager,
                             whatsapp: company.whatsapp,
                             telegram: company.telegram,
+                            recyclers: company.recyclers,
+                            tt: company.tt,
+                            dealers: company.dealers,
+                            url: company.url,
+                            logo: company.logo
                             }],
                             company_count: regionRows.filter(r => r.region === company.region).length,
                         });

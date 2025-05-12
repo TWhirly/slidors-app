@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
+import BasicSelect from './Select.jsx'
 
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ ...company });
     const [focusedFields, setFocusedFields] = useState({});
+    const [isDealer, setIsDealer] = useState(false)
     const tg = window.Telegram.WebApp;
 
     useEffect(() => {
@@ -25,6 +27,10 @@ const CompanyEditForm = () => {
             tg.MainButton.hide();
         };
     }, [company, navigate, tg]);
+
+    useEffect(() => {
+        formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
+    }, [formData])
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,7 +74,7 @@ const CompanyEditForm = () => {
         { value: "не работает", label: "Не работает" },
         { value: "уточнить тел.", label: "Уточнить тел." },
     ];
-
+    console.log('formData', formData)
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -95,51 +101,6 @@ const CompanyEditForm = () => {
                 </div>
 
                 <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.type || formData.type ? styles.labelFocused : ''}`}>
-                        Тип компании
-                    </label>
-                    <select
-                        name="type"
-                        value={formData.type || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('type')}
-                        onBlur={() => handleBlur('type')}
-                        className={styles.inputSelect}
-                    >
-                        {companyTypes.map(option => (
-                            <option key={option.value} value={option.value}
-                            className={styles.option}
-                            >
-                                {option.label} 
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.status || formData.status ? styles.labelFocused : ''}`}>
-                        Статус
-                    </label>
-                    <select
-                        name="status"
-                        value={formData.status || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('status')}
-                        onBlur={() => handleBlur('status')}
-                        className={styles.inputSelect}
-                    >
-                        {companyStatuses.map(option => (
-                            <option key={option.value} value={option.value}
-                            className={styles.option}
-                            >
-                                {option.label} 
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* The rest of the form fields remain unchanged */}
-                <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.region || formData.region ? styles.labelFocused : ''}`}>
                         Регион
                     </label>
@@ -154,7 +115,7 @@ const CompanyEditForm = () => {
                     />
                 </div>
 
-                <div className={styles.formGroup}>
+                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.city || formData.city ? styles.labelFocused : ''}`}>
                         Город
                     </label>
@@ -169,6 +130,22 @@ const CompanyEditForm = () => {
                     />
                 </div>
 
+                <div className={styles.formGroup}>
+                    <label className={`${styles.label} ${focusedFields.address || formData.address ? styles.labelFocused : ''}`}>
+                        Адрес
+                    </label>
+                    <input
+                        type="text"
+                        name="address"
+                        value={formData.address || ''}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('address')}
+                        onBlur={() => handleBlur('address')}
+                        className={styles.input}
+                    />
+                </div>
+
+                
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.phone1 || formData.phone1 ? styles.labelFocused : ''}`}>
                         Телефон 1
@@ -229,20 +206,90 @@ const CompanyEditForm = () => {
                     />
                 </div>
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.address || formData.address ? styles.labelFocused : ''}`}>
-                        Адрес
+                 <div className={styles.formGroup}>
+                    <label className={`${styles.label} ${focusedFields.url || formData.url ? styles.labelFocused : ''}`}>
+                        Сайт
                     </label>
                     <input
-                        type="text"
-                        name="address"
-                        value={formData.address || ''}
+                        type="url"
+                        name="url"
+                        value={formData.url || ''}
                         onChange={handleChange}
-                        onFocus={() => handleFocus('address')}
-                        onBlur={() => handleBlur('address')}
+                        onFocus={() => handleFocus('url')}
+                        onBlur={() => handleBlur('url')}
                         className={styles.input}
                     />
                 </div>
+
+                 <div className={styles.formGroup}>
+                    <label className={`${styles.label} ${focusedFields.logo || formData.logo ? styles.labelFocused : ''}`}>
+                        Логотип
+                    </label>
+                    <input
+                        type="file"
+                        name="logo"
+                        value={formData.logo || ''}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('logo')}
+                        onBlur={() => handleBlur('logo')}
+                        className={styles.input}
+                    />
+                </div>
+
+                
+
+                <div className={styles.formGroup}>
+                    <label className={`${styles.label} ${focusedFields.type || formData.type ? styles.labelFocused : ''}`}>
+                        Тип компании
+                    </label>
+                    <select
+                        name="type"
+                        value={formData.type || ''}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('type')}
+                        onBlur={() => handleBlur('type')}
+                        className={styles.inputSelect}
+                    >
+                        {companyTypes.map(option => (
+                            <option key={option.value} value={option.value}
+                            className={styles.option}
+                            >
+                                {option.label} 
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {isDealer && (<BasicSelect></BasicSelect>)}
+
+                <div className={styles.formGroup}>
+                    <label className={`${styles.label} ${focusedFields.status || formData.status ? styles.labelFocused : ''}`}>
+                        Статус
+                    </label>
+                    <select
+                        name="status"
+                        value={formData.status || ''}
+                        onChange={handleChange}
+                        onFocus={() => handleFocus('status')}
+                        onBlur={() => handleBlur('status')}
+                        className={styles.inputSelect}
+                    >
+                        {companyStatuses.map(option => (
+                            <option key={option.value} value={option.value}
+                            className={styles.option}
+                            >
+                                {option.label} 
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                
+
+               
+
+
+                
 
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.manager || formData.manager ? styles.labelFocused : ''}`}>
