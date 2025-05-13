@@ -56,25 +56,25 @@ const BasicSelect = (label) => {
     return (
         <div className={styles.formGroup}>
             <FormControl sx={{
-        border: 'none',
-        '& .MuiInputLabel-shrink': { // Изменено здесь
-            border: 'none',
-            outline: 'none',
-            zIndex: '1',
-            '&::before': {
-                content: '""',
-                position: 'absolute',
-                left: 0,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '100%',
-                height: '2px',
-                backgroundColor: 'var(--backgroundColor, #1e1e1e)',
-                zIndex: '-1',
-                border: 'none'
-            }
-        }
-    }}>
+                border: 'none',
+                '& .MuiInputLabel-shrink': {
+                    border: 'none',
+                    outline: 'none',
+                    zIndex: '1',
+                    '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '100%',
+                        height: '2px',
+                        backgroundColor: 'var(--backgroundColor, #1e1e1e)',
+                        zIndex: '-1',
+                        border: 'none'
+                    }
+                }
+            }}>
                 <InputLabel
                     id="demo-multiple-checkbox-label"
                     sx={{
@@ -85,16 +85,17 @@ const BasicSelect = (label) => {
                         color: '#729fcf',
                         transition: 'all 0.2s ease',
                         pointerEvents: 'none',
-                        padding: '0 0.5rem',
-                        transformOrigin: 'left center',
+                        padding: '0 0rem',
+                        transformOrigin: 'center center',
                         zIndex: '1',
                         border: 'none',
                         outline: 'none',
                         '&.Mui-focused, &.MuiInputLabel-shrink': {
-                            top: '-0.5rem',
+                            top: '0.5rem',
                             left: '0.5rem',
                             color: '#729fcf',
                             fontSize: '0.9rem',
+                            background: 'none',
                             backgroundColor: 'transparent',
                             padding: '0 0.5rem',
                             zIndex: '10',
@@ -103,13 +104,20 @@ const BasicSelect = (label) => {
                                 position: 'absolute',
                                 left: 0,
                                 top: '50%',
-                                transform: 'translateY(-50%)',
+                                // transform: 'translateY(-50%)',
                                 width: '100%',
                                 height: '2px',
                                 backgroundColor: 'transparent',
                                 zIndex: '-1'
                             }
-                        }
+                        },
+                        '&.MuiInputLabel-shrink': {
+                            // backgroundColor: 'var(--bgColor, #1e1e1e)',
+                            backgroundColor: 'transparent',
+                            marginRight: '0.1rem',
+                            padding: '0 0.2rem',
+                            zIndex: '1',
+                        },
                     }}
                 >
                     Tag
@@ -122,41 +130,35 @@ const BasicSelect = (label) => {
                         marginLeft: '1rem',
                         marginRight: '1rem',
                         padding: '0.1rem',
-                        border: '1px solid #ffffff',
                         borderRadius: '4px',
                         backgroundColor: 'transparent',
                         color: 'var(--textColor)',
                         fontSize: '1rem',
                         transition: 'border-color 0.2s ease',
                         boxSizing: 'border-box',
+                        borderCollapse: 'collapse',
                         zIndex: '1',
                         '& .MuiSelect-icon': {
                             color: 'var(--textColor)',
-                            right: '1rem',
+                            right: '0.1rem',
                         },
-                        '&:hover': {
-                            borderColor: '#729fcf',
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            border: '1px solid #729fcf',
                         },
-                        '&.Mui-focused': {
-                            border: 'none',
-                            borderColor: '#729fcf',
-                            outline: 'none',
-                        },
-                        '&.MuiInputLabel-shrink': {
-                            border: 'none',
-                            outline: 'none',
-                        },
+                        // '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        //     border: '2px solid #729fcf',
+                        // },
                         '&.MuiInputBase-root:has(input:not([value=""]))': {
-            // Стили поля, когда есть данные
-            '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#729fcf',
-                borderWidth: '1px',
-            }
-        },
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderWidth: '1px',
+                                zIndex: '0',
+                            }
+                        },
                         '& .MuiOutlinedInput-notchedOutline': {
                             border: '1px solid #ffffff',
                             borderRadius: '4px',
                             outline: 'none',
+                            zIndex: '0',
                         },
                     }}
                     labelId="demo-multiple-checkbox-label"
@@ -164,16 +166,7 @@ const BasicSelect = (label) => {
                     multiple
                     value={recyclers}
                     onChange={handleChange}
-                    input={<OutlinedInput 
-                        label="Tag"
-                        sx={{
-                            backgroundColor: 'transparent',
-                            color: 'var(--textColor)',
-                            fontSize: '1rem',
-                            transition: 'border-color 0.2s ease',
-                            boxSizing: 'border-box',
-                        }}
-                    />}
+                    input={<OutlinedInput label="Tag" />}
                     renderValue={(selected) => selected.join(', ')}
                     MenuProps={MenuProps}
                 >
