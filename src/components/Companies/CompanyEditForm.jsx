@@ -59,6 +59,19 @@ const CompanyEditForm = () => {
         return <div className={styles.container}>Компания не найдена</div>;
     }
 
+    const loadedRecyclers = [
+            'Oliver Hansen',
+            'Van Henry',
+            'April Tucker',
+            'Ralph Hubbard',
+            'Omar Alexander',
+            'Carlos Abbott',
+            'Miriam Wagner',
+            'Bradley Wilkerson',
+            'Virginia Andrews',
+            'Kelly Snyder',
+        ];
+
     const companyTypes = [
         { value: "", label: "Выберите тип" },
         { value: "переработчик", label: "Переработчик" },
@@ -236,68 +249,44 @@ const CompanyEditForm = () => {
                     />
                 </div>
 
-                
-
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.type || formData.type ? styles.labelFocused : ''}`}>
-                        Тип компании
-                    </label>
-                    <select
+                        <BasicSelect
+                        className={styles.formGroup}
+                    multiple={false}
+                        list={companyTypes.map(option => option.label)}
                         name="type"
                         value={formData.type || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('type')}
-                        onBlur={() => handleBlur('type')}
-                        className={styles.inputSelect}
-                    >
-                        {companyTypes.map(option => (
-                            <option key={option.value} value={option.value}
-                            className={styles.option}
-                            >
-                                {option.label} 
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                        label="Тип компании"
+                    />
 
-                {isDealer && (<BasicSelect
-                label="Работает с переработчиками"
-                ></BasicSelect>)}
+                {isDealer && (
+                    <BasicSelect
+                    className={styles.formGroup}
+                    multiple={true}
+                        list={loadedRecyclers}
+                        name="recyclers"
+                        value={formData.recyclers || []}
+                        onChange={(value) => setFormData(prev => ({ ...prev, recyclers: value }))}
+                        label="Работает с переработчиками"
+                    />
+                )}
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.status || formData.status ? styles.labelFocused : ''}`}>
-                        Статус
-                    </label>
-                    <select
+                <BasicSelect
+                    className={styles.formGroup}
+                    multiple={false}
+                        list={companyStatuses.map(option => option.label)}
                         name="status"
                         value={formData.status || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('status')}
-                        onBlur={() => handleBlur('status')}
-                        className={styles.inputSelect}
-                    >
-                        {companyStatuses.map(option => (
-                            <option key={option.value} value={option.value}
-                            className={styles.option}
-                            >
-                                {option.label} 
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                
-
-               
-
-
-                
+                        onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                        label="Статус компании"
+                    />
 
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.manager || formData.manager ? styles.labelFocused : ''}`}>
                         Менеджер
                     </label>
                     <input
+                        disabled={true}
                         type="text"
                         name="manager"
                         value={formData.manager || ''}

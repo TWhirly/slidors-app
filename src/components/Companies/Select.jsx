@@ -22,22 +22,11 @@ const MenuProps = {
     },
 };
 
-const BasicSelect = (label) => {
+const BasicSelect = (props) => {
     const { regions: contextRegions } = useContext(DataContext);
     const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
 
-    const loadedRecyclers = [
-        'Oliver Hansen',
-        'Van Henry',
-        'April Tucker',
-        'Ralph Hubbard',
-        'Omar Alexander',
-        'Carlos Abbott',
-        'Miriam Wagner',
-        'Bradley Wilkerson',
-        'Virginia Andrews',
-        'Kelly Snyder',
-    ];
+    const list = props.list || [];
 
     useEffect(() => {
         const savedRegions = sessionStorage.getItem('regionsWithCompanies');
@@ -46,81 +35,55 @@ const BasicSelect = (label) => {
         }
     }, []);
 
-    const [recyclers, setRecyclers] = useState([]);
-
     const handleChange = (event) => {
         const { target: { value } } = event;
-        setRecyclers(typeof value === 'string' ? value.split(',') : value);
+        let newValue
+        if(props.multiple) {
+         newValue = typeof value === 'string' ? value.split(',') : value;
+        } else {
+             newValue = value;
+        }
+        props.onChange(newValue); // Pass the new value to parent
     };
 
     return (
         <div className={styles.formGroup}>
             <FormControl sx={{
                 border: 'none',
-                '& .MuiInputLabel-shrink': {
-                    border: 'none',
-                    outline: 'none',
-                    zIndex: '1',
-                    '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        left: 0,
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        width: '100%',
-                        height: '2px',
-                        backgroundColor: 'var(--backgroundColor, #1e1e1e)',
-                        zIndex: '-1',
-                        border: 'none'
-                    }
-                }
             }}>
                 <InputLabel
                     id="demo-multiple-checkbox-label"
                     sx={{
                         position: 'absolute',
+                        width: 'fit-content',
                         left: '1rem',
                         top: '0.3rem',
                         fontSize: '1rem',
                         color: '#729fcf',
                         transition: 'all 0.2s ease',
                         pointerEvents: 'none',
-                        padding: '0 0rem',
-                        transformOrigin: 'center center',
+                        transformOrigin: 'left center',
                         zIndex: '1',
-                        border: 'none',
-                        outline: 'none',
+                        background: 'transparent',
+                        padding: '0 0.2rem',
+                        display: 'flex',
                         '&.Mui-focused, &.MuiInputLabel-shrink': {
+                            width: 'fit-content',
                             top: '0.5rem',
                             left: '0.5rem',
                             color: '#729fcf',
                             fontSize: '0.9rem',
-                            background: 'none',
-                            backgroundColor: 'transparent',
+                            backgroundImage: 'url("../../icons/background.jpg")',
+                            backgroundSize: 'cover',
+                            backgroundColor: '#141414',
+                            backgroundRepeat: 'repeat',
+                            backgroundPosition: 'center',
                             padding: '0 0.5rem',
                             zIndex: '10',
-                            '&::before': {
-                                content: '""',
-                                position: 'absolute',
-                                left: 0,
-                                top: '50%',
-                                // transform: 'translateY(-50%)',
-                                width: '100%',
-                                height: '2px',
-                                backgroundColor: 'transparent',
-                                zIndex: '-1'
-                            }
-                        },
-                        '&.MuiInputLabel-shrink': {
-                            // backgroundColor: 'var(--bgColor, #1e1e1e)',
-                            backgroundColor: 'transparent',
-                            marginRight: '0.1rem',
-                            padding: '0 0.2rem',
-                            zIndex: '1',
                         },
                     }}
                 >
-                    Tag
+                  {props.label}
                 </InputLabel>
                 <Select
                     sx={{
@@ -136,7 +99,6 @@ const BasicSelect = (label) => {
                         fontSize: '1rem',
                         transition: 'border-color 0.2s ease',
                         boxSizing: 'border-box',
-                        borderCollapse: 'collapse',
                         zIndex: '1',
                         '& .MuiSelect-icon': {
                             color: 'var(--textColor)',
@@ -145,14 +107,8 @@ const BasicSelect = (label) => {
                         '&:hover .MuiOutlinedInput-notchedOutline': {
                             border: '1px solid #729fcf',
                         },
-                        // '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        //     border: '2px solid #729fcf',
-                        // },
-                        '&.MuiInputBase-root:has(input:not([value=""]))': {
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderWidth: '1px',
-                                zIndex: '0',
-                            }
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: '2px solid #729fcf',
                         },
                         '& .MuiOutlinedInput-notchedOutline': {
                             border: '1px solid #ffffff',
@@ -163,16 +119,16 @@ const BasicSelect = (label) => {
                     }}
                     labelId="demo-multiple-checkbox-label"
                     id="demo-multiple-checkbox"
-                    multiple
-                    value={recyclers}
+                    multiple={props.multiple}
+                    value={props.value} // Use value from props
                     onChange={handleChange}
                     input={<OutlinedInput label="Tag" />}
-                    renderValue={(selected) => selected.join(', ')}
+                    renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
                     MenuProps={MenuProps}
                 >
-                    {loadedRecyclers.map((name) => (
+                    {list.map((name) => (
                         <MenuItem key={name} value={name}>
-                            <Checkbox checked={recyclers.includes(name)} />
+                            {props.multiple && (<Checkbox checked={props.value.includes(name)} />)}
                             <ListItemText primary={name} />
                         </MenuItem>
                     ))}
