@@ -226,7 +226,7 @@ const CompanyEditForm = () => {
                         Логотип
                     </label>
                     <input
-                        type="file"
+                        type="text"
                         name="logo"
                         value={formData.logo || ''}
                         onChange={handleChange}
@@ -260,7 +260,9 @@ const CompanyEditForm = () => {
                     </select>
                 </div>
 
-                {isDealer && (<BasicSelect></BasicSelect>)}
+                {isDealer && (<BasicSelect
+                label="Работает с переработчиками"
+                ></BasicSelect>)}
 
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.status || formData.status ? styles.labelFocused : ''}`}>
