@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useContext, useState, useEffect } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -7,11 +7,6 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
-import Box from '@mui/material/Box';
-
-import { DataContext } from '../../DataContext';
-import styles from './CompanyEditForm.module.css';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -25,171 +20,208 @@ const MenuProps = {
 };
 
 const BasicSelect = (props) => {
-    const { regions: contextRegions } = useContext(DataContext);
-    const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
-    const focusedTop = props.list ? '0.5rem' : '0.1rem';
+    const [search, setSearch] = useState('');
+    const [isFocused, setIsFocused] = useState(false);
+    const searchInputRef = useRef(null);
+    const list = useMemo(() => props.list || [], [props.list]);
 
-    const list = props.list || [];
-
-    useEffect(() => {
-        const savedRegions = sessionStorage.getItem('regionsWithCompanies');
-        if (savedRegions) {
-            setRegionsWithCompanies(JSON.parse(savedRegions));
-        }
-    }, []);
+    const filteredList = useMemo(() => {
+        if (!props.searchable) return list;
+        if (!search) return list;
+        
+        return list.filter(item => 
+            item.toString().toLowerCase().includes(search.toLowerCase())
+        );
+    }, [list, search, props.searchable]);
 
     const handleChange = (event) => {
         const { target: { value } } = event;
-        let newValue
-        if(props.multiple) {
-         newValue = typeof value === 'string' ? value.split(',') : value;
+        let newValue;
+        if (props.multiple) {
+            newValue = typeof value === 'string' ? value.split(',') : value;
         } else {
-             newValue = value;
+            newValue = value;
         }
-        props.onChange(newValue); // Pass the new value to parent
+        props.onChange(newValue);
+    };
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+    };
+
+    const handleSearchChange = (e) => {
+        setSearch(e.target.value);
+        // Сохраняем фокус на поле ввода
+        if (searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
     };
 
     return (
-        <div className={styles.formGroup}>
-            
-            <FormControl sx={{
-                border: 'none',
-            }}>
-                <InputLabel
-                    id="demo-multiple-checkbox-label"
-                    sx={{
-                        position: 'absolute',
-                        width: 'fit-content',
-                        left: '0.7rem',
-                        top: '0.1rem',
-                        fontSize: '1rem',
-                        color: 'white',
-                        transition: 'all 0.2s ease',
-                        pointerEvents: 'none',
-                        transformOrigin: 'left center',
-                        zIndex: '1',
-                        background: 'transparent',
-                        padding: '0 0.2rem',
-                        display: 'flex',
-                        '&.Mui-focused, &.MuiInputLabel-shrink': {
-                            width: 'fit-content',
-                            top: focusedTop,
-                            left: '0.5rem',
-                            color: '#729fcf',
-                            fontSize: '0.9rem',
-                            backgroundImage: 'url("../../icons/background.jpg")',
-                            backgroundSize: 'cover',
-                            backgroundColor: '#141414',
-                            backgroundRepeat: 'repeat',
-                            backgroundPosition: 'center',
-                            padding: '0 0.5rem',
-                            zIndex: '10',
-                        },
-                    }}
-                >
-                  {props.label}
-                </InputLabel>
-                {props.list ? (
+        <FormControl fullWidth>
+            <InputLabel
+                id={`${props.name}-label`}
+                shrink={!!props.value || isFocused}
+                sx={{
+                    position: 'absolute',
+                    left: '1rem',
+                    top: !!props.value || isFocused ? '0' : '1rem',
+                    transform: !!props.value || isFocused ? 'translateY(-50%) scale(0.9)' : 'none',
+                    color: 'white',
+                    fontSize: !!props.value || isFocused ? '0.9rem' : '1rem',
+                    transition: 'all 0.2s ease',
+                    '&.Mui-focused': {
+                        color: '#729fcf',
+                    },
+                    backgroundColor: !!props.value || isFocused ? 'rgba(20, 20, 20, 0.8)' : 'transparent',
+                    padding: !!props.value || isFocused ? '0 0.3rem' : '0',
+                    zIndex: 1,
+                }}
+            >
+                {props.label}
+            </InputLabel>
+
+            {props.list ? (
                 <Select
+                    labelId={`${props.name}-label`}
+                    id={props.name}
+                    multiple={props.multiple}
+                    value={props.value}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    input={<OutlinedInput />}
+                    renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
+                    MenuProps={{
+                        ...MenuProps,
+                        // Отключаем автофокус при открытии
+                        disableAutoFocus: true,
+                        // Отключаем автофокус элементов
+                        disableAutoFocusItem: true,
+                    }}
                     sx={{
-                        m: 1,
-                        height: '3rem',
-                        width: 'calc(100% - 2rem)',
-                        marginLeft: '1rem',
-                        marginRight: '1rem',
-                        padding: '0.1rem',
-                        borderRadius: '4px',
-                        backgroundColor: 'transparent',
-                        color: 'var(--textColor)',
-                        fontSize: '1rem',
-                        transition: 'border-color 0.2s ease',
-                        boxSizing: 'border-box',
-                        zIndex: '1',
-                        '& .MuiSelect-icon': {
-                            color: 'var(--textColor)',
-                            right: '0.1rem',
+                        height: props.rows ? 'auto' : '3rem',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: '1px solid #729fcf',
+                            borderColor: '#729fcf',
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: '2px solid #729fcf',
+                            borderColor: '#729fcf',
+                            borderWidth: '2px',
                         },
+                        '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
+                            opacity: 0.7,
+                        },
+                        '& .MuiSelect-icon': {
+                            color: 'white',
+                        },
+                        '& .MuiSelect-select': {
+                            color: 'white',
+                            '-webkit-text-fill-color': 'white',
+                        },
+                        '&.Mui-disabled .MuiSelect-select': {
+                            opacity: 0.7,
+                        }
+                    }}
+                >
+                    {props.searchable && (
+                        <div style={{ 
+                            padding: '8px', 
+                            position: 'sticky', 
+                            top: 0, 
+                            background: 'white', 
+                            zIndex: 1,
+                            borderBottom: '1px solid #444'
+                        }}>
+                            <OutlinedInput
+                                inputRef={searchInputRef}
+                                fullWidth
+                                placeholder="Поиск..."
+                                value={search}
+                                onChange={handleSearchChange}
+                                sx={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '4px',
+                                    '& .MuiOutlinedInput-input': {
+                                        color: 'black',
+                                        padding: '8px',
+                                    },
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#ccc',
+                                    },
+                                }}
+                                size="small"
+                                // Отключаем всплытие событий, чтобы не терять фокус
+                                onKeyDown={(e) => e.stopPropagation()}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        </div>
+                    )}
+                    {filteredList.length > 0 ? (
+                        filteredList.map((name) => (
+                            <MenuItem 
+                                key={name} 
+                                value={name}
+                                // Отключаем автофокус для элементов меню
+                                autoFocus={false}
+                            >
+                                {props.multiple && <Checkbox checked={props.value?.includes(name) || false} />}
+                                <ListItemText primary={name} />
+                            </MenuItem>
+                        ))
+                    ) : (
+                        <MenuItem disabled>
+                            <ListItemText primary="Ничего не найдено" />
+                        </MenuItem>
+                    )}
+                </Select>
+            ) : (
+                <OutlinedInput
+                    id={props.name}
+                    type={props.type || 'text'}
+                    value={props.value || ''}
+                    onChange={handleChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    disabled={props.disabled}
+                    multiline={props.rows ? true : false}
+                    rows={props.rows || 1}
+                    sx={{
+                        height: props.rows ? 'auto' : '3rem',
                         '& .MuiOutlinedInput-notchedOutline': {
-                            border: '1px solid #ffffff',
-                            borderRadius: '4px',
-                            outline: 'none',
-                            zIndex: '0',
+                            borderColor: 'white',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#729fcf',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#729fcf',
+                            borderWidth: '2px',
+                        },
+                        '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'white',
+                            opacity: 0.7,
+                        },
+                        '& .MuiOutlinedInput-input': {
+                            color: 'white',
+                            '-webkit-text-fill-color': 'white',
+                        },
+                        '&.Mui-disabled .MuiOutlinedInput-input': {
+                            color: 'white',
+                            opacity: 0.7,
                         },
                     }}
-                    labelId="demo-multiple-checkbox-label"
-                    id="demo-multiple-checkbox"
-                    multiple={props.multiple}
-                    value={props.value} // Use value from props
-                    onChange={handleChange}
-                    input={<OutlinedInput  />}
-                    renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
-                    MenuProps={MenuProps}
-                >
-                    {list.map((name) => (
-                        <MenuItem key={name} value={name}>
-                            {props.multiple && (<Checkbox checked={props.value.includes(name)} />)}
-                            <ListItemText primary={name} />
-                        </MenuItem>
-                    ))}
-                </Select>) : (
-                    <OutlinedInput
-                        sx={{
-                            m: 1,
-                            height: '3rem',
-                            width: 'calc(100% - 2rem)',
-                            marginLeft: '1rem',
-                            marginRight: '1rem',
-                            padding: '0.1rem',
-                            borderRadius: '4px',
-                            backgroundColor: 'transparent',
-                            color: 'var(--textColor)',
-                            fontSize: '1rem',
-                            transition: 'border-color 0.2s ease',
-                            boxSizing: 'border-box',
-                            zIndex: '1',
-                             '& .MuiSelect-icon': {
-                            color: 'var(--textColor)',
-                            // right: '0.1rem',
-                        },
-                        'legend': {
-                            display: 'none',
-                            top: '10px',
-                           
-                        },
-                        'span':{
-                            top: '10px',
-                            padding: '0'
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: '1px solid #729fcf',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: '2px solid #729fcf',
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                            border: '1px solid #ffffff',
-                            borderRadius: '4px',
-                            outline: 'none',
-                            zIndex: '0',
-                        },
-                        }}
-                        type='text'
-                        id="outlined-basic"
-                        label={props.label}
-                        variant="outlined"
-                        value={props.value || ""} // Use value from props
-                        onChange={handleChange}
-                    />
-                )}  
-            </FormControl>
-        </div>
+                />
+            )}
+        </FormControl>
     );
-}
+};
 
 export default BasicSelect;

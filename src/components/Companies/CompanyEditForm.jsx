@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
-import TextField from '@mui/material/TextField';
+import { DataContext } from '../../DataContext';
 
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
@@ -10,7 +10,19 @@ const CompanyEditForm = () => {
     const [formData, setFormData] = useState({ ...company });
     const [focusedFields, setFocusedFields] = useState({});
     const [isDealer, setIsDealer] = useState(false)
+    const [regions, setRegions] = useState([]);
     const tg = window.Telegram.WebApp;
+    const { regions: contextRegions } = useContext(DataContext);
+
+
+    console.log('dataContext', contextRegions)
+
+    useEffect(() => {
+        if (!contextRegions) return;
+        const regions = contextRegions.map(item => (item.region));
+        setRegions(regions);
+    }, [contextRegions]);
+
 
     useEffect(() => {
         if (!company) {
@@ -51,7 +63,7 @@ const CompanyEditForm = () => {
     const handleSave = () => {
         // Здесь должна быть логика сохранения данных
         console.log('Saving data:', formData);
-        
+
         // После сохранения возвращаемся назад
         navigate(`/companies/${company.id}`, { state: formData });
     };
@@ -61,17 +73,17 @@ const CompanyEditForm = () => {
     }
 
     const loadedRecyclers = [
-            'Oliver Hansen',
-            'Van Henry',
-            'April Tucker',
-            'Ralph Hubbard',
-            'Omar Alexander',
-            'Carlos Abbott',
-            'Miriam Wagner',
-            'Bradley Wilkerson',
-            'Virginia Andrews',
-            'Kelly Snyder',
-        ];
+        'Oliver Hansen',
+        'Van Henry',
+        'April Tucker',
+        'Ralph Hubbard',
+        'Omar Alexander',
+        'Carlos Abbott',
+        'Miriam Wagner',
+        'Bradley Wilkerson',
+        'Virginia Andrews',
+        'Kelly Snyder',
+    ];
 
     const companyTypes = [
         { value: "", label: "Выберите тип" },
@@ -89,6 +101,7 @@ const CompanyEditForm = () => {
         { value: "уточнить тел.", label: "Уточнить тел." },
     ];
     console.log('formData', formData)
+    console.log('regions', regions)
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -101,162 +114,97 @@ const CompanyEditForm = () => {
                 <BasicSelect
                     className={styles.formGroup}
                     multiple={false}
-                        name="name"
-                        value={formData.name || ''}
-                        onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
-                        label="Название компании"
-                    />
+                    name="name"
+                    value={formData.name || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
+                    label="Название компании"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.region || formData.region ? styles.labelFocused : ''}`}>
-                        Регион
-                    </label>
-                    <input
-                        type="text"
-                        name="region"
-                        value={formData.region || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('region')}
-                        onBlur={() => handleBlur('region')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    searchable={true}
+                    list={regions}
+                    name="region"
+                    value={formData.region || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, region: value }))}
+                    label="Регион"
+                />
 
-                 <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.city || formData.city ? styles.labelFocused : ''}`}>
-                        Город
-                    </label>
-                    <input
-                        type="text"
-                        name="city"
-                        value={formData.city || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('city')}
-                        onBlur={() => handleBlur('city')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    name="city"
+                    value={formData.city || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
+                    label="Город"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.address || formData.address ? styles.labelFocused : ''}`}>
-                        Адрес
-                    </label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('address')}
-                        onBlur={() => handleBlur('address')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    name="address"
+                    value={formData.address || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
+                    label="Адрес"
+                />
 
-                
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.phone1 || formData.phone1 ? styles.labelFocused : ''}`}>
-                        Телефон 1
-                    </label>
-                    <input
-                        type="tel"
-                        name="phone1"
-                        value={formData.phone1 || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('phone1')}
-                        onBlur={() => handleBlur('phone1')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="tel"
+                    name="phone1"
+                    value={formData.phone1 || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, phone1: value }))}
+                    label="Телефон 1"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.phone2 || formData.phone2 ? styles.labelFocused : ''}`}>
-                        Телефон 2
-                    </label>
-                    <input
-                        type="tel"
-                        name="phone2"
-                        value={formData.phone2 || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('phone2')}
-                        onBlur={() => handleBlur('phone2')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="tel"
+                    name="phone2"
+                    value={formData.phone2 || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, phone2: value }))}
+                    label="Телефон 2"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.whatsapp || formData.whatsapp ? styles.labelFocused : ''}`}>
-                        WhatsApp
-                    </label>
-                    <input
-                        type="tel"
-                        name="whatsapp"
-                        value={formData.whatsapp || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('whatsapp')}
-                        onBlur={() => handleBlur('whatsapp')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="tel"
+                    name="whatsapp"
+                    value={formData.whatsapp || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, whatsapp: value }))}
+                    label="WhatsApp"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.telegram || formData.telegram ? styles.labelFocused : ''}`}>
-                        Telegram
-                    </label>
-                    <input
-                        type="tel"
-                        name="telegram"
-                        value={formData.telegram || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('telegram')}
-                        onBlur={() => handleBlur('telegram')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="tel"
+                    name="telegram"
+                    value={formData.telegram || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, telegram: value }))}
+                    label="Telegram"
+                />
 
-                 <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.url || formData.url ? styles.labelFocused : ''}`}>
-                        Сайт
-                    </label>
-                    <input
-                        type="url"
-                        name="url"
-                        value={formData.url || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('url')}
-                        onBlur={() => handleBlur('url')}
-                        className={styles.input}
-                    />
-                </div>
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="url"
+                    name="url"
+                    value={formData.url || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, url: value }))}
+                    label="Сайт"
+                />
 
-                 <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.logo || formData.logo ? styles.labelFocused : ''}`}>
-                        Логотип
-                    </label>
-                    <input
-                        type="text"
-                        name="logo"
-                        value={formData.logo || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('logo')}
-                        onBlur={() => handleBlur('logo')}
-                        className={styles.input}
-                    />
-                </div>
-               
-                        <BasicSelect
-                        className={styles.formGroup}
+                <BasicSelect
+                    className={styles.formGroup}
                     multiple={false}
-                        list={companyTypes.map(option => option.label)}
-                        name="type"
-                        value={formData.type || ''}
-                        onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
-                        label="Тип компании"
-                    />
+                    list={companyTypes.map(option => option.label)}
+                    name="type"
+                    value={formData.type || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                    label="Тип компании"
+                />
 
                 {isDealer && (
                     <BasicSelect
-                    className={styles.formGroup}
-                    multiple={true}
+                        className={styles.formGroup}
+                        multiple={true}
                         list={loadedRecyclers}
                         name="recyclers"
                         value={formData.recyclers || []}
@@ -268,45 +216,32 @@ const CompanyEditForm = () => {
                 <BasicSelect
                     className={styles.formGroup}
                     multiple={false}
-                        list={companyStatuses.map(option => option.label)}
-                        name="status"
-                        value={formData.status || ''}
-                        onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
-                        label="Статус компании"
-                    />
+                    list={companyStatuses.map(option => option.label)}
+                    name="status"
+                    value={formData.status || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                    label="Статус компании"
+                />
 
-                    
+                <BasicSelect
+                    className={styles.formGroup}
+                    disabled={true}
+                    type="text"
+                    name="manager"
+                    value={formData.manager || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, manager: value }))}
+                    label="Менеджер"
+                />
 
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.manager || formData.manager ? styles.labelFocused : ''}`}>
-                        Менеджер
-                    </label>
-                    <input
-                        disabled={true}
-                        type="text"
-                        name="manager"
-                        value={formData.manager || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('manager')}
-                        onBlur={() => handleBlur('manager')}
-                        className={styles.input}
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.description || formData.description ? styles.labelFocused : ''}`}>
-                        Примечание
-                    </label>
-                    <textarea
-                        name="description"
-                        value={formData.description || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('description')}
-                        onBlur={() => handleBlur('description')}
-                        className={`${styles.input} ${styles.textarea}`}
-                        rows="3"
-                    />
-                </div>
+                 <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="description"
+                    value={formData.description || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+                    label="Примечание"
+                    rows="3"
+                />
             </div>
         </div>
     );

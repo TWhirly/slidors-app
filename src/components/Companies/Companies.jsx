@@ -14,6 +14,7 @@ import sha256 from 'crypto-js/sha256'; // Import the hashing library
 const Companies = () => {
     
     const { regions: contextRegions } = useContext(DataContext);
+    console.log('contextRegions', contextRegions)
     console.log('regions', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
