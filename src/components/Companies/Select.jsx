@@ -7,6 +7,8 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
 
 import { DataContext } from '../../DataContext';
 import styles from './CompanyEditForm.module.css';
@@ -25,6 +27,7 @@ const MenuProps = {
 const BasicSelect = (props) => {
     const { regions: contextRegions } = useContext(DataContext);
     const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
+    const focusedTop = props.list ? '0.5rem' : '0.1rem';
 
     const list = props.list || [];
 
@@ -48,6 +51,7 @@ const BasicSelect = (props) => {
 
     return (
         <div className={styles.formGroup}>
+            
             <FormControl sx={{
                 border: 'none',
             }}>
@@ -56,10 +60,10 @@ const BasicSelect = (props) => {
                     sx={{
                         position: 'absolute',
                         width: 'fit-content',
-                        left: '1rem',
-                        top: '0.3rem',
+                        left: '0.7rem',
+                        top: '0.1rem',
                         fontSize: '1rem',
-                        color: '#729fcf',
+                        color: 'white',
                         transition: 'all 0.2s ease',
                         pointerEvents: 'none',
                         transformOrigin: 'left center',
@@ -69,7 +73,7 @@ const BasicSelect = (props) => {
                         display: 'flex',
                         '&.Mui-focused, &.MuiInputLabel-shrink': {
                             width: 'fit-content',
-                            top: '0.5rem',
+                            top: focusedTop,
                             left: '0.5rem',
                             color: '#729fcf',
                             fontSize: '0.9rem',
@@ -85,6 +89,7 @@ const BasicSelect = (props) => {
                 >
                   {props.label}
                 </InputLabel>
+                {props.list ? (
                 <Select
                     sx={{
                         m: 1,
@@ -122,7 +127,7 @@ const BasicSelect = (props) => {
                     multiple={props.multiple}
                     value={props.value} // Use value from props
                     onChange={handleChange}
-                    input={<OutlinedInput label="Tag" />}
+                    input={<OutlinedInput  />}
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
                     MenuProps={MenuProps}
                 >
@@ -132,7 +137,56 @@ const BasicSelect = (props) => {
                             <ListItemText primary={name} />
                         </MenuItem>
                     ))}
-                </Select>
+                </Select>) : (
+                    <OutlinedInput
+                        sx={{
+                            m: 1,
+                            height: '3rem',
+                            width: 'calc(100% - 2rem)',
+                            marginLeft: '1rem',
+                            marginRight: '1rem',
+                            padding: '0.1rem',
+                            borderRadius: '4px',
+                            backgroundColor: 'transparent',
+                            color: 'var(--textColor)',
+                            fontSize: '1rem',
+                            transition: 'border-color 0.2s ease',
+                            boxSizing: 'border-box',
+                            zIndex: '1',
+                             '& .MuiSelect-icon': {
+                            color: 'var(--textColor)',
+                            // right: '0.1rem',
+                        },
+                        'legend': {
+                            display: 'none',
+                            top: '10px',
+                           
+                        },
+                        'span':{
+                            top: '10px',
+                            padding: '0'
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            border: '1px solid #729fcf',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            border: '2px solid #729fcf',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            border: '1px solid #ffffff',
+                            borderRadius: '4px',
+                            outline: 'none',
+                            zIndex: '0',
+                        },
+                        }}
+                        type='text'
+                        id="outlined-basic"
+                        label={props.label}
+                        variant="outlined"
+                        value={props.value || ""} // Use value from props
+                        onChange={handleChange}
+                    />
+                )}  
             </FormControl>
         </div>
     );

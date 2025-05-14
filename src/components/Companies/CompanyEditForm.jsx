@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
+import TextField from '@mui/material/TextField';
 
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
@@ -97,21 +98,14 @@ const CompanyEditForm = () => {
             </div>
 
             <div className={styles.formContainer}>
-                <div className={styles.formGroup}>
-                    <label className={`${styles.label} ${focusedFields.name || formData.name ? styles.labelFocused : ''}`}>
-                        Название компании
-                    </label>
-                    <input
-                        type="text"
+                <BasicSelect
+                    className={styles.formGroup}
+                    multiple={false}
                         name="name"
                         value={formData.name || ''}
-                        onChange={handleChange}
-                        onFocus={() => handleFocus('name')}
-                        onBlur={() => handleBlur('name')}
-                        className={styles.input}
-                        placeholder={!focusedFields.name && !formData.name ? 'Название компании' : ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
+                        label="Название компании"
                     />
-                </div>
 
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.region || formData.region ? styles.labelFocused : ''}`}>
@@ -248,7 +242,7 @@ const CompanyEditForm = () => {
                         className={styles.input}
                     />
                 </div>
-
+               
                         <BasicSelect
                         className={styles.formGroup}
                     multiple={false}
@@ -280,6 +274,8 @@ const CompanyEditForm = () => {
                         onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
                         label="Статус компании"
                     />
+
+                    
 
                 <div className={styles.formGroup}>
                     <label className={`${styles.label} ${focusedFields.manager || formData.manager ? styles.labelFocused : ''}`}>
