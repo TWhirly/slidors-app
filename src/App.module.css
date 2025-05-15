@@ -46,7 +46,7 @@
 } */
 
 :root {
-  --bgColor: #ffffff;
+  --bgColor: #000000;
   
 }
 
@@ -64,7 +64,7 @@
 
 body {
   margin: 0 auto;
-  background: var(--tg-theme-bg-color);
+  background: #000000;
   color: white;
   
 

@@ -11,11 +11,11 @@ const CompanyEditForm = () => {
     const [focusedFields, setFocusedFields] = useState({});
     const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
+    const [cities, setCities] = useState([]);
     const tg = window.Telegram.WebApp;
     const { regions: contextRegions } = useContext(DataContext);
+    
 
-
-    console.log('dataContext', contextRegions)
 
     useEffect(() => {
         if (!contextRegions) return;
@@ -29,7 +29,7 @@ const CompanyEditForm = () => {
             navigate('/companies');
             return;
         }
-
+        tg.setBottomBarColor("#131313")
         // Инициализация Telegram кнопки
         tg.MainButton.setText('Сохранить');
         tg.MainButton.show();
@@ -44,6 +44,22 @@ const CompanyEditForm = () => {
     useEffect(() => {
         formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
     }, [formData])
+
+    useEffect(() => {
+        if (formData.region && sessionStorage.getItem('regionsWithCompanies')) {
+            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
+            const selectedRegion = savedRegions.find(item => item.region === formData.region);
+            const cities = selectedRegion.companies.reduce((acc, company) => {
+                if (!acc.includes(company.city) && company.city.length > 0) {
+                    acc.push(company.city);
+                }
+                return acc;
+            }, []);
+            setCities(cities.sort());
+        } else {
+            setCities([]);
+        }
+    }, [formData.region]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,7 +102,6 @@ const CompanyEditForm = () => {
     ];
 
     const companyTypes = [
-        { value: "", label: "Выберите тип" },
         { value: "переработчик", label: "Переработчик" },
         { value: "дистрибьютор", label: "Дистрибьютор" },
         { value: "дилер", label: "Дилер" },
@@ -95,13 +110,12 @@ const CompanyEditForm = () => {
     ];
 
     const companyStatuses = [
-        { value: "", label: "Выберите статус" },
         { value: "работает", label: "Работает" },
         { value: "не работает", label: "Не работает" },
         { value: "уточнить тел.", label: "Уточнить тел." },
     ];
-    console.log('formData', formData)
-    console.log('regions', regions)
+    console.log('cities', cities)
+    // console.log('regions', regions)
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -122,7 +136,8 @@ const CompanyEditForm = () => {
 
                 <BasicSelect
                     className={styles.formGroup}
-                    searchable={true}
+                    searchable
+                    allowAdds
                     list={regions}
                     name="region"
                     value={formData.region || ''}
@@ -132,6 +147,9 @@ const CompanyEditForm = () => {
 
                 <BasicSelect
                     className={styles.formGroup}
+                    searchable
+                    allowAdds
+                    list={cities}
                     name="city"
                     value={formData.city || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}

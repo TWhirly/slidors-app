@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef , useEffect} from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -23,27 +22,72 @@ const BasicSelect = (props) => {
     const [search, setSearch] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const searchInputRef = useRef(null);
-    const list = useMemo(() => props.list || [], [props.list]);
+    
+    // Используем props.list как основной источник данных
+    const [localList, setLocalList] = useState(props.list || []);
+
+    // Синхронизируем localList при изменении props.list
+    useEffect(() => {
+        setLocalList(props.list || []);
+    }, [props.list]);
 
     const filteredList = useMemo(() => {
-        if (!props.searchable) return list;
-        if (!search) return list;
-
-        return list.filter(item =>
+        if (!props.searchable) return localList;
+        if (!search) return localList;
+        
+        return localList.filter(item =>
             item.toString().toLowerCase().includes(search.toLowerCase())
         );
-    }, [list, search, props.searchable]);
+    }, [localList, search, props.searchable]);
+
+    const handleClick = () => {
+        if (search && !localList.includes(search)) {
+            const newList = [...localList, search];
+            setLocalList(newList);
+            
+            // Обновляем значение в formData
+            if (props.multiple) {
+                const newValue = props.value ? [...props.value, search] : [search];
+                props.onChange(newValue);
+            } else {
+                props.onChange(search);
+            }
+            setSearch('');
+        }
+    };
 
     const handleChange = (event) => {
+        console.log('event', event)
         const { target: { value } } = event;
-        let newValue;
-        if (props.multiple) {
-            newValue = typeof value === 'string' ? value.split(',') : value;
-        } else {
-            newValue = value;
+        if (value !== undefined) {
+            setSearch('');
+            let newValue;
+            if (props.multiple) {
+                newValue = typeof value === 'string' ? value.split(',') : value;
+            } else {
+                newValue = value;
+            }
+            console.log('search2', search)
+            props.onChange(newValue);
         }
-        props.onChange(newValue);
     };
+
+    // const handleClick = () => {
+    //     if (search && !localList.includes(search)) {
+    //         const newList = [...localList, search];
+    //         setLocalList(newList);
+
+    //         // Immediately set the new value
+    //         if (props.multiple) {
+    //             const newValue = props.value ? [...props.value, search] : [search];
+    //             props.onChange(newValue);
+    //         } else {
+    //             console.log('search', search)
+    //             props.onChange(search);
+    //         }
+    //         setSearch('');
+    //     }
+    // };
 
     const handleFocus = () => {
         setIsFocused(true);
@@ -55,7 +99,6 @@ const BasicSelect = (props) => {
 
     const handleSearchChange = (e) => {
         setSearch(e.target.value);
-        // Сохраняем фокус на поле ввода
         if (searchInputRef.current) {
             searchInputRef.current.focus();
         }
@@ -69,7 +112,7 @@ const BasicSelect = (props) => {
                 sx={{
                     position: 'absolute',
                     left: '1rem',
-                    top: !!props.value || isFocused ? '0' : '1rem',
+                    top: !!props.value || isFocused ? '0.1rem' : '0.7rem',
                     transform: !!props.value || isFocused ? 'translateY(-50%) scale(0.9)' : 'none',
                     color: 'white',
                     fontSize: !!props.value || isFocused ? '0.9rem' : '1rem',
@@ -98,9 +141,7 @@ const BasicSelect = (props) => {
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
                     MenuProps={{
                         ...MenuProps,
-                        // Отключаем автофокус при открытии
                         disableAutoFocus: true,
-                        // Отключаем автофокус элементов
                         disableAutoFocusItem: true,
                     }}
                     sx={{
@@ -138,7 +179,10 @@ const BasicSelect = (props) => {
                             top: 0,
                             background: 'white',
                             zIndex: 1,
-                            borderBottom: '1px solid #444'
+                            borderBottom: '1px solid #444',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px'
                         }}>
                             <OutlinedInput
                                 inputRef={searchInputRef}
@@ -158,10 +202,27 @@ const BasicSelect = (props) => {
                                     },
                                 }}
                                 size="small"
-                                // Отключаем всплытие событий, чтобы не терять фокус
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onClick={(e) => e.stopPropagation()}
                             />
+                            {search && props.allowAdds && !filteredList.includes(search) && (
+                                <button
+                                    onClick={handleClick}
+                                    style={{
+                                        background: '#729fcf',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '8px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                >
+                                    Добавить "{search}"
+                                </button>
+                            )}
                         </div>
                     )}
                     {filteredList.length > 0 ? (
@@ -169,7 +230,6 @@ const BasicSelect = (props) => {
                             <MenuItem
                                 key={name}
                                 value={name}
-                                // Отключаем автофокус для элементов меню
                                 autoFocus={false}
                             >
                                 {props.multiple && <Checkbox checked={props.value?.includes(name) || false} />}

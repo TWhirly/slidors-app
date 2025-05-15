@@ -32,8 +32,7 @@ function App() {
 
     // if (window.Telegram.WebApp.colorScheme === 'dark') {
         document.documentElement.style.setProperty("--bgColor", "#000000");
-        tg.setHeaderColor("#000000");
-        tg.setBottomBarColor("#000000");
+        
     // }
     // else {
     //     document.documentElement.style.setProperty("--bgColor", "#ffffff");
@@ -44,17 +43,16 @@ function App() {
     useEffect(() => {
         tg.ready();
         const fontFamily = tg.platform === 'desktop' ? 'Open Sans, sans-serif' : 'system-ui, sans-serif';
-        // const bgColor = tg.colorScheme === 'dark' ? '#000000' : '#ffffff';
-        // const textColor = tg.colorScheme === 'dark' ? '#ffffff' : '#000000';
         const textColor = '#ffffff';
 
         document.documentElement.style.setProperty('--fontFamily', fontFamily);
-        // document.documentElement.style.setProperty('--bgColor', bgColor);
         document.documentElement.style.setProperty('--textColor', textColor);
 
         document.body.style.fontFamily = fontFamily;
         window.Telegram.WebApp.exitFullscreen();
         document.body.style.color = textColor;
+        tg.setHeaderColor("#131313");
+        tg.setBackgroundColor("#131313");
     }, [tg])
 
     // useEffect(() => {
@@ -65,7 +63,7 @@ function App() {
     //     }
     //   }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
 
-    
+    console.log('tg', window.Telegram)
 
     return (
         <DataProvider>
