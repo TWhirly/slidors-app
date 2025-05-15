@@ -18,7 +18,7 @@ export const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open
     marginLeft: `-${drawerWidth}px`,
     zIndex: 1, // Установите z-index ниже sidebar
     position: 'relative', // Убедитесь, что Main располагается относительно контейнера
-    color: 'var(--textColor)',
+    color: 'white',
     fontFamily: 'var(--fontFamily)',
     variants: [
       {
@@ -43,7 +43,7 @@ export const AppBar = styled(MuiAppBar, {
     duration: theme.transitions.duration.leavingScreen,
   }),
   backgroundColor: 'var(--bgColor)',
-  color: 'var(--textColor)',
+  color: 'white',
   fontFamily: 'var(--fontFamily)',
   zIndex: 2, // Убедитесь, что AppBar выше Main
   variants: [
@@ -74,7 +74,7 @@ export const DrawerHeader = styled('div')(({ theme }) => ({
 export const listItemTextStyles = {
     primary: {
         fontSize: '0.7rem',
-        color: 'black',
+        color: 'white',
         fontFamily: 'var(--fontFamily)',
     }
 };

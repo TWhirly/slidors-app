@@ -37,3 +37,8 @@
     transform: rotate(360deg);
   }
 }
+
+.Mui-disabled {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
+}

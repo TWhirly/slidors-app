@@ -28,8 +28,8 @@ const BasicSelect = (props) => {
     const filteredList = useMemo(() => {
         if (!props.searchable) return list;
         if (!search) return list;
-        
-        return list.filter(item => 
+
+        return list.filter(item =>
             item.toString().toLowerCase().includes(search.toLowerCase())
         );
     }, [list, search, props.searchable]);
@@ -132,11 +132,11 @@ const BasicSelect = (props) => {
                     }}
                 >
                     {props.searchable && (
-                        <div style={{ 
-                            padding: '8px', 
-                            position: 'sticky', 
-                            top: 0, 
-                            background: 'white', 
+                        <div style={{
+                            padding: '8px',
+                            position: 'sticky',
+                            top: 0,
+                            background: 'white',
                             zIndex: 1,
                             borderBottom: '1px solid #444'
                         }}>
@@ -166,8 +166,8 @@ const BasicSelect = (props) => {
                     )}
                     {filteredList.length > 0 ? (
                         filteredList.map((name) => (
-                            <MenuItem 
-                                key={name} 
+                            <MenuItem
+                                key={name}
                                 value={name}
                                 // Отключаем автофокус для элементов меню
                                 autoFocus={false}
@@ -194,6 +194,7 @@ const BasicSelect = (props) => {
                     multiline={props.rows ? true : false}
                     rows={props.rows || 1}
                     sx={{
+                        color: 'white',
                         height: props.rows ? 'auto' : '3rem',
                         '& .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'white',
@@ -205,17 +206,18 @@ const BasicSelect = (props) => {
                             borderColor: '#729fcf',
                             borderWidth: '2px',
                         },
-                        '&.Mui-disabled .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'white',
-                            opacity: 0.7,
-                        },
-                        '& .MuiOutlinedInput-input': {
-                            color: 'white',
-                            '-webkit-text-fill-color': 'white',
-                        },
-                        '&.Mui-disabled .MuiOutlinedInput-input': {
-                            color: 'white',
-                            opacity: 0.7,
+                        '&.Mui-disabled': {
+                            color: 'white !important',
+                            '-webkit-text-fill-color': 'white !important',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'white !important',
+                                opacity: 0.7,
+                            },
+                            '& .MuiOutlinedInput-input': {
+                                color: 'white !important',
+                                '-webkit-text-fill-color': 'white !important',
+                                opacity: 0.7,
+                            },
                         },
                     }}
                 />

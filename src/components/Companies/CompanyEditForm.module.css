@@ -54,14 +54,17 @@
 
 .formGroup {
     position: relative;
-    width: 100%;
+    width: calc(100% - 2rem); 
+    display: flex;
     margin-bottom: 1rem;
+    margin-right: 1rem;
+    margin-left: 1rem;
 }
 
 /* Общие стили для всех полей ввода */
 .MuiOutlinedInput-root {
     height: 3rem;
-    width: 100% !important;
+    width: auto !important;
     color: white !important;
     background-color: transparent !important;
 }
@@ -116,8 +119,16 @@
 }
 
 /* Стили для disabled поля */
-.MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+.MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline  {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
     border-color: white !important;
+    opacity: 0.7;
+}
+
+.MuiInputBase-root.Mui-disabled .MuiOutlinedInput-root.Mui-disabled {
+    color: white !important;
+    -webkit-text-fill-color: white !important;
     opacity: 0.7;
 }
 
