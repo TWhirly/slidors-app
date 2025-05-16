@@ -12,6 +12,7 @@ const CompanyEditForm = () => {
     const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
     const [cities, setCities] = useState([]);
+    const [recyclers, setRecyclers] = useState([]);
     const tg = window.Telegram.WebApp;
     const { regions: contextRegions } = useContext(DataContext);
     
@@ -61,20 +62,22 @@ const CompanyEditForm = () => {
         }
     }, [formData.region]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleFocus = (fieldName) => {
-        setFocusedFields(prev => ({ ...prev, [fieldName]: true }));
-    };
-
-    const handleBlur = (fieldName) => {
-        if (!formData[fieldName]) {
-            setFocusedFields(prev => ({ ...prev, [fieldName]: false }));
+    useEffect(() => {
+        if (formData.type === 'Дилер' && sessionStorage.getItem('regionsWithCompanies')) {
+            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
+            const recyclers = [];
+            savedRegions.forEach(region => {region.companies.forEach(company => {
+                if (company.type === 'Переработчик' && company.name.length > 0 && !recyclers.includes(company.name)) {
+                    recyclers.push(company.name);
+                }
+            })});
+                
+            setRecyclers(recyclers.sort());
+        } else {
+            setRecyclers([]);
         }
-    };
+    }, [formData.type]);
+
 
     const handleSave = () => {
         // Здесь должна быть логика сохранения данных
@@ -114,8 +117,10 @@ const CompanyEditForm = () => {
         { value: "не работает", label: "Не работает" },
         { value: "уточнить тел.", label: "Уточнить тел." },
     ];
+    console.log('recyclers', recyclers.length)
     console.log('cities', cities)
-    // console.log('regions', regions)
+    console.log('formData', formData)
+    console.log('regionsWithCompanies', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -127,7 +132,6 @@ const CompanyEditForm = () => {
             <div className={styles.formContainer}>
                 <BasicSelect
                     className={styles.formGroup}
-                    multiple={false}
                     name="name"
                     value={formData.name || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
@@ -151,7 +155,7 @@ const CompanyEditForm = () => {
                     allowAdds
                     list={cities}
                     name="city"
-                    value={formData.city || ''}
+                    value={formData.city || []}
                     onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
                     label="Город"
                 />
@@ -223,7 +227,8 @@ const CompanyEditForm = () => {
                     <BasicSelect
                         className={styles.formGroup}
                         multiple={true}
-                        list={loadedRecyclers}
+                        searchable
+                        list={recyclers}
                         name="recyclers"
                         value={formData.recyclers || []}
                         onChange={(value) => setFormData(prev => ({ ...prev, recyclers: value }))}
