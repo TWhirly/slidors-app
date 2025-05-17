@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef , useEffect} from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -22,7 +22,7 @@ const BasicSelect = (props) => {
     const [search, setSearch] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const searchInputRef = useRef(null);
-    
+
     // Используем props.list как основной источник данных
     const [localList, setLocalList] = useState(props.list || []);
 
@@ -34,7 +34,7 @@ const BasicSelect = (props) => {
     const filteredList = useMemo(() => {
         if (!props.searchable) return localList;
         if (!search) return localList;
-        
+
         return localList.filter(item =>
             item.toString().toLowerCase().includes(search.toLowerCase())
         );
@@ -44,7 +44,7 @@ const BasicSelect = (props) => {
         if (search && !localList.includes(search)) {
             const newList = [...localList, search];
             setLocalList(newList);
-            
+
             // Обновляем значение в formData
             if (props.multiple) {
                 const newValue = props.value ? [...props.value, search] : [search];
@@ -204,7 +204,30 @@ const BasicSelect = (props) => {
                                 size="small"
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onClick={(e) => e.stopPropagation()}
-                            />
+                            >
+                                <button 
+                                className="close-button"
+                                onClick={() => {
+                                    setSearch('');
+                                    if (searchInputRef.current) {
+                                        searchInputRef.current.focus();
+                                    }
+                                }}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: '#444',
+                                    cursor: 'pointer',
+                                    position: 'absolute',
+                                    right: '8px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)'
+                                }}
+                                type="button">
+                                    Close
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </OutlinedInput>
                             {search && props.allowAdds && !filteredList.includes(search) && (
                                 <button
                                     onClick={handleClick}
