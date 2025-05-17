@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import debounce from 'lodash/debounce';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -6,6 +7,8 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
+import IconButton from '@mui/material/IconButton';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,6 +23,7 @@ const MenuProps = {
 
 const BasicSelect = (props) => {
     const [search, setSearch] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const searchInputRef = useRef(null);
 
@@ -31,14 +35,23 @@ const BasicSelect = (props) => {
         setLocalList(props.list || []);
     }, [props.list]);
 
+    // Create a memoized debounced function
+    const debouncedSearch = useMemo(
+        () => debounce((searchTerm) => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300),
+        []
+    );
+
+    // Use debounced search term in filteredList
     const filteredList = useMemo(() => {
         if (!props.searchable) return localList;
-        if (!search) return localList;
+        if (!debouncedSearchTerm) return localList;
 
         return localList.filter(item =>
-            item.toString().toLowerCase().includes(search.toLowerCase())
+            item.toString().toLowerCase().includes(debouncedSearchTerm.toLowerCase())
         );
-    }, [localList, search, props.searchable]);
+    }, [localList, debouncedSearchTerm, props.searchable]);
 
     const handleClick = () => {
         if (search && !localList.includes(search)) {
@@ -57,6 +70,7 @@ const BasicSelect = (props) => {
     };
 
     const handleChange = (event) => {
+         
         console.log('event', event)
         const { target: { value } } = event;
         if (value !== undefined) {
@@ -72,37 +86,38 @@ const BasicSelect = (props) => {
         }
     };
 
-    // const handleClick = () => {
-    //     if (search && !localList.includes(search)) {
-    //         const newList = [...localList, search];
-    //         setLocalList(newList);
-
-    //         // Immediately set the new value
-    //         if (props.multiple) {
-    //             const newValue = props.value ? [...props.value, search] : [search];
-    //             props.onChange(newValue);
-    //         } else {
-    //             console.log('search', search)
-    //             props.onChange(search);
-    //         }
-    //         setSearch('');
-    //     }
-    // };
+    const handleClearAll = (event) => {
+        setDebouncedSearchTerm('');
+        setSearch('');
+        event.stopPropagation();
+        props.onChange(props.multiple ? [] : '');
+    };
 
     const handleFocus = () => {
         setIsFocused(true);
     };
 
     const handleBlur = () => {
+        setDebouncedSearchTerm('');
+        setSearch('');
         setIsFocused(false);
     };
 
     const handleSearchChange = (e) => {
-        setSearch(e.target.value);
+        const value = e.target.value;
+        setSearch(value);
+        debouncedSearch(value);
         if (searchInputRef.current) {
             searchInputRef.current.focus();
         }
     };
+
+    // Cleanup debounce on unmount
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
     return (
         <FormControl fullWidth>
@@ -171,9 +186,55 @@ const BasicSelect = (props) => {
                             opacity: 0.7,
                         }
                     }}
+                    endAdornment={
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {props.multiple && props.value?.length > 0 && (
+                                <IconButton
+                                    size="small"
+                                    onClick={handleClearAll}
+                                    sx={{
+                                        color: 'white',
+                                        padding: '4px',
+                                        marginRight: '10px',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        }
+                                    }}
+                                >
+                                    <ClearIcon fontSize="small" />
+                                </IconButton>
+                            )}
+                        </div>
+                    }
                 >
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setSearch('');
+                            setDebouncedSearchTerm('');
+                            if (searchInputRef.current) {
+                                searchInputRef.current.focus();
+                            }
+                        }}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                            padding: '4px 4px',
+                            marginRight: '54px',
+                            fontSize: '1.2rem',
+                            lineHeight: 1,
+                        }}
+                        type="button"
+                    >
+                        ×
+                    </button>
+
                     {props.searchable && (
-                        <div style={{
+                        <div
+                        onClose={handleBlur}
+                        style={{
                             padding: '8px',
                             position: 'sticky',
                             top: 0,
@@ -184,12 +245,40 @@ const BasicSelect = (props) => {
                             flexDirection: 'column',
                             gap: '8px'
                         }}>
+
                             <OutlinedInput
                                 inputRef={searchInputRef}
                                 fullWidth
                                 placeholder="Поиск..."
                                 value={search}
                                 onChange={handleSearchChange}
+                                endAdornment={
+                                    search && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSearch('');
+                                                setDebouncedSearchTerm('');
+                                                if (searchInputRef.current) {
+                                                    searchInputRef.current.focus();
+                                                }
+                                            }}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#444',
+                                                cursor: 'pointer',
+                                                padding: '4px 4px',
+                                                marginRight: '4px',
+                                                fontSize: '1.2rem',
+                                                lineHeight: 1,
+                                            }}
+                                            type="button"
+                                        >
+                                            ×
+                                        </button>
+                                    )
+                                }
                                 sx={{
                                     backgroundColor: 'white',
                                     borderRadius: '4px',
@@ -204,30 +293,8 @@ const BasicSelect = (props) => {
                                 size="small"
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onClick={(e) => e.stopPropagation()}
-                            >
-                                <button 
-                                className="close-button"
-                                onClick={() => {
-                                    setSearch('');
-                                    if (searchInputRef.current) {
-                                        searchInputRef.current.focus();
-                                    }
-                                }}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#444',
-                                    cursor: 'pointer',
-                                    position: 'absolute',
-                                    right: '8px',
-                                    top: '50%',
-                                    transform: 'translateY(-50%)'
-                                }}
-                                type="button">
-                                    Close
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                            </OutlinedInput>
+                                
+                            />
                             {search && props.allowAdds && !filteredList.includes(search) && (
                                 <button
                                     onClick={handleClick}
@@ -251,6 +318,7 @@ const BasicSelect = (props) => {
                     {filteredList.length > 0 ? (
                         filteredList.map((name) => (
                             <MenuItem
+                            
                                 key={name}
                                 value={name}
                                 autoFocus={false}

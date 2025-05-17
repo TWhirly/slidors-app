@@ -8,11 +8,10 @@ import { YellowStarIcon } from '../../icons/SVG';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
-import { DataContext } from '../../DataContext';
+import { DataContext } from '../../DataContext.jsx';
 import sha256 from 'crypto-js/sha256'; // Import the hashing library
 
 const Companies = () => {
-    
     const { regions: contextRegions } = useContext(DataContext);
     console.log('contextRegions', contextRegions)
     console.log('regions', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
@@ -65,20 +64,6 @@ const Companies = () => {
     };
 
     // Функция для получения компаний по региону
-    const fetchCompanies = async (regionId) => {
-        console.log('fetchCompanies')
-        const params = {
-            name: regionId,
-            chatID: chat_id,
-            api: 'getCompanies'
-        };
-        const formData = JSON.stringify(params);
-        const response = await axios.post(
-            process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            formData,
-        );
-        return response.data;
-    };
 
     // Запрос для получения регионов с использованием нового синтаксиса v5+
     const { data: regionRows, isLoading, error } = useQuery({

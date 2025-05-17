@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
-import { DataContext } from '../../DataContext';
+import { DataContext } from '../../DataContext.jsx';
 
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
@@ -14,9 +15,30 @@ const CompanyEditForm = () => {
     const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const tg = window.Telegram.WebApp;
-    const { regions: contextRegions } = useContext(DataContext);
-    
+    const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
+    const formDataRef = useRef(formData);
 
+    console.log('regions1', statuses)
+
+    useEffect(() => {
+        const initializeBackButton = () => {
+            if (!tg) return;
+
+            tg.ready(); // Ensure Telegram WebApp is fully initialized
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => navigate(`/companies/${company.id}`, {
+                state:
+                    company
+
+            })
+            );
+        }
+        initializeBackButton();
+
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [company, navigate, tg]);
 
     useEffect(() => {
         if (!contextRegions) return;
@@ -50,13 +72,17 @@ const CompanyEditForm = () => {
         if (formData.region && sessionStorage.getItem('regionsWithCompanies')) {
             const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
             const selectedRegion = savedRegions.find(item => item.region === formData.region);
-            const cities = selectedRegion.companies.reduce((acc, company) => {
-                if (!acc.includes(company.city) && company.city.length > 0) {
-                    acc.push(company.city);
-                }
-                return acc;
-            }, []);
-            setCities(cities.sort());
+            if (selectedRegion) {
+                const cities = selectedRegion.companies.reduce((acc, company) => {
+                    if (!acc.includes(company.city) && company.city.length > 0) {
+                        acc.push(company.city);
+                    }
+                    return acc;
+                }, []);
+                setCities(cities.sort());
+            } else {
+                setCities([]);
+            }
         } else {
             setCities([]);
         }
@@ -66,61 +92,56 @@ const CompanyEditForm = () => {
         if (formData.type === 'Дилер' && sessionStorage.getItem('regionsWithCompanies')) {
             const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
             const recyclers = [];
-            savedRegions.forEach(region => {region.companies.forEach(company => {
-                if (company.type === 'Переработчик' && company.name.length > 0 && !recyclers.includes(company.name)) {
-                    recyclers.push(company.name);
-                }
-            })});
-                
+            savedRegions.forEach(region => {
+                region.companies.forEach(company => {
+                    if (company.type === 'Переработчик' && company.name.length > 0 && !recyclers.includes(company.name)) {
+                        recyclers.push(company.name);
+                    }
+                })
+            });
+
             setRecyclers(recyclers.sort());
         } else {
             setRecyclers([]);
         }
     }, [formData.type]);
 
+    // Update ref whenever formData changes
+    useEffect(() => {
+        formDataRef.current = formData;
+    }, [formData]);
 
-    const handleSave = () => {
-        // Здесь должна быть логика сохранения данных
-        console.log('Saving data:', formData);
+    const handleSave = async () => {
+        try {
+            const currentFormData = formDataRef.current; // Get latest formData
+            console.log('Current form data:', currentFormData);
+            
+            const params = {
+                chatID: chat_id,
+                api: 'updateCompany',
+                company: currentFormData,
+            };
+            
+            const response = await axios.post(
+                process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                JSON.stringify(params)
+            );
 
-        // После сохранения возвращаемся назад
-        navigate(`/companies/${company.id}`, { state: formData });
+            if (response.status === 200) {
+                navigate(`/companies/${company.id}`, { state: currentFormData });
+            } else {
+                console.error('Error saving:', response);
+            }
+        } catch (error) {
+            console.error('Save failed:', error);
+        }
     };
 
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
     }
-
-    const loadedRecyclers = [
-        'Oliver Hansen',
-        'Van Henry',
-        'April Tucker',
-        'Ralph Hubbard',
-        'Omar Alexander',
-        'Carlos Abbott',
-        'Miriam Wagner',
-        'Bradley Wilkerson',
-        'Virginia Andrews',
-        'Kelly Snyder',
-    ];
-
-    const companyTypes = [
-        { value: "переработчик", label: "Переработчик" },
-        { value: "дистрибьютор", label: "Дистрибьютор" },
-        { value: "дилер", label: "Дилер" },
-        { value: "смешанный", label: "Смешанный" },
-        { value: "избранный", label: "Избранный" },
-    ];
-
-    const companyStatuses = [
-        { value: "работает", label: "Работает" },
-        { value: "не работает", label: "Не работает" },
-        { value: "уточнить тел.", label: "Уточнить тел." },
-    ];
-    console.log('recyclers', recyclers.length)
-    console.log('cities', cities)
     console.log('formData', formData)
-    console.log('regionsWithCompanies', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
+
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -216,7 +237,7 @@ const CompanyEditForm = () => {
                 <BasicSelect
                     className={styles.formGroup}
                     multiple={false}
-                    list={companyTypes.map(option => option.label)}
+                    list={types}
                     name="type"
                     value={formData.type || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
@@ -239,7 +260,7 @@ const CompanyEditForm = () => {
                 <BasicSelect
                     className={styles.formGroup}
                     multiple={false}
-                    list={companyStatuses.map(option => option.label)}
+                    list={statuses}
                     name="status"
                     value={formData.status || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
@@ -256,7 +277,7 @@ const CompanyEditForm = () => {
                     label="Менеджер"
                 />
 
-                 <BasicSelect
+                <BasicSelect
                     className={styles.formGroup}
                     type="text"
                     name="description"

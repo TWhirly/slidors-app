@@ -6,7 +6,7 @@ import { useTelegram } from "./hooks/useTelegram";
 import Header from "./components/Header/Header";
 import { Route, Routes } from 'react-router-dom'
 import Main from "./components/Main/Main";
-import { DataProvider } from './DataContext';
+import { DataProvider } from './DataContext.jsx';
 import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
 import CompanyEditForm from './components/Companies/CompanyEditForm';

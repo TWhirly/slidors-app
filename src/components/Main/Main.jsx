@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import CircularProgress from '@mui/material/CircularProgress';
-import { DataContext } from '../../DataContext';
+import { DataContext } from '../../DataContext.jsx';
 import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
