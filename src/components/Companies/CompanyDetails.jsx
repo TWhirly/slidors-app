@@ -187,7 +187,7 @@ function CompanyDetails() {
           src={whatsappIcon}
           className={styles.contactPhone}
           alt="WhatsApp icon"
-          onClick={() => window.location.href = `https://wa.me/${contact.whatsapp}`}
+          onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
           style={{ cursor: 'pointer' }}
         />
       );
