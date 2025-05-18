@@ -141,6 +141,17 @@ function CompanyDetails() {
   }
   };
 
+  const formatNumber = (number) => {
+  const cleanNumber = number.replace(/\D/g, '');
+  if (cleanNumber.startsWith('8')) {
+    return '7' + cleanNumber.slice(1);
+  }
+  if (cleanNumber.startsWith('7')) {
+    return cleanNumber;
+  }
+  return '7' + cleanNumber;
+};
+
   const getContactIcons = (contact) => {
     const icons = [];
     if (contact.phone1) {
@@ -286,7 +297,9 @@ function CompanyDetails() {
           
             <div
               className={styles.companyRowInfo}
-              onClick={() => window.location.href = `https://wa.me/${company.whatsapp}`}
+              // onClick={() => window.location.href = `https://wa.me/+79216146100`}
+              // onClick={() => window.location.href = `whatsapp://send?phone=+79216146100`}
+              onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
               style={{ cursor: 'pointer' }}
             >
               <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
@@ -307,7 +320,7 @@ function CompanyDetails() {
         )}
         {company.telegram && (
           <div className={styles.companyRowInfo}
-            onClick={() => window.location.href = `https://t.me/${company.telegram}`}
+            onClick={() => window.location.href = `https://t.me/${formatNumber(company.telegram)}`}
             style={{ cursor: 'pointer' }}
           >
             <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" />
