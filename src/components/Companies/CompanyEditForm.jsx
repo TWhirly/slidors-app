@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
@@ -8,6 +8,7 @@ import { DataContext } from '../../DataContext.jsx';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
+    const location = useLocation();
     const [formData, setFormData] = useState({ ...company });
     const [focusedFields, setFocusedFields] = useState({});
     const [isDealer, setIsDealer] = useState(false)
@@ -18,25 +19,34 @@ const CompanyEditForm = () => {
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
 
-    console.log('regions1', statuses)
+     tg.BackButton.isVisible = true;
 
     useEffect(() => {
-        const initializeBackButton = () => {
+        const initBackButton = () => {
             if (!tg) return;
-
-            tg.ready(); // Ensure Telegram WebApp is fully initialized
+            
+            tg.ready();
+            tg.BackButton.isVisible = true;
             tg.BackButton.show();
-            tg.BackButton.onClick(() => navigate(`/companies/${company.id}`, {
-                state:
-                    company
+            tg.BackButton.onClick(() => {
+                // Return to list if no company.id (new company) or to details if editing
+                if (!company?.id) {
+                    navigate('/companies');
+                } else {
+                    navigate(`/companies/${company.id}`, { state: company });
+                }
+            });
+        };
 
-            })
-            );
-        }
-        initializeBackButton();
+        initBackButton();
+        window.addEventListener('focus', initBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            if (tg) {
+                tg.BackButton.offClick();
+                tg.BackButton.hide();
+            }
+            window.removeEventListener('focus', initBackButton);
         };
     }, [company, navigate, tg]);
 
@@ -46,6 +56,36 @@ const CompanyEditForm = () => {
         setRegions(regions);
     }, [contextRegions]);
 
+
+    const handleSave = useCallback(async () => {
+        tg.MainButton.showProgress()
+        try {
+            const currentFormData = formDataRef.current; // Get latest formData
+            console.log('Current form data:', currentFormData);
+            
+            const params = {
+                chatID: chat_id,
+                api: 'updateCompany',
+                company: currentFormData,
+            };
+            
+            const response = await axios.post(
+                process.env.REACT_APP_GOOGLE_SHEETS_URL,
+                JSON.stringify(params)
+            );
+
+            if (response.status === 200) {
+                navigate(`/companies/${company.id}`, { state: currentFormData });
+            } else {
+                console.error('Error saving:', response);
+            }
+        } catch (error) {
+            console.error('Save failed:', error);
+        }
+        finally {
+            tg.MainButton.hideProgress();
+        }
+    }, [chat_id, company.id, navigate, tg.MainButton]);
 
     useEffect(() => {
         if (!company) {
@@ -57,12 +97,13 @@ const CompanyEditForm = () => {
         tg.MainButton.setText('Сохранить');
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
+        console.log(tg.MainButton)
 
         return () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [company, navigate, tg]);
+    }, [company, handleSave, navigate, tg]);
 
     useEffect(() => {
         formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
@@ -111,42 +152,19 @@ const CompanyEditForm = () => {
         formDataRef.current = formData;
     }, [formData]);
 
-    const handleSave = async () => {
-        try {
-            const currentFormData = formDataRef.current; // Get latest formData
-            console.log('Current form data:', currentFormData);
-            
-            const params = {
-                chatID: chat_id,
-                api: 'updateCompany',
-                company: currentFormData,
-            };
-            
-            const response = await axios.post(
-                process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
-            );
-
-            if (response.status === 200) {
-                navigate(`/companies/${company.id}`, { state: currentFormData });
-            } else {
-                console.error('Error saving:', response);
-            }
-        } catch (error) {
-            console.error('Save failed:', error);
-        }
-    };
+    
 
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
     }
-    console.log('formData', formData)
+    // console.log('formData', formData)
+    console.log('company', company)
 
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
-                    Редактирование
+                    {company.id ? "Редактирование" : "Новая компания"} 
                 </span>
             </div>
 
@@ -267,16 +285,33 @@ const CompanyEditForm = () => {
                     label="Статус компании"
                 />
 
-                <BasicSelect
+                 <BasicSelect
                     className={styles.formGroup}
-                    disabled={true}
-                    type="text"
-                    name="manager"
-                    value={formData.manager || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, manager: value }))}
-                    label="Менеджер"
+                    type="number"
+                    name="tt"
+                    value={formData.tt || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, tt: value }))}
+                    label="Торговых точек"
                 />
 
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="number"
+                    name="dealers"
+                    value={formData.dealers || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, dealers: value }))}
+                    label="Дилеров"
+                />
+
+                 <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="firm"
+                    value={formData.firm || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, firm: value }))}
+                    label="Юрлицо"
+                />
+               
                 <BasicSelect
                     className={styles.formGroup}
                     type="text"
@@ -286,6 +321,17 @@ const CompanyEditForm = () => {
                     label="Примечание"
                     rows="3"
                 />
+
+                 <BasicSelect
+                    className={styles.formGroup}
+                    disabled={true}
+                    type="text"
+                    name="manager"
+                    value={formData.manager || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, manager: value }))}
+                    label="Менеджер"
+                />
+
             </div>
         </div>
     );

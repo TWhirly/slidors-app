@@ -29,6 +29,9 @@ function CompanyDetails() {
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   
+  tg.BackButton.isVisible = true;
+  tg.BackButton.show();
+      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
 
   const id = company.id;
 
@@ -118,6 +121,7 @@ function CompanyDetails() {
       if (!tg) return;
 
       tg.ready(); // Ensure Telegram WebApp is fully initialized
+      tg.BackButton.isVisible = true;
       tg.BackButton.show();
       tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
     };
@@ -129,7 +133,7 @@ function CompanyDetails() {
     };
   }, [navigate, tg]);
 
-  console.log('company', company);
+  // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
@@ -239,7 +243,7 @@ function CompanyDetails() {
     }
   };
 
-  console.log('menuSelection', menuSelection)
+  // console.log('menuSelection', menuSelection)
 
   if (!company) {
     return <div>Company not found</div>;

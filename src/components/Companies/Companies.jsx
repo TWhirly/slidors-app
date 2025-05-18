@@ -10,11 +10,11 @@ import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
 import { DataContext } from '../../DataContext.jsx';
 import sha256 from 'crypto-js/sha256'; // Import the hashing library
+import AddIcon from '@mui/icons-material/Add';
+import IconButton from '@mui/material/IconButton';
 
 const Companies = () => {
     const { regions: contextRegions } = useContext(DataContext);
-    console.log('contextRegions', contextRegions)
-    console.log('regions', JSON.parse(sessionStorage.getItem('regionsWithCompanies')))
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -110,11 +110,12 @@ const Companies = () => {
                             manager: company.manager,
                             whatsapp: company.whatsapp,
                             telegram: company.telegram,
-                            recyclers: company.recyclers,
+                            recyclers: company.recyclers.split(','),
                             tt: company.tt,
                             dealers: company.dealers,
                             url: company.url,
-                            logo: company.logo
+                            logo: company.logo,
+                            firm: company.firm
 
                         });
                         existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
@@ -138,11 +139,12 @@ const Companies = () => {
                             manager: company.manager,
                             whatsapp: company.whatsapp,
                             telegram: company.telegram,
-                            recyclers: company.recyclers,
+                            recyclers: company.recyclers.split(','),
                             tt: company.tt,
                             dealers: company.dealers,
                             url: company.url,
-                            logo: company.logo
+                            logo: company.logo,
+                            firm: company.firm
                             }],
                             company_count: regionRows.filter(r => r.region === company.region).length,
                         });
@@ -249,6 +251,36 @@ const Companies = () => {
         setSelectedRegion(null);
     };
 
+    const getEmptyCompany = (selectedRegion = '') => ({
+        id: '', 
+        name: '',
+        type: '',
+        status: '',
+        handled: 0,
+        wa: 0,
+        tg: 0,
+        city: '',
+        address: '',
+        region: selectedRegion,
+        description: '',
+        phone1: '',
+        phone2: '',
+        manager: '',
+        whatsapp: '',
+        telegram: '',
+        recyclers: [],
+        tt: '',
+        dealers: '',
+        url: '',
+        logo: '',
+        firm: ''
+    });
+
+    const handleAddCompany = () => {
+        const emptyCompany = getEmptyCompany(selectedRegion || '');
+        navigate(`/companies/new/edit`, { state: emptyCompany });
+    };
+
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
@@ -263,7 +295,7 @@ const Companies = () => {
         };
     }, [navigate]);
 
-    console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
+    // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
     if (isLoading || loading) {
         return (
@@ -290,12 +322,29 @@ const Companies = () => {
                     className={styles.naviPanel}
                     onClick={collapseRegion}
                 >
-                    <div className={styles.companyNamePanel} onClick={collapseRegion}>
+                    <div className={styles.companyNamePanel}>
                         Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
                             .filter((item) => item !== "область")
                             .join(" ")}` : ""}
                     </div>
-                    <AvatarGroup direction="row" spacing={10} sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}>
+                    <IconButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddCompany();
+                        }}
+                        sx={{
+                            color: 'white',
+                            marginRight: '1rem'
+                        }}
+                    >
+                        <AddIcon />
+                    </IconButton>
+                    <AvatarGroup 
+                        max={5} 
+                        direction="row" 
+                        spacing={10} 
+                        sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
+                    >
                         {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
                             <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
                                 {`${user.name.split('')[0]}${user.name.split('')[1]}`}

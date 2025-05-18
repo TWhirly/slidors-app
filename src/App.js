@@ -63,7 +63,7 @@ function App() {
     //     }
     //   }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
 
-    console.log('tg', window.Telegram)
+    // console.log('tg', window.Telegram)
 
     return (
         <DataProvider>
