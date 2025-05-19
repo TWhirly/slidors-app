@@ -80,8 +80,8 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: fit-content;
-    height: 2rem;
+    width: auto;
+    height: auto;
     padding: 0 0;
     margin-bottom: 0;
     border-bottom: 1px solid var(--border-color);
@@ -104,12 +104,14 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    padding: 0.5rem 0rem;
+    width: auto;
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem 0 0;
     border-bottom: 1px solid var(--border-color);
 }
 
 .companyRowHeader{
+    width: fit-content;
     display: flex;
     flex-direction: row;
     color:  #729fcf;
@@ -238,6 +240,14 @@
     padding-left: 0rem;
     padding-right: 0.5rem;
     gap: 1rem; /* Добавлено для создания пробела между разными данными */
+}
+
+.companyRowUrl{
+    color: var(--link-color);
+    padding: 0.5rem 0.5rem;
+    text-decoration: underline;
+    cursor: pointer;
+     gap: 1rem;
 }
 
 /* Пример ховера для масштабирования */

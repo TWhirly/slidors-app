@@ -8,6 +8,7 @@ export const DataProvider = ({ children }) => {
     const [types, setTypes] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(tg.initData);
@@ -31,6 +32,7 @@ export const DataProvider = ({ children }) => {
             );
             console.log('response', response.data);
             setName(response.data || '');
+            setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
         } catch (error) {
             console.error('Error fetching regions:', error);
@@ -71,6 +73,7 @@ export const DataProvider = ({ children }) => {
             loading,
             chat_id,
             name,
+            email,
             regions,
             types,
             statuses

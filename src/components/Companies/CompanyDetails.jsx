@@ -137,8 +137,8 @@ function CompanyDetails() {
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/companies/${company.id}/edit`, { state: company });
-  }
+      navigate(`/companies/${company.id}/edit`, { state: { ...company, new: false } });
+    }
   };
 
   const formatNumber = (number) => {
@@ -150,6 +150,20 @@ function CompanyDetails() {
     return cleanNumber;
   }
   return '7' + cleanNumber;
+};
+
+const formatUrl = (url) => {
+  if (!url) return '';
+  
+  // Убираем пробелы
+  let formattedUrl = url.trim();
+  
+  // Проверяем наличие протокола
+  if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+    formattedUrl = 'https://' + formattedUrl;
+  }
+  
+  return formattedUrl;
 };
 
   const getContactIcons = (contact) => {
@@ -254,7 +268,7 @@ function CompanyDetails() {
     }
   };
 
-  // console.log('menuSelection', menuSelection)
+  console.log('company', company)
 
   if (!company) {
     return <div>Company not found</div>;
@@ -275,6 +289,7 @@ function CompanyDetails() {
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Работает с переработчиками:</div><div className={styles.companyRowVal}>{company.recyclers.join(', ')}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
@@ -336,26 +351,26 @@ function CompanyDetails() {
               )}
             </div>
             </div>)}
-        <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>
-        {
-          !loading ? (
-            <div className={styles.contactsContainer}>
-              {contacts.map((contact, index) => (
-                <div key={index} className={styles.contactPerson}>
-                  <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-                  <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
-                  <div className={styles.contactEmail}>{contact.email}</div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <>
-              <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-              <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-            </>
-          )
-        }
-
+        {contacts.length > 0 && <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>}
+        {loading ? (
+          <>
+            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+          </>
+        ) : contacts.length > 0 ? (
+          <div className={styles.contactsContainer}>
+            {contacts.map((contact, index) => (
+              <div key={index} className={styles.contactPerson}>
+                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
+                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
+                <div className={styles.contactEmail}>{contact.email}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+         ''
+        )}
+        
         {mails.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
           {
 
@@ -370,9 +385,9 @@ function CompanyDetails() {
             )
           }
         </div>)}
-        <div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
+        {activity.length > 0 && <div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
           {activity.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
-        </div>
+        </div>}
         {
           !loadingActivity ? (
             <div className={styles.contactItem}>
@@ -392,7 +407,12 @@ function CompanyDetails() {
         }
 
 
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>
+        {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
+        {company.tt && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}
+        {company.dealers && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Дилеров:</div><div className={styles.companyRowVal}>{company.dealers}</div></div>}
+        {company.url && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Сайт:</div><div
+        onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
+        className={styles.companyRowUrl}>{company.url}</div></div>}
         {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
         {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
       </div>

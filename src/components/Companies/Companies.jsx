@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
@@ -15,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 
 const Companies = () => {
     const { regions: contextRegions } = useContext(DataContext);
+    const { email } = useContext(DataContext);
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -25,9 +27,12 @@ const Companies = () => {
 
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    const chat_id = JSON.parse(params.get('user')).id;
+    const user = JSON.parse(params.get('user'));
+    const chat_id = user.id;
+    
     tg.BackButton.show();
-
+    console.log(email, 'email');
+    
     useEffect(() => {
         // Load regionsWithCompanies from sessionStorage on component mount
         const savedRegions = sessionStorage.getItem('regionsWithCompanies');
@@ -252,7 +257,7 @@ const Companies = () => {
     };
 
     const getEmptyCompany = (selectedRegion = '') => ({
-        id: '', 
+        id: uuidv4(), // Generates UUID v4
         name: '',
         type: '',
         status: '',
@@ -262,7 +267,7 @@ const Companies = () => {
         description: '',
         phone1: '',
         phone2: '',
-        manager: '',
+        manager: email,
         whatsapp: '',
         telegram: '',
         recyclers: [],
@@ -270,7 +275,8 @@ const Companies = () => {
         dealers: '',
         url: '',
         logo: '',
-        firm: ''
+        firm: '',
+        new: true
     });
 
     const handleAddCompany = () => {

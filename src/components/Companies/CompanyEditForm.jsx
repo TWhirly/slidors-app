@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
+import sha256 from 'crypto-js/sha256';
 
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
@@ -29,8 +30,8 @@ const CompanyEditForm = () => {
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
             tg.BackButton.onClick(() => {
-                // Return to list if no company.id (new company) or to details if editing
-                if (!company?.id) {
+                // Return to list if company.new === true (new company) or to details if editing
+                if (company?.new) {
                     navigate('/companies');
                 } else {
                     navigate(`/companies/${company.id}`, { state: company });
@@ -60,7 +61,7 @@ const CompanyEditForm = () => {
     const handleSave = useCallback(async () => {
         tg.MainButton.showProgress()
         try {
-            const currentFormData = formDataRef.current; // Get latest formData
+            const currentFormData = formDataRef.current;
             console.log('Current form data:', currentFormData);
             
             const params = {
@@ -75,17 +76,51 @@ const CompanyEditForm = () => {
             );
 
             if (response.status === 200) {
-                navigate(`/companies/${company.id}`, { state: currentFormData });
+                // Get current data from sessionStorage
+                const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies') || '[]');
+                
+                // Find and update/add the company in the correct region
+                const regionIndex = savedRegions.findIndex(r => r.region === currentFormData.region);
+                
+                if (regionIndex > -1) {
+                    // Region exists, update/add company
+                    const companyIndex = savedRegions[regionIndex].companies.findIndex(c => c.id === currentFormData.id);
+                    if (companyIndex > -1) {
+                        // Update existing company
+                        savedRegions[regionIndex].companies[companyIndex] = currentFormData;
+                    } else {
+                        // Add new company
+                        savedRegions[regionIndex].companies.push(currentFormData);
+                        savedRegions[regionIndex].company_count++;
+                    }
+                    // Sort companies by name
+                    savedRegions[regionIndex].companies.sort((a, b) => a.name.localeCompare(b.name));
+                } else {
+                    // Add new region with company
+                    savedRegions.push({
+                        region: currentFormData.region,
+                        companies: [currentFormData],
+                        company_count: 1
+                    });
+                }
+
+                // Update sessionStorage
+                sessionStorage.setItem('regionsWithCompanies', JSON.stringify(savedRegions));
+                
+                // Update hash
+                // const regionRowsHash = sha256(JSON.stringify(savedRegions)).toString();
+                // sessionStorage.setItem('savedRegionHash', regionRowsHash);
+
+                navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             } else {
                 console.error('Error saving:', response);
             }
         } catch (error) {
             console.error('Save failed:', error);
-        }
-        finally {
+        } finally {
             tg.MainButton.hideProgress();
         }
-    }, [chat_id, company.id, navigate, tg.MainButton]);
+    }, [chat_id, navigate, tg.MainButton]);
 
     useEffect(() => {
         if (!company) {
@@ -164,7 +199,7 @@ const CompanyEditForm = () => {
         <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
-                    {company.id ? "Редактирование" : "Новая компания"} 
+                    {company.new === true ? "Новая компания" : "Редактирование"} 
                 </span>
             </div>
 
