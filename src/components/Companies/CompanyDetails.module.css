@@ -78,13 +78,16 @@
 .companyRowInfo{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: start;
+    /* align-items: center; */
     width: auto;
-    height: auto;
-    padding: 0 0;
+    /* height: fit-content; */
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
     margin-bottom: 0;
-    border-bottom: 1px solid var(--border-color);
+    /* border-bottom: 1px solid var(--border-color); */
 }
 
 .companyDescriptionRowInfo{
@@ -93,10 +96,10 @@
     justify-content: start;
     align-items: left;
     width: fit-content;
-    height: auto;
+    /* height: auto; */
     padding: 0 0 0 0 ;
     margin-bottom: 0;
-    border-bottom: 1px solid var(--border-color);
+    /* border-bottom: 1px solid var(--border-color); */
 }
 
 .companyDescriptionRowVal{
@@ -106,12 +109,13 @@
     align-items: center;
     width: auto;
     margin-right: 0.5rem;
-    padding: 0.5rem 1rem 0 0;
+    padding: 1px 1rem 0 0;
     border-bottom: 1px solid var(--border-color);
 }
 
 .companyRowHeader{
-    width: fit-content;
+    text-wrap: nowrap;
+    width: auto;
     display: flex;
     flex-direction: row;
     color:  #729fcf;
@@ -120,14 +124,19 @@
     color:  #729fcf;
     flex-direction: column;
 }
+
 .companyRowVal{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
     width: 100%;
-    padding: 0.5rem 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    padding: 0 0.5rem;
+}
+
+.companyMainContacts{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 5px 0px;
 }
 
 .buttonArrow {
@@ -199,7 +208,8 @@
     /* justify-content: space-between; */
     align-items: center;
     width: 100%;
-    padding-top: 0.5rem;
+    padding-top: 3px;
+    padding-bottom: 3px;
     padding-left: 0rem;
     padding-right: 0.5rem;
     margin: 0;
@@ -215,18 +225,19 @@
     display: block; /* Use block to ensure proper text rendering */
     margin-left: 0;
     margin-right: 0.3rem;
+    padding: 3px 0;
 }
 
 .contactIcons{
     display: flex;
     flex-direction: row;
     /* justify-content: space-between; */
-    align-items: center;
+    align-self: center;
     width: 40%;
-    padding-top: 0.5rem;
+    /* padding-top: 0.5rem; */
     padding-left: 0.1rem;
     /* padding-right: 0.5rem; */
-    gap: 3px; 
+    gap: 5px; 
 }
 
 .activityRowVal {
@@ -236,7 +247,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding-top: 0.5rem;
+    padding-top: 1px;
     padding-left: 0rem;
     padding-right: 0.5rem;
     gap: 1rem; /* Добавлено для создания пробела между разными данными */
@@ -244,7 +255,7 @@
 
 .companyRowUrl{
     color: var(--link-color);
-    padding: 0.5rem 0.5rem;
+    padding: 0 0.5rem;
     text-decoration: underline;
     cursor: pointer;
      gap: 1rem;

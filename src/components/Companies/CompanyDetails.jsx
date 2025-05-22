@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
@@ -11,12 +12,7 @@ function CompanyDetails() {
 
   const navigate = useNavigate();
   const { state: company } = useLocation();
-  const [contacts, setContacts] = useState([]);
-  const [activity, setActivity] = useState([]);
-  const [mails, setMails] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [loadingMail, setLoadingMail] = useState(true);
-  const [loadingActivity, setLoadingActivity] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const tg = window.Telegram.WebApp;
@@ -28,71 +24,56 @@ function CompanyDetails() {
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
-  
-  tg.BackButton.isVisible = true;
-  tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
 
+  useEffect(() => {
+    tg.BackButton.isVisible = true;
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+
+  }, [navigate, tg]);
   const id = company.id;
 
-  //  const { data: contacts, isContactsLoading, error } = useQuery({
-  //         queryKey: ['contacts'],
-  //         queryFn: fetchContacts,
-  //         staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
-  //         refetchInterval: 60000, // Refetch data every 60 seconds in the background
-  //     });
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      console.log('fecthcontacts')
-      const params = {
-        name: 'Ваше имя',
-        companyId: id,
-        api: 'getContacts'
-      };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
-      );
-      let fetchedContacts = response.data;
-      console.log('fetchedContacts', fetchedContacts)
-      if (fetchedContacts) {
-        setLoading(false);
-        console.log('contacts', fetchedContacts);
-      }
-      setContacts(fetchedContacts);
+  const fetchContacts = async () => {
+    console.log('fecthcontacts')
+    const params = {
+      name: 'Ваше имя',
+      companyId: id,
+      api: 'getContacts'
     };
-    fetchContacts();
+    const formData = JSON.stringify(params);
+    const response = await axios.post(
+      process.env.REACT_APP_GOOGLE_SHEETS_URL,
+      formData,
+    );
+    let fetchedContacts = response.data;
+    console.log('fetchedContacts', fetchedContacts)
+    if (fetchedContacts) {
+      console.log('contacts', fetchedContacts);
+    }
+    return fetchedContacts;
+  };
 
-  }, [id]);
-
-  useEffect(() => {
-    const fetchActivity = async () => {
-      console.log('fecthActivity')
-      const params = {
-        name: 'Ваше имя',
-        companyId: id,
-        api: 'getActivities'
-      };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
-      );
-      let fetchedActivity = response.data;
-      if (fetchedActivity) {
-        setLoadingActivity(false);
-        console.log('Activity', fetchedActivity);
-      }
-      setActivity(fetchedActivity);
+  const fetchActivity = async () => {
+    console.log('fecthActivity')
+    const params = {
+      name: 'Ваше имя',
+      companyId: id,
+      api: 'getActivities'
     };
-    fetchActivity();
+    const formData = JSON.stringify(params);
+    const response = await axios.post(
+      process.env.REACT_APP_GOOGLE_SHEETS_URL,
+      formData,
+    );
+    let fetchedActivity = response.data;
+    if (fetchedActivity) {
+      console.log('Activity', fetchedActivity);
+    }
+    return fetchedActivity;
+  };
 
-  }, [id]);
-
-  useEffect(() => {
-    const fetchMail = async () => {
+  const fetchMail = async () => {
       console.log('fecthcMail')
       const params = {
         name: 'Ваше имя',
@@ -109,12 +90,29 @@ function CompanyDetails() {
         setLoadingMail(false);
         console.log('mails', fetchedMails);
       }
-      setMails(fetchedMails);
+      return fetchedMails;
     };
-    fetchMail();
 
-  }, [id]);
+  const { data: contacts, isContactsLoading, error } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: fetchContacts,
+    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    refetchInterval: 600000, // Refetch data every 600 seconds in the background
+  });
 
+  const { data: activity, isActivityLoading, activityFetchError } = useQuery({
+    queryKey: ['activity'],
+    queryFn: fetchActivity,
+    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    refetchInterval: 600000, // Refetch data every 600 seconds in the background
+  });
+
+  const { data: mails, isMailsLoading, mailsFetchError } = useQuery({
+    queryKey: ['mails'],
+    queryFn: fetchMail,
+    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    refetchInterval: 600000, // Refetch data every 600 seconds in the background
+  });
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -142,29 +140,30 @@ function CompanyDetails() {
   };
 
   const formatNumber = (number) => {
-  const cleanNumber = number.replace(/\D/g, '');
-  if (cleanNumber.startsWith('8')) {
-    return '7' + cleanNumber.slice(1);
-  }
-  if (cleanNumber.startsWith('7')) {
-    return cleanNumber;
-  }
-  return '7' + cleanNumber;
-};
+    const cleanNumber = number.replace(/\D/g, '');
+    if (cleanNumber.startsWith('8')) {
+      return '7' + cleanNumber.slice(1);
+    }
+    if (cleanNumber.startsWith('7')) {
+      return cleanNumber;
+    }
+    return '7' + cleanNumber;
+  };
 
-const formatUrl = (url) => {
-  if (!url) return '';
-  
-  // Убираем пробелы
-  let formattedUrl = url.trim();
-  
-  // Проверяем наличие протокола
-  if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-    formattedUrl = 'https://' + formattedUrl;
-  }
-  
-  return formattedUrl;
-};
+
+  const formatUrl = (url) => {
+    if (!url) return '';
+
+    // Убираем пробелы
+    let formattedUrl = url.trim();
+
+    // Проверяем наличие протокола
+    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+      formattedUrl = 'https://' + formattedUrl;
+    }
+
+    return formattedUrl;
+  };
 
   const getContactIcons = (contact) => {
     const icons = [];
@@ -284,18 +283,19 @@ const formatUrl = (url) => {
           </div>
         </span>
         <LongMenu
-        onSelect={handleMenuSelection} 
+          onSelect={handleMenuSelection}
         />
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Работает с переработчиками:</div><div className={styles.companyRowVal}>{company.recyclers.join(', ')}</div></div>
+        {company.recyclers[0]}
+        {company.recyclers.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
         {company.phone1 && (
           <div
-            className={styles.companyRowInfo}
+            className={styles.companyMainContacts}
             onClick={() => window.location.href = `tel:${company.phone1}`}
             style={{ cursor: 'pointer' }}
           >
@@ -303,23 +303,23 @@ const formatUrl = (url) => {
             <div className={styles.companyRowVal}>{company.phone1}</div>
           </div>
         )}
-        {company.phone2 && (<div className={styles.companyRowInfo}
+        {company.phone2 && (<div className={styles.companyMainContacts}
           onClick={() => window.location.href = `tel:${company.phone2}`}
           style={{ cursor: 'pointer' }}
         > <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
           <div className={styles.companyRowVal}>{company.phone2}</div></div>)}
         {company.whatsapp && (
-          
-            <div
-              className={styles.companyRowInfo}
-              // onClick={() => window.location.href = `https://wa.me/+79216146100`}
-              // onClick={() => window.location.href = `whatsapp://send?phone=+79216146100`}
-              onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
-              style={{ cursor: 'pointer' }}
-            >
-              <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
-              <div className={styles.companyRowVal}>{company.whatsapp}</div>
-               <div>
+
+          <div
+            className={styles.companyMainContacts}
+            // onClick={() => window.location.href = `https://wa.me/+79216146100`}
+            // onClick={() => window.location.href = `whatsapp://send?phone=+79216146100`}
+            onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
+            style={{ cursor: 'pointer' }}
+          >
+            <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
+            <div className={styles.companyRowVal}>{company.whatsapp}</div>
+            <div>
               {company.wa !== 0 && (
                 <img
                   src={require('../../icons/checkedRed.png')}
@@ -329,18 +329,18 @@ const formatUrl = (url) => {
                 />
               )}
             </div>
-            </div>
-           
-          
+          </div>
+
+
         )}
         {company.telegram && (
-          <div className={styles.companyRowInfo}
+          <div className={styles.companyMainContacts}
             onClick={() => window.location.href = `https://t.me/${formatNumber(company.telegram)}`}
             style={{ cursor: 'pointer' }}
           >
             <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" />
             <div className={styles.companyRowVal}>{company.telegram}</div>
-             <div>
+            <div>
               {company.tg !== 0 && (
                 <img
                   src={require('../../icons/checkedRed.png')}
@@ -350,16 +350,16 @@ const formatUrl = (url) => {
                 />
               )}
             </div>
-            </div>)}
-        {contacts.length > 0 && <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>}
-        {loading ? (
+          </div>)}
+        {contacts && contacts.length > 0 && <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>}
+        {isContactsLoading ? (
           <>
             <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
             <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
           </>
-        ) : contacts.length > 0 ? (
+        ) : (
           <div className={styles.contactsContainer}>
-            {contacts.map((contact, index) => (
+            {contacts?.map((contact, index) => (
               <div key={index} className={styles.contactPerson}>
                 <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
                 <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
@@ -367,16 +367,15 @@ const formatUrl = (url) => {
               </div>
             ))}
           </div>
-        ) : (
-         ''
-        )}
-        
-        {mails.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+        )
+        }
+
+        {mails?.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
           {
 
-            !loadingMail ? (
+            !isMailsLoading ? (
               <div className={styles.companyRowVal}>
-                {mails.map(item => item.email).join(', ')}
+                {mails?.map(item => item.email).join(', ')}
               </div>
             ) : (
               <>
@@ -385,13 +384,13 @@ const formatUrl = (url) => {
             )
           }
         </div>)}
-        {activity.length > 0 && <div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
-          {activity.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+        {activity?.length > 0 && <div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
+          {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
         </div>}
         {
-          !loadingActivity ? (
+          !isActivityLoading ? (
             <div className={styles.contactItem}>
-              {activity.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
+              {activity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
                 <div key={index} className={styles.contactItem}>
                   <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
                     {activity.purpose}</div>
@@ -408,11 +407,11 @@ const formatUrl = (url) => {
 
 
         {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
-        {company.tt && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}
-        {company.dealers && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Дилеров:</div><div className={styles.companyRowVal}>{company.dealers}</div></div>}
+        {+company.tt > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}
+        {+company.dealers > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Дилеров:</div><div className={styles.companyRowVal}>{company.dealers}</div></div>}
         {company.url && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Сайт:</div><div
-        onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
-        className={styles.companyRowUrl}>{company.url}</div></div>}
+          onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
+          className={styles.companyRowUrl}>{company.url}</div></div>}
         {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
         {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
       </div>
