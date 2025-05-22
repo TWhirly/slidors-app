@@ -97,7 +97,7 @@
     align-items: left;
     width: fit-content;
     /* height: auto; */
-    padding: 0 0 0 0 ;
+    padding: 3px 0 3px 0 ;
     margin-bottom: 0;
     /* border-bottom: 1px solid var(--border-color); */
 }
@@ -109,7 +109,7 @@
     align-items: center;
     width: auto;
     margin-right: 0.5rem;
-    padding: 1px 1rem 0 0;
+    padding: 5px 1rem 0 0;
     border-bottom: 1px solid var(--border-color);
 }
 

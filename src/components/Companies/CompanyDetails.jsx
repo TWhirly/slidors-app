@@ -352,7 +352,7 @@ function CompanyDetails() {
               )}
             </div>
           </div>)}
-        {contacts && contacts.length > 0 && <div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div>}
+        {contacts && contacts.length > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div></div>}
         {isContactsLoading ? (
           <>
             <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
@@ -385,9 +385,9 @@ function CompanyDetails() {
             )
           }
         </div>)}
-        {activity?.length > 0 && <div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
+        {activity?.length > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
           {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
-        </div>}
+        </div></div>}
         {
           !isActivityLoading ? (
             <div className={styles.contactItem}>
@@ -413,7 +413,7 @@ function CompanyDetails() {
         {company.url && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Сайт:</div><div
           onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
           className={styles.companyRowUrl}>{company.url}</div></div>}
-        {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
+        {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
         {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
       </div>
 
