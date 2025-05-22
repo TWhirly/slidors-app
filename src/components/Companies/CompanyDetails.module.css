@@ -82,8 +82,8 @@
     /* align-items: center; */
     width: auto;
     /* height: fit-content; */
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     padding-left: 0rem;
     padding-right: 0.5rem;
     margin-bottom: 0;
@@ -208,8 +208,8 @@
     /* justify-content: space-between; */
     align-items: center;
     width: 100%;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     padding-left: 0rem;
     padding-right: 0.5rem;
     margin: 0;
@@ -247,7 +247,8 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding-top: 1px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     padding-left: 0rem;
     padding-right: 0.5rem;
     gap: 1rem; /* Добавлено для создания пробела между разными данными */
