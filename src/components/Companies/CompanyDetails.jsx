@@ -25,12 +25,14 @@ function CompanyDetails() {
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
 
+  tg.BackButton.isVisible = true
+
   useEffect(() => {
     tg.BackButton.isVisible = true;
     tg.BackButton.show();
     tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
 
-  }, [navigate, tg]);
+  }, [navigate, tg.BackButton, tg.BackButton.isVisible]);
   const id = company.id;
 
 
@@ -96,14 +98,14 @@ function CompanyDetails() {
   const { data: contacts, isContactsLoading, error } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
-    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
   const { data: activity, isActivityLoading, activityFetchError } = useQuery({
     queryKey: ['activity'],
     queryFn: fetchActivity,
-    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
@@ -288,7 +290,6 @@ function CompanyDetails() {
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
-        {company.recyclers[0]}
         {company.recyclers.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
