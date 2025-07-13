@@ -4,8 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
-import sha256 from 'crypto-js/sha256';
-
+import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
@@ -19,8 +18,11 @@ const CompanyEditForm = () => {
     const tg = window.Telegram.WebApp;
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
+    const { showNotification } = useNotification();
 
      tg.BackButton.isVisible = true;
+
+    //  showNotification(`Данные сохранены успешно!`)
 
     useEffect(() => {
         const initBackButton = () => {
@@ -59,11 +61,11 @@ const CompanyEditForm = () => {
 
 
     const handleSave = useCallback(async () => {
-        tg.MainButton.showProgress()
+        // tg.MainButton.showProgress()
         try {
             const currentFormData = formDataRef.current;
             console.log('Current form data:', currentFormData);
-            
+             navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             const params = {
                 chatID: chat_id,
                 api: 'updateCompany',
@@ -74,7 +76,7 @@ const CompanyEditForm = () => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-
+           
             if (response.status === 200) {
                 // Get current data from sessionStorage
                 const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies') || '[]');
@@ -110,17 +112,17 @@ const CompanyEditForm = () => {
                 // Update hash
                 // const regionRowsHash = sha256(JSON.stringify(savedRegions)).toString();
                 // sessionStorage.setItem('savedRegionHash', regionRowsHash);
-
-                navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
+                
             } else {
                 console.error('Error saving:', response);
             }
         } catch (error) {
             console.error('Save failed:', error);
         } finally {
-            tg.MainButton.hideProgress();
+            // tg.MainButton.hideProgress();
+            // showNotification(`Данные сохранены успешно!`, true);
         }
-    }, [chat_id, navigate, tg.MainButton]);
+    }, [chat_id, navigate]);
 
     useEffect(() => {
         if (!company) {

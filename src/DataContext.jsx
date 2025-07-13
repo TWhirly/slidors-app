@@ -39,6 +39,7 @@ export const DataProvider = ({ children }) => {
         }
     };
     const fetchTypesAndStatuses = async () => {
+        console.log('fetchTypesAndStatuses');
         const params = {
             chatID: chat_id,
             api: 'getTypesAndStatuses'

@@ -48,17 +48,13 @@
 
 .nameText{
     margin-top: 2rem;
-    margin-left: 3rem;
-    width: 100%;
-    text-align: left;
+    text-align: center;
     color: #008ad1;
 }
 
 .roleText {
-    width: 100%;
-    margin-left: 3rem;
-    display: flex;
-    bottom: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.5rem;
     text-align: center;
     color: #008ad1;
 }
@@ -69,14 +65,15 @@
 }
 
 .menuIcons {
-    display: flexbox;
-    /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 3 элемента в ряд на мобильных */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* 3 элемента в ряд на мобильных */
     gap: 16px; /* Расстояние между элементами */
-    
-    /* margin: 30px 10rem;  */
+    justify-content: center;
+    align-items: center;
+    margin: 30px 10rem; /* Отступы сверху и снизу */
     max-width: 100%; /* Ограничение ширины в пределах контейнера */
     overflow: hidden; /* Предотвращение выхода содержимого за пределы */
-    /* padding: 8px 16px; */
+    padding: 8px 16px;
     /* padding-top: 8px;
     padding-bottom: 8px; */
     box-sizing: border-box; /* Учитываем отступы в ширине */
@@ -98,9 +95,7 @@
     user-select: none; /* Запрещаем выделение элемента */
 }
 
-
-
-.menuItemPlainText:hover {
+.menuItem:hover {
     transform: scale(1.1); /* Увеличение при наведении */
     z-index: 1; /* Поднимаем элемент над соседними */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Добавляем тень для визуального эффекта */
@@ -113,31 +108,8 @@
     margin-bottom: 8px; /* Отступ между иконкой и текстом */
 }
 
-.menuItemContainer{
-    margin-left: 3rem;
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    justify-content: center;
-    width: 100%;
-    color: #008ad1;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-   
-    border-radius: 8px; /* Скругленные углы */
-    background: none; /* Светлый фон */
-    user-select: none; /* Запрещаем выделение элемента */
-}
-
 .iconText {
-    font-size: 2rem; /* Размер текста */
+    font-size: 0.9rem; /* Размер текста */
     color: #008ad1; /* Цвет текста */
-    /* text-align: center; */
-}
-
-.menuItemPlainText{
-    font-size: 5rem; /* Размер текста */
-    color: #008ad1; /* Цвет текста */
-    /* text-align: center; */
+    text-align: center;
 }

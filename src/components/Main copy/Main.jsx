@@ -28,7 +28,7 @@ export default function PersistentDrawerLeft() {
 
   const menu = [
     { name: 'Компании', path: '/companies', icon: require('../../icons/companiesIcon.png') },
-    { name: 'Контакты', path: '/contacts', icon: require('../../icons/contactsIcon.png') },
+    { name: 'Контакты', path: '/', icon: require('../../icons/contactsIcon.png') },
     { name: 'События', path: '/', icon: require('../../icons/eventsIcon.png') },
     { name: 'Стратегия', path: '/', icon: require('../../icons/strategyIcon.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/tasksIcon.png') },
@@ -46,22 +46,25 @@ export default function PersistentDrawerLeft() {
           <div className={styles.nameText}>
             Здравствуйте, {name.name}
           </div>
-           <div className={styles.roleText}>
-            Текущая роль: {name.role}
-          </div>
-          <div className={styles.menuItemContainer}>
+          <div className={styles.menuIcons}>
             {menu.map((item) => (
               <div
                 key={item.name}
-                className={styles.menuItemPlainText}
+                className={styles.menuItem}
                 onClick={() => navigate(item.path, { replace: true })}
               >
-               
+                <img
+                  src={item.icon}
+                  alt={item.name}
+                  className={styles.icon}
+                />
                 <div className={styles.iconText}>{item.name}</div>
               </div>
             ))}
           </div>
-         
+          <div className={styles.roleText}>
+            Текущая роль: {name.role}
+          </div>
         </>
       )}
     </div>
