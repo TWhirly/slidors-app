@@ -6,10 +6,11 @@ import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
 import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
+import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 
 function CompanyDetails() {
 
-
+  
   const navigate = useNavigate();
   const { state: company } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
@@ -26,6 +27,9 @@ function CompanyDetails() {
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
 
   tg.BackButton.isVisible = true
+
+  
+  
 
   useEffect(() => {
     tg.BackButton.isVisible = true;

@@ -1,13 +1,13 @@
 // components/NotificationPanel.js
 import { useEffect } from 'react';
-import styles from'./NotificationPanel.css';
+import styles from'./NotificationPanel.module.css';
 
 const NotificationPanel = ({ message, show, onHide }) => {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
         onHide();
-      }, 1000);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [show, onHide]);

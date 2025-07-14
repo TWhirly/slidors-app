@@ -22,7 +22,7 @@ const CompanyEditForm = () => {
 
      tg.BackButton.isVisible = true;
 
-    //  showNotification(`Данные сохранены успешно!`)
+     
 
     useEffect(() => {
         const initBackButton = () => {
@@ -120,7 +120,7 @@ const CompanyEditForm = () => {
             console.error('Save failed:', error);
         } finally {
             // tg.MainButton.hideProgress();
-            // showNotification(`Данные сохранены успешно!`, true);
+            showNotification(`Данные сохранены успешно!`, true);
         }
     }, [chat_id, navigate]);
 

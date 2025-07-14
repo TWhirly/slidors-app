@@ -12,7 +12,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    z-index: var(--z-base);
+    /* z-index: var(--z-base); */
     overflow-x: hidden;
     padding-top: 0;
     margin-top: 0;

@@ -12,12 +12,14 @@ import CompanyDetails from './components/Companies/CompanyDetails';
 import CompanyEditForm from './components/Companies/CompanyEditForm';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
 import NotificationPanel from './components/notifications/NotificationPanel.jsx';
+import { useNotification } from './components/notifications/NotificationContext.jsx';
 
 function App() {
 
 
 
     // eslint-disable-next-line no-unused-vars
+    // const { showNotification } = useNotification();
     const navigate = useNavigate();
     const { tg } = useTelegram();
     // window.Telegram.WebApp.expand();
@@ -56,6 +58,9 @@ function App() {
         tg.setHeaderColor("#131313");
         tg.setBackgroundColor("#131313");
     }, [tg])
+    //     useEffect(() => {
+    //     showNotification('Добро пожаловать в компанию ', true);
+    //   }, [showNotification])
 
     // useEffect(() => {
     //     // Проверяем, что код выполняется внутри Telegram WebView
@@ -68,8 +73,8 @@ function App() {
     // console.log('tg', window.Telegram)
 
     return (
-        <DataProvider>
-            <NotificationProvider>
+        <NotificationProvider >
+            <DataProvider>
                 <div className={App}>
                     <Header />
                     <Routes>
@@ -83,8 +88,8 @@ function App() {
                         <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
                     </Routes>
                 </div>
-            </NotificationProvider>
-        </DataProvider>
+            </DataProvider>
+        </NotificationProvider >
     );
 }
 
