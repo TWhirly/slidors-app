@@ -7,7 +7,7 @@ const NotificationPanel = ({ message, show, onHide }) => {
     if (show) {
       const timer = setTimeout(() => {
         onHide();
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [show, onHide]);
