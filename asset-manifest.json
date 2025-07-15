@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.30a8afb5.css",
+    "main.js": "/static/js/main.3eedd774.js",
+    "static/media/strategyIcon.png": "/static/media/strategyIcon.345d6c92ee028f85ed70.png",
+    "static/media/companiesIcon.png": "/static/media/companiesIcon.459d544eb70b5c41823c.png",
+    "static/media/background.jpg": "/static/media/background.a4f43ad06fc9318db81c.jpg",
+    "static/media/contactsIcon.png": "/static/media/contactsIcon.7e9a102180712ca289aa.png",
+    "static/media/eventsIcon.png": "/static/media/eventsIcon.4c959c901c4e59cafb7e.png",
+    "static/media/tasksIcon.png": "/static/media/tasksIcon.316186cd99748b73e7d5.png",
+    "static/media/checkedRed.png": "/static/media/checkedRed.3097c42e8bb8f6b8096c.png",
+    "index.html": "/index.html",
+    "main.30a8afb5.css.map": "/static/css/main.30a8afb5.css.map",
+    "main.3eedd774.js.map": "/static/js/main.3eedd774.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.30a8afb5.css",
+    "static/js/main.3eedd774.js"
+  ]
+}
