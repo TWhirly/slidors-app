@@ -1,20 +1,16 @@
 {
   "files": {
-    "main.css": "/slidors-app/static/css/main.7a6b917c.css",
-    "main.js": "/slidors-app/static/js/main.71830f33.js",
-    "static/media/strategyIcon.png": "/slidors-app/static/media/strategyIcon.345d6c92ee028f85ed70.png",
-    "static/media/companiesIcon.png": "/slidors-app/static/media/companiesIcon.459d544eb70b5c41823c.png",
+    "main.css": "/slidors-app/static/css/main.55de6bfb.css",
+    "main.js": "/slidors-app/static/js/main.11d81692.js",
     "static/media/background.jpg": "/slidors-app/static/media/background.a4f43ad06fc9318db81c.jpg",
-    "static/media/contactsIcon.png": "/slidors-app/static/media/contactsIcon.7e9a102180712ca289aa.png",
-    "static/media/eventsIcon.png": "/slidors-app/static/media/eventsIcon.4c959c901c4e59cafb7e.png",
-    "static/media/tasksIcon.png": "/slidors-app/static/media/tasksIcon.316186cd99748b73e7d5.png",
+    "static/media/menu-items-logo.png": "/slidors-app/static/media/menu-items-logo.2e21356935ef799bea77.png",
     "static/media/checkedRed.png": "/slidors-app/static/media/checkedRed.3097c42e8bb8f6b8096c.png",
     "index.html": "/slidors-app/index.html",
-    "main.7a6b917c.css.map": "/slidors-app/static/css/main.7a6b917c.css.map",
-    "main.71830f33.js.map": "/slidors-app/static/js/main.71830f33.js.map"
+    "main.55de6bfb.css.map": "/slidors-app/static/css/main.55de6bfb.css.map",
+    "main.11d81692.js.map": "/slidors-app/static/js/main.11d81692.js.map"
   },
   "entrypoints": [
-    "static/css/main.7a6b917c.css",
-    "static/js/main.71830f33.js"
+    "static/css/main.55de6bfb.css",
+    "static/js/main.11d81692.js"
   ]
 }
