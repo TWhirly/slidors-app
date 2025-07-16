@@ -75,7 +75,7 @@
 .menuIcons {
     display: flexbox;
     /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 3 элемента в ряд на мобильных */
-    gap: 1.8rem; /* Расстояние между элементами */
+    gap: 1rem; /* Расстояние между элементами */
     
     /* margin: 30px 10rem;  */
     max-width: 100%; /* Ограничение ширины в пределах контейнера */
@@ -112,7 +112,7 @@
 .menuItemContainer{
     margin-left: 3rem;
     margin-top: 2rem;
-    gap: 1rem;
+    gap: 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: left;
