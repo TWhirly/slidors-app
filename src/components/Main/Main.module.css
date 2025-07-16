@@ -47,20 +47,24 @@
 }
 
 .nameText{
-    margin-top: 2rem;
+    font-size: 1rem;
+    margin-top: 3rem;
     margin-left: 3rem;
     width: 100%;
     text-align: left;
-    color: #008ad1;
+    color:  #729fcf;
+   
 }
 
 .roleText {
     width: 100%;
+    font-size: 1rem;
     margin-left: 3rem;
+    margin-top: 0.8rem;
     display: flex;
     bottom: 1rem;
     text-align: center;
-    color: #008ad1;
+    color:  #729fcf;
 }
 
 .logo {
@@ -71,7 +75,7 @@
 .menuIcons {
     display: flexbox;
     /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 3 элемента в ряд на мобильных */
-    gap: 16px; /* Расстояние между элементами */
+    gap: 1.8rem; /* Расстояние между элементами */
     
     /* margin: 30px 10rem;  */
     max-width: 100%; /* Ограничение ширины в пределах контейнера */
@@ -107,7 +111,7 @@
 }
 
 .icon {
-    width: 50px; 
+    width: 50px; /* Размер изображения */
     height: 50px;
     object-fit: cover; /* Убедитесь, что изображение не искажается */
     margin-bottom: 8px; /* Отступ между иконкой и текстом */
@@ -115,13 +119,14 @@
 
 .menuItemContainer{
     margin-left: 3rem;
-    margin-top: 3rem;
+    margin-top: 2rem;
+    gap: 1rem;
     display: flex;
     flex-direction: column;
     align-items: left;
     justify-content: center;
     width: 100%;
-    color: #008ad1;
+    color:  #729fcf;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
    
@@ -131,13 +136,25 @@
 }
 
 .iconText {
-    font-size: 2rem; /* Размер текста */
-    color: #008ad1; /* Цвет текста */
-    /* text-align: center; */
+    font-size: 1rem; /* Размер текста */
+    color: white;
+    margin: 0; /* Убираем стандартные отступы */
+}
+
+.icon{
+     width: 1rem; /* Размер иконки */
+    height: 1rem;
+    margin: 0;
+    object-fit: contain; /* Сохраняет пропорции */
 }
 
 .menuItemPlainText{
-    font-size: 5rem; /* Размер текста */
-    color: #008ad1; /* Цвет текста */
-    /* text-align: center; */
+     display: flex;
+    flex-direction: row;
+    align-items: center; /* Выравниваем элементы по вертикали */
+    gap: 0.5rem; /* Расстояние между иконкой и текстом */
+    padding: 0.5rem 0; /* Отступы сверху и снизу */
+    width: 100%;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
 }

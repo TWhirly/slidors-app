@@ -27,11 +27,12 @@ export default function PersistentDrawerLeft() {
   }, [navigate, tg]);
 
   const menu = [
-    { name: 'Компании', path: '/companies', icon: require('../../icons/companiesIcon.png') },
-    { name: 'Контакты', path: '/contacts', icon: require('../../icons/contactsIcon.png') },
-    { name: 'События', path: '/', icon: require('../../icons/eventsIcon.png') },
-    { name: 'Стратегия', path: '/', icon: require('../../icons/strategyIcon.png') },
-    { name: 'Задачи', path: '/', icon: require('../../icons/tasksIcon.png') },
+    { name: 'Компании', path: '/companies', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Контакты', path: '/contacts', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'События', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
 
   return (
@@ -47,16 +48,17 @@ export default function PersistentDrawerLeft() {
             Здравствуйте, {name.name}
           </div>
            <div className={styles.roleText}>
-            Текущая роль: {name.role}
+            Ваша текущая роль: {name.role}
           </div>
           <div className={styles.menuItemContainer}>
             {menu.map((item) => (
+              
               <div
                 key={item.name}
                 className={styles.menuItemPlainText}
                 onClick={() => navigate(item.path, { replace: true })}
               >
-               
+               <img alt='icon' src={item.icon} className={styles.icon}></img>
                 <div className={styles.iconText}>{item.name}</div>
               </div>
             ))}
