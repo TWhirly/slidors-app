@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/slidors-app/static/css/main.2f569596.css",
-    "main.js": "/slidors-app/static/js/main.11d81692.js",
+    "main.css": "/slidors-app/static/css/main.d53378ff.css",
+    "main.js": "/slidors-app/static/js/main.fa33adee.js",
     "static/media/background.jpg": "/slidors-app/static/media/background.a4f43ad06fc9318db81c.jpg",
     "static/media/menu-items-logo.png": "/slidors-app/static/media/menu-items-logo.2e21356935ef799bea77.png",
     "static/media/checkedRed.png": "/slidors-app/static/media/checkedRed.3097c42e8bb8f6b8096c.png",
     "index.html": "/slidors-app/index.html",
-    "main.2f569596.css.map": "/slidors-app/static/css/main.2f569596.css.map",
-    "main.11d81692.js.map": "/slidors-app/static/js/main.11d81692.js.map"
+    "main.d53378ff.css.map": "/slidors-app/static/css/main.d53378ff.css.map",
+    "main.fa33adee.js.map": "/slidors-app/static/js/main.fa33adee.js.map"
   },
   "entrypoints": [
-    "static/css/main.2f569596.css",
-    "static/js/main.11d81692.js"
+    "static/css/main.d53378ff.css",
+    "static/js/main.fa33adee.js"
   ]
 }
