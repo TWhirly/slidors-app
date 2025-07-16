@@ -1,10 +1,9 @@
 // import '../src/css/theme.css';
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { useEffect } from "react";
 import { useTelegram } from "./hooks/useTelegram";
 import Header from "./components/Header/Header";
-import { Route, Routes } from 'react-router-dom'
 import Main from "./components/Main/Main";
 import { DataProvider } from './DataContext.jsx';
 import Companies from './components/Companies/Companies';
@@ -58,39 +57,36 @@ function App() {
         tg.setHeaderColor("#131313");
         tg.setBackgroundColor("#131313");
     }, [tg])
-    //     useEffect(() => {
-    //     showNotification('Добро пожаловать в компанию ', true);
-    //   }, [showNotification])
-
-    // useEffect(() => {
-    //     // Проверяем, что код выполняется внутри Telegram WebView
-    //     if (window.Telegram?.WebApp?.expand) {
-    //       // Расширяем приложение на весь экран
-    //       window.Telegram.WebApp.expand();
-    //     }
-    //   }, []); // Пустой массив зависимостей = выполняется один раз при загрузке
-
-    // console.log('tg', window.Telegram)
+    
+    useEffect(() => {
+    // Обработка Telegram WebApp параметров
+    if (window.Telegram?.WebApp?.initData) {
+      const urlParams = new URLSearchParams(window.location.hash.substring(1));
+      const path = urlParams.get('tgWebAppStartParam') || '/';
+      
+      // Перенаправляем на корректный путь
+      navigate(path);
+    }
+  }, []);
 
     return (
-        <NotificationProvider >
-            <DataProvider>
-                <div className={App}>
-                    <Header />
-                    <Routes>
-                        <Route path="/" element={<Main />} />
-                        <Route path="/companies" element={<Companies />} />
-                        <Route path="/contacts" element={<NotificationPanel />} />
-                        <Route
-                            path="/companies/:id"
-                            element={<CompanyDetails />}
-                        />
-                        <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
-                    </Routes>
-                </div>
-            </DataProvider>
-        </NotificationProvider >
-    );
+    <NotificationProvider>
+      <DataProvider>
+        <div className="App">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Main />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/contacts" element={<NotificationPanel />} />
+            <Route path="/companies/:id" element={<CompanyDetails />} />
+            <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
+          </Routes>
+        </div>
+      </DataProvider>
+    </NotificationProvider>
+  );
 }
+
+
 
 export default App

@@ -102,14 +102,6 @@
     user-select: none; /* Запрещаем выделение элемента */
 }
 
-
-
-.menuItemPlainText:hover {
-    transform: scale(1.1); /* Увеличение при наведении */
-    z-index: 1; /* Поднимаем элемент над соседними */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Добавляем тень для визуального эффекта */
-}
-
 .icon {
     width: 50px; /* Размер изображения */
     height: 50px;
@@ -128,8 +120,6 @@
     width: 100%;
     color:  #729fcf;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-   
     border-radius: 8px; /* Скругленные углы */
     background: none; /* Светлый фон */
     user-select: none; /* Запрещаем выделение элемента */
