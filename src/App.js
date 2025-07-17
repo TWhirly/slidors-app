@@ -77,7 +77,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/companies" element={<Companies />} />
-            <Route path="/contacts" element={<NotificationPanel />} />
+            <Route path="/contacts" element={<Main />} />
             <Route path="/companies/:id" element={<CompanyDetails />} />
             <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
           </Routes>

@@ -95,7 +95,7 @@
     height: 100px; /* Фиксированная высота */
     color: #008ad1;
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
+    /* transition: transform 0.2s ease-in-out; */
     border: 1px solid gray; /* Легкая рамка для визуального разделения */
     border-radius: 8px; /* Скругленные углы */
     background: none; /* Светлый фон */
@@ -119,10 +119,10 @@
     justify-content: center;
     width: 100%;
     color:  #729fcf;
-    cursor: pointer;
+    /* cursor: pointer; */
     border-radius: 8px; /* Скругленные углы */
     background: none; /* Светлый фон */
-    user-select: none; /* Запрещаем выделение элемента */
+    user-select: none; 
 }
 
 .iconText {
@@ -143,8 +143,26 @@
     flex-direction: row;
     align-items: center; /* Выравниваем элементы по вертикали */
     gap: 0.5rem; /* Расстояние между иконкой и текстом */
-    padding: 0.5rem 0; /* Отступы сверху и снизу */
-    width: 100%;
+    margin: 0.5rem 0; /* Отступы сверху и снизу */
+    user-select: none; 
+    /* width: 100%; */
     cursor: pointer;
-    transition: transform 0.2s ease-in-out;
+    -webkit-tap-highlight-color: transparent;
+    /* transition: transform 0.2s ease-in-out; */
+}
+
+.menuItemPlainText:hover{
+    color:inherit;
+    background: none
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .menuItemPlainText:hover {
+        background-color: none;
+    }
+}
+
+/* Отключаем активное состояние (эффект при клике/тапе) */
+.menuItemPlainText:active {
+    background-color: transparent !important;
 }

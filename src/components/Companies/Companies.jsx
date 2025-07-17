@@ -85,7 +85,7 @@ const Companies = () => {
 
     useEffect(() => {
         if (regionRows) {
-            console.log(`query result, ${JSON.stringify(regionRows)}`);
+            // console.log(`query result, ${JSON.stringify(regionRows)}`);
 
             // Compute hashes for comparison
             const savedRegionsHash = sessionStorage.getItem('savedRegionHash') || [];
@@ -120,7 +120,8 @@ const Companies = () => {
                             dealers: company.dealers,
                             url: company.url,
                             logo: company.logo,
-                            firm: company.firm
+                            firm: company.firm,
+                            turnover: company.turnover
 
                         });
                         existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
@@ -149,9 +150,11 @@ const Companies = () => {
                             dealers: company.dealers,
                             url: company.url,
                             logo: company.logo,
-                            firm: company.firm
+                            firm: company.firm,
+                            turnover: company.turnover
                             }],
                             company_count: regionRows.filter(r => r.region === company.region).length,
+                            regionTurnover: regionRows.filter(r => r.region === company.region).reduce((acc, r) => acc + (Math.round(+r.turnover)), 0)
                         });
                     }
                     return acc;
@@ -180,7 +183,7 @@ const Companies = () => {
       
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-
+        console.log(regionsWithCompanies.find(r => r.region === regionId));
     };
 
     const getStatusColor = (status) => {
@@ -367,7 +370,7 @@ const Companies = () => {
                                         .split(" ")
                                         .filter((item) => item !== "область")
                                         .join(" ")}{" "}
-                                    ({region.company_count})
+                                    ({region.company_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}
                                     <div className={styles.regionButtonArrow} />
                                 </span>
                             </button>
