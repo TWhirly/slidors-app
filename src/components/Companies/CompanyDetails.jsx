@@ -99,24 +99,24 @@ function CompanyDetails() {
       return fetchedMails;
     };
 
-  const { data: contacts, isContactsLoading, error } = useQuery({
-    queryKey: ['contacts'],
+  const { data: contacts, isLoading: isContactsLoading, error } = useQuery({
+    queryKey: ['contacts' + company.id],
     queryFn: fetchContacts,
-    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
-    refetchInterval: 600000, // Refetch data every 600 seconds in the background
+    staleTime: 600000, 
+    refetchInterval: 600000,
   });
 
-  const { data: activity, isActivityLoading, activityFetchError } = useQuery({
-    queryKey: ['activity'],
+  const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
+    queryKey: ['activity' + company.id],
     queryFn: fetchActivity,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
-  const { data: mails, isMailsLoading, mailsFetchError } = useQuery({
-    queryKey: ['mails'],
+  const { data: mails, isLoading: isMailsLoading, mailsFetchError } = useQuery({
+    queryKey: ['mails' + company.id],
     queryFn: fetchMail,
-    staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
+    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
@@ -274,6 +274,8 @@ function CompanyDetails() {
   };
 
   console.log('company', company)
+  console.log('isContactsLoading', isContactsLoading)
+  console.log('contacts', contacts)
 
   if (!company) {
     return <div>Company not found</div>;
