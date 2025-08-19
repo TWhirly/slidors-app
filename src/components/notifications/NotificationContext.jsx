@@ -13,6 +13,8 @@ export const NotificationProvider = ({ children }) => {
     setNotification({ show: true, message });
   };
 
+  
+
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
   };
