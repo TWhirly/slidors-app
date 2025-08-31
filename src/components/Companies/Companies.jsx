@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
@@ -10,9 +8,9 @@ import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
 import { DataContext } from '../../DataContext.jsx';
-import sha256 from 'crypto-js/sha256'; // Import the hashing library
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
+import { useRegions } from '../../hooks/useRegions';
 
 const Companies = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -20,10 +18,6 @@ const Companies = () => {
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-    const [loadingRegion, setLoadingRegion] = useState(null);
-    const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
-    const [loading, setLoading] = useState(true);
-    
 
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
@@ -33,157 +27,26 @@ const Companies = () => {
     tg.BackButton.show();
     console.log(email, 'email');
     
+    // Используем хук useRegions
+    const { regionsWithCompanies, isLoading, error } = useRegions(chat_id);
+
     useEffect(() => {
-        // Load regionsWithCompanies from sessionStorage on component mount
-        const savedRegions = sessionStorage.getItem('regionsWithCompanies');
+        // Load selectedRegion from sessionStorage on component mount
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
-
-        if (savedRegions) {
-            setRegionsWithCompanies(JSON.parse(savedRegions)); // Load from sessionStorage
-            setLoading(false); // Stop loading if data is available
-        }
-
         if (savedSelectedRegion) {
-            setSelectedRegion(savedSelectedRegion); // Restore selected region
+            setSelectedRegion(savedSelectedRegion);
         }
     }, []);
 
-    useEffect(() => {
-        
-    }, [selectedRegion]);
-
-    // Функция для получения регионов
-    const fetchRegions = async () => {
-        console.log('fetchRegions')
-        const params = {
-            name: 'Ваше имя',
-            chatID: chat_id,
-            api: 'getCompanies'
-        };
-        const formData = JSON.stringify(params);
-        const response = await axios.post(
-            process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            formData,
-        );
-        return response.data;
-    };
-
-    // Функция для получения компаний по региону
-
-    // Запрос для получения регионов с использованием нового синтаксиса v5+
-    const { data: regionRows, isLoading, error } = useQuery({
-        queryKey: ['regions'],
-        queryFn: fetchRegions,
-        staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
-        refetchInterval: 600000, // Refetch data every 60 seconds in the background
-    });
-
-    // Utility function to compute a hash of an object or array
-    const computeHash = (data) => {
-        return sha256(JSON.stringify(data)).toString(); // Compute hash and convert to string
-    };
-
-    useEffect(() => {
-        if (regionRows) {
-            // console.log(`query result, ${JSON.stringify(regionRows)}`);
-
-            // Compute hashes for comparison
-            const savedRegionsHash = sessionStorage.getItem('savedRegionHash') || [];
-            const regionRowsHash = computeHash(JSON.stringify(regionRows));
-
-            if (savedRegionsHash !== regionRowsHash) {
-                console.log('Data has changed, updating sessionStorage');
-
-                // Build updatedRegions only if data has changed
-                const updatedRegions = regionRows.reduce((acc, company) => {
-                    const existingRegion = acc.find(r => r.region === company.region);
-                    if (existingRegion) {
-                        existingRegion.companies.push({
-                            id: company.id, // Store only essential fields
-                            name: company.name,
-                            type: company.type,
-                            status: company.status,
-                            handled: company.handled,
-                            wa: company.wa,
-                            tg: company.tg,
-                            city: company.city,
-                            address: company.address,
-                            region: company.region,
-                            description: company.description,
-                            phone1: company.phone1,
-                            phone2: company.phone2,
-                            manager: company.manager,
-                            whatsapp: company.whatsapp,
-                            telegram: company.telegram,
-                            recyclers: company.recyclers ? company.recyclers.split(',').filter(Boolean) : [],
-                            tt: company.tt,
-                            dealers: company.dealers,
-                            url: company.url,
-                            logo: company.logo,
-                            firm: company.firm,
-                            turnover: company.turnover
-
-                        });
-                        existingRegion.companies.sort((a, b) => a.name.localeCompare(b.name));
-                    } else {
-                        acc.push({
-                            region: company.region,
-                            companies: [{
-                                id: company.id, // Store only essential fields
-                            name: company.name,
-                            type: company.type,
-                            status: company.status,
-                            handled: company.handled,
-                            wa: company.wa,
-                            tg: company.tg,
-                            city: company.city,
-                            address: company.address,
-                            region: company.region,
-                            description: company.description,
-                            phone1: company.phone1,
-                            phone2: company.phone2,
-                            manager: company.manager,
-                            whatsapp: company.whatsapp,
-                            telegram: company.telegram,
-                            recyclers: company.recyclers ? company.recyclers.split(',').filter(Boolean) : [],
-                            tt: company.tt,
-                            dealers: company.dealers,
-                            url: company.url,
-                            logo: company.logo,
-                            firm: company.firm,
-                            turnover: company.turnover
-                            }],
-                            company_count: regionRows.filter(r => r.region === company.region).length,
-                            regionTurnover: regionRows.filter(r => r.region === company.region).reduce((acc, r) => acc + (Math.round(+r.turnover)), 0)
-                        });
-                    }
-                    return acc;
-                }, []);
-
-                sessionStorage.setItem('regionsWithCompanies', JSON.stringify(updatedRegions)); // Save to sessionStorage
-                sessionStorage.setItem('savedRegionHash', computeHash(JSON.stringify(regionRows))); // Save to sessionStorage
-                setRegionsWithCompanies(updatedRegions); // Update state
-            } else {
-                console.log('No changes in data, rendering from sessionStorage');
-            }
-
-            setLoading(false); // Stop loading
-        }
-    }, [regionRows]);
-
     const handleRegionClick = async (regionId) => {
-        // setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
             setSelectedRegion(null);
-            sessionStorage.removeItem('selectedRegion'); // Clear expanded region state
-            setLoadingRegion(null);
+            sessionStorage.removeItem('selectedRegion');
             return;
         }
-
       
         setSelectedRegion(regionId);
-        sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-        console.log(regionsWithCompanies.find(r => r.region === regionId));
+        sessionStorage.setItem('selectedRegion', regionId);
     };
 
     const getStatusColor = (status) => {
@@ -247,20 +110,18 @@ const Companies = () => {
     };
 
     const handleSelectCompany = (company) => {
-        console.log('handleSelectCompany', company);
         navigate(`/companies/${company.id}`, {
-            state:
-                company
-            
+            state: company
         });
     };
 
     const collapseRegion = () => {
         setSelectedRegion(null);
+        sessionStorage.removeItem('selectedRegion');
     };
 
     const getEmptyCompany = (selectedRegion = '') => ({
-        id: uuidv4(), // Generates UUID v4
+        id: uuidv4(),
         name: '',
         type: '',
         status: '',
@@ -293,17 +154,14 @@ const Companies = () => {
         if (!tg) return;
 
         tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
+        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
 
         return () => {
             tg.BackButton.offClick();
-            //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
     }, [navigate]);
 
-    // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
-
-    if (isLoading || loading) {
+    if (isLoading) {
         return (
             <div className={styles.container}>
                 <CircularProgress color='008ad1' className={styles.loading} />
@@ -323,118 +181,115 @@ const Companies = () => {
 
     return (
         <div className={styles.container}>
-            
-                <div
-                    className={styles.naviPanel}
-                    onClick={collapseRegion}
-                >
-                    <div className={styles.companyNamePanel}>
-                        Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
-                            .filter((item) => item !== "область")
-                            .join(" ")}` : ""}
-                    </div>
-                    <IconButton
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddCompany();
-                        }}
-                        sx={{
-                            color: 'white',
-                            marginRight: '1rem'
-                        }}
-                    >
-                        <AddIcon />
-                    </IconButton>
-                    <AvatarGroup 
-                        max={5} 
-                        direction="row" 
-                        spacing={10} 
-                        sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
-                    >
-                        {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
-                            <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
-                                {`${user.name.split('')[0]}${user.name.split('')[1]}`}
-                            </Avatar>
-                        )) : ''}
-                    </AvatarGroup>
+            <div
+                className={styles.naviPanel}
+                onClick={collapseRegion}
+            >
+                <div className={styles.companyNamePanel}>
+                    Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
+                        .filter((item) => item !== "область")
+                        .join(" ")}` : ""}
                 </div>
-                <div className={styles.allRegions}>
-                    {regionsWithCompanies?.map((region) => (
-                        <div key={region.id} className={styles.regionContainer}>
-                            <button
-                                onClick={() => handleRegionClick(region.region)}
-                                className={styles.regionButton}
-                            >
-                                <span>
-                                    {region?.region
-                                        .split(" ")
-                                        .filter((item) => item !== "область")
-                                        .join(" ")}{" "}
-                                    ({region.company_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}
-                                    <div className={styles.regionButtonArrow} />
-                                </span>
-                            </button>
-                            {loadingRegion === region.region && <span className={styles.loadingdots}>Загрузка</span>}
-                            {selectedRegion === region.region && (
-                                <div className={styles.dataGridContainer}>
-                                    {regionsWithCompanies.find((r) => r.region === region.region)?.companies?.map((company) => (
-                                        <div key={company.id} className={styles.companyItem}>
-                                            <div className={styles.companyInfo}>
-                                                <div className={styles.nameAndIcon}>
-                                                    <div
-                                                        onClick={() => handleSelectCompany(company)}
-                                                        className={styles.companyName}
-                                                    >
-                                                        {company.name}
-                                                    </div>
-                                                    <div className={styles.iconContainer}>
-                                                        {getCompanyTypeIcon(company.type)}
-                                                    </div>
+                <IconButton
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddCompany();
+                    }}
+                    sx={{
+                        color: 'white',
+                        marginRight: '1rem'
+                    }}
+                >
+                    <AddIcon />
+                </IconButton>
+                <AvatarGroup 
+                    max={5} 
+                    direction="row" 
+                    spacing={10} 
+                    sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
+                >
+                    {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
+                        <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
+                            {`${user.name.split('')[0]}${user.name.split('')[1]}`}
+                        </Avatar>
+                    )) : ''}
+                </AvatarGroup>
+            </div>
+            <div className={styles.allRegions}>
+                {regionsWithCompanies?.map((region) => (
+                    <div key={region.region} className={styles.regionContainer}>
+                        <button
+                            onClick={() => handleRegionClick(region.region)}
+                            className={styles.regionButton}
+                        >
+                            <span>
+                                {region?.region
+                                    .split(" ")
+                                    .filter((item) => item !== "область")
+                                    .join(" ")}{" "}
+                                ({region.company_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}
+                                <div className={styles.regionButtonArrow} />
+                            </span>
+                        </button>
+                        {selectedRegion === region.region && (
+                            <div className={styles.dataGridContainer}>
+                                {region.companies?.map((company) => (
+                                    <div key={company.id} className={styles.companyItem}>
+                                        <div className={styles.companyInfo}>
+                                            <div className={styles.nameAndIcon}>
+                                                <div
+                                                    onClick={() => handleSelectCompany(company)}
+                                                    className={styles.companyName}
+                                                >
+                                                    {company.name}
                                                 </div>
-                                                <div className={styles.checksContainer}>
-                                                    <div>
-                                                        {company.handled !== 0 && <img
-                                                            src={require('../../icons/checkedRed.png')}
-                                                            alt="переработчик"
-                                                            fill="#008ad1"
-                                                            className={styles.checkIcon}
-                                                        />}
-                                                    </div>
-                                                    <div>
-                                                        {company.wa !== 0 && <img
-                                                            src={require('../../icons/checkedGreen.png')}
-                                                            alt="переработчик"
-                                                            fill="#008ad1"
-                                                            className={styles.checkIcon}
-                                                        />}
-                                                    </div>
-                                                    <div>
-                                                        {company.tg !== 0 && <img
-                                                            src={require('../../icons/checkedBlue.png')}
-                                                            alt="переработчик"
-                                                            fill="#008ad1"
-                                                            className={styles.checkIcon}
-                                                        />}
-                                                    </div>
+                                                <div className={styles.iconContainer}>
+                                                    {getCompanyTypeIcon(company.type)}
                                                 </div>
                                             </div>
-                                            <div
-                                                className={styles.companyStatus}
-                                                style={{
-                                                    color: getStatusColor(company.status),
-                                                    fontSize: '0.7rem'
-                                                }}
-                                            >
-                                                {company.status || 'Неизвестно'}
+                                            <div className={styles.checksContainer}>
+                                                <div>
+                                                    {company.handled !== 0 && <img
+                                                        src={require('../../icons/checkedRed.png')}
+                                                        alt="переработчик"
+                                                        fill="#008ad1"
+                                                        className={styles.checkIcon}
+                                                    />}
+                                                </div>
+                                                <div>
+                                                    {company.wa !== 0 && <img
+                                                        src={require('../../icons/checkedGreen.png')}
+                                                        alt="переработчик"
+                                                        fill="#008ad1"
+                                                        className={styles.checkIcon}
+                                                    />}
+                                                </div>
+                                                <div>
+                                                    {company.tg !== 0 && <img
+                                                        src={require('../../icons/checkedBlue.png')}
+                                                        alt="переработчик"
+                                                        fill="#008ad1"
+                                                        className={styles.checkIcon}
+                                                    />}
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            
+                                        <div
+                                            className={styles.companyStatus}
+                                            style={{
+                                                color: getStatusColor(company.status),
+                                                fontSize: '0.7rem'
+                                            }}
+                                        >
+                                            {company.status || 'Неизвестно'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
