@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
   const fetchRegions = async () => {
+    console.log('fetchRegions executed');
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -15,23 +17,18 @@ export const useRegions = (chat_id) => {
     return response.data;
   };
 
-  const { data: regionsWithCompanies, isLoading, error } = useQuery({
-    queryKey: ['regions'],
-    queryFn: fetchRegions,
-    select: (regionRows) => {
-      if (!regionRows) return [];
-      
-      // Создаем Map для быстрого доступа к регионам
-      const regionsMap = new Map();
-      
-      // Предварительно группируем компании по регионам
-      const companiesByRegion = {};
-      regionRows.forEach(company => {
-        if (!companiesByRegion[company.region]) {
-          companiesByRegion[company.region] = [];
-        }
-        companiesByRegion[company.region].push({
-          id: company.id,
+  // Выносим функцию преобразования с useCallback
+  const transformToRegionsWithCompanies = useCallback((regionRows) => {
+    console.log('select function executed - TRANSFORMATION');
+    if (!regionRows) return [];
+    
+    const companiesByRegion = {};
+    regionRows.forEach(company => {
+      if (!companiesByRegion[company.region]) {
+        companiesByRegion[company.region] = [];
+      }
+      companiesByRegion[company.region].push({
+        id: company.id,
           name: company.name,
           type: company.type,
           status: company.status,
@@ -54,30 +51,32 @@ export const useRegions = (chat_id) => {
           logo: company.logo,
           firm: company.firm,
           turnover: +company.turnover || 0
-        });
       });
+    });
 
-      // Обрабатываем каждый регион
-      return Object.entries(companiesByRegion).map(([region, companies]) => {
-        // Сортируем компании по имени
-        const sortedCompanies = companies.sort((a, b) => 
-          a.name.localeCompare(b.name)
-        );
-        
-        // Вычисляем общий turnover для региона
-        const regionTurnover = companies.reduce(
-          (sum, company) => sum + (Math.round(company.turnover)),
-          0
-        );
+    return Object.entries(companiesByRegion).map(([region, companies]) => {
+      const sortedCompanies = companies.sort((a, b) => 
+        a.name.localeCompare(b.name)
+      );
+      
+      const regionTurnover = companies.reduce(
+        (sum, company) => sum + (Math.round(company.turnover)),
+        0
+      );
 
-        return {
-          region,
-          companies: sortedCompanies,
-          company_count: companies.length,
-          regionTurnover
-        };
-      });
-    },
+      return {
+        region,
+        companies: sortedCompanies,
+        company_count: companies.length,
+        regionTurnover
+      };
+    });
+  }, []); // ← Пустой массив зависимостей, функция стабильна
+
+  const { data: regionsWithCompanies, isLoading, error } = useQuery({
+    queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
+    queryFn: fetchRegions,
+    select: transformToRegionsWithCompanies, // ← Стабильная ссылка
     staleTime: 300000,
   });
 

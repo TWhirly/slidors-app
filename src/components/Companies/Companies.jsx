@@ -11,8 +11,10 @@ import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
+import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 
 const Companies = () => {
+    const queryClient = useQueryClient();
     const { regions: contextRegions } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
@@ -160,6 +162,8 @@ const Companies = () => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
+    
+    // queryClient.invalidateQueries({ queryKey: ['regions'] })
 
     if (isLoading) {
         return (

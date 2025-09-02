@@ -5,10 +5,13 @@ import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
+import { useRegions } from '../../hooks/useRegions';
+import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
     const location = useLocation();
+    const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...company });
     const [focusedFields, setFocusedFields] = useState({});
     const [isDealer, setIsDealer] = useState(false)
@@ -19,10 +22,9 @@ const CompanyEditForm = () => {
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
+    const { regionsWithCompanies } = useRegions(chat_id);
 
      tg.BackButton.isVisible = true;
-
-     
 
     useEffect(() => {
         const initBackButton = () => {
@@ -106,12 +108,7 @@ const CompanyEditForm = () => {
                     });
                 }
 
-                // Update sessionStorage
-                sessionStorage.setItem('regionsWithCompanies', JSON.stringify(savedRegions));
-                
-                // Update hash
-                // const regionRowsHash = sha256(JSON.stringify(savedRegions)).toString();
-                // sessionStorage.setItem('savedRegionHash', regionRowsHash);
+             await queryClient.invalidateQueries({ queryKey: ['regions'] })
                 
             } else {
                 console.error('Error saving:', response);
@@ -120,9 +117,11 @@ const CompanyEditForm = () => {
             console.error('Save failed:', error);
         } finally {
             // tg.MainButton.hideProgress();
+            
             showNotification(`Данные сохранены успешно!`, true);
+            
         }
-    }, [chat_id, navigate]);
+    }, [chat_id, navigate, queryClient, showNotification]);
 
     useEffect(() => {
         if (!company) {
@@ -147,9 +146,8 @@ const CompanyEditForm = () => {
     }, [formData])
 
     useEffect(() => {
-        if (formData.region && sessionStorage.getItem('regionsWithCompanies')) {
-            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
-            const selectedRegion = savedRegions.find(item => item.region === formData.region);
+        if (formData.region && regionsWithCompanies) {
+            const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
             if (selectedRegion) {
                 const cities = selectedRegion.companies.reduce((acc, company) => {
                     if (!acc.includes(company.city) && company.city.length > 0) {
@@ -164,7 +162,7 @@ const CompanyEditForm = () => {
         } else {
             setCities([]);
         }
-    }, [formData.region]);
+    }, [formData.region, regionsWithCompanies]);
 
     useEffect(() => {
         if (formData.type === 'Дилер' && sessionStorage.getItem('regionsWithCompanies')) {
