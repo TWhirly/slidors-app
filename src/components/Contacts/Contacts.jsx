@@ -13,6 +13,7 @@ import { DataContext } from '../../DataContext.jsx';
 import sha256 from 'crypto-js/sha256'; // Import the hashing library
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
+import { useContacts } from '../../hooks/useContacts';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -36,16 +37,10 @@ const Contacts = () => {
     
     tg.BackButton.show();
     console.log(email, 'email');
+    const { regionsWithContacts, isLoading, error } = useContacts(chat_id);
     
     useEffect(() => {
-        // Load regionsWithCompanies from sessionStorage on component mount
-        const savedRegions = sessionStorage.getItem('regionsWithContacts');
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
-
-        if (savedRegions) {
-            setRegionsWithConatcts(JSON.parse(savedRegions)); // Load from sessionStorage
-            setLoading(false); // Stop loading if data is available
-        }
 
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion); // Restore selected region
@@ -66,76 +61,7 @@ const Contacts = () => {
     };
 
     // Функция для получения регионов
-    const fetchContacts = async () => {
-        console.log('getContactsList')
-        const params = {
-            name: 'Ваше имя',
-            chatID: chat_id,
-            api: 'getContactsList'
-        };
-        const formData = JSON.stringify(params);
-        const response = await axios.post(
-            process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            formData,
-        );
-        return response.data;
-    };
-
-    // Функция для получения компаний по региону
-
-    // Запрос для получения регионов с использованием нового синтаксиса v5+
-    const { data: regionRows, isLoading, error } = useQuery({
-        queryKey: ['regionsContacts'],
-        queryFn: fetchContacts,
-        staleTime: 300000, // Data is considered fresh for 5 minutes (300,000 ms)
-        refetchInterval: 600000, // Refetch data every 60 seconds in the background
-    });
-
-    // Utility function to compute a hash of an object or array
-    const computeHash = (data) => {
-        return sha256(JSON.stringify(data)).toString(); // Compute hash and convert to string
-    };
-
-    useEffect(() => {
-        if (regionRows) {
-            console.log(`query result, ${JSON.stringify(regionRows)}`);
-
-            // Compute hashes for comparison
-            const savedRegionContactsHash = sessionStorage.getItem('savedRegionContactsHash') || [];
-            const regionRowsContactsHash = computeHash(JSON.stringify(regionRows));
-
-            if (savedRegionContactsHash !== regionRowsContactsHash) {
-                console.log('Data has changed, updating sessionStorage');
-
-                // Build updatedRegions only if data has changed
-                const updatedRegions = regionRows.reduce((acc, contact) => {
-                    const existingRegion = acc.find(r => r.region === contact.region);
-                    contact.fullName = getContactFullNmae(contact);
-                    if (existingRegion) {
-                        existingRegion.contacts.push(
-                           contact
-                        );
-                        existingRegion.contacts.sort((a, b) => a.fullName.localeCompare(b.fullName));
-                    } else {
-                        acc.push(
-                            { region: contact.region, contacts: [contact],
-                                contact_count: regionRows.filter(r => r.region === contact.region).length
-                             }
-                        );
-                    }
-                    return acc;
-                }, []);
-
-                sessionStorage.setItem('regionsWithContacts', JSON.stringify(updatedRegions)); // Save to sessionStorage
-                sessionStorage.setItem('savedRegionContactsHash', computeHash(JSON.stringify(regionRows))); // Save to sessionStorage
-                setRegionsWithConatcts(updatedRegions); // Update state
-            } else {
-                console.log('No changes in data, rendering from sessionStorage');
-            }
-
-            setLoading(false); // Stop loading
-        }
-    }, [regionRows]);
+   
 
     const handleRegionClick = async (regionId) => {
         // setLoadingRegion(regionId);
@@ -151,75 +77,13 @@ const Contacts = () => {
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
         console.log(regionsWithCompanies.find(r => r.region === regionId));
     };
-
-    const getStatusColor = (status) => {
-        if (status?.toLowerCase().includes('уточнить'))
-            return 'orange';
-        switch (status?.toLowerCase()) {
-            case 'работает':
-                return 'lightgreen';
-            case 'не работает':
-                return 'var(--hintColor, #888)';
-            case 'уточнить тел.':
-                return 'orange';
-            default:
-                return 'var(--hintColor, #888)';
-        }
-    };
-
-    const getCompanyTypeIcon = (type) => {
-        switch (type?.toLowerCase()) {
-            case 'переработчик':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
-                        alt="переработчик"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дистрибьютор':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
-                        alt="дистрибьютор"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дилер':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
-                        alt="Дилер"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'смешанный':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
-                        alt="Смешанный"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'избранный':
-                return <YellowStarIcon className={styles.factoryIcon} />;
-            default:
-                return <></>;
-        }
-    };
-
-    const handleSelectCompany = (company) => {
-        console.log('handleSelectCompany', company);
-        // navigate(`/companies/${company.id}`, {
-        //     state:
-        //         company
-            
-        // });
-    };
+      
+    const handleSelectContact = (contact) => {
+        console.log('handleSelectCompany', contact);
+         navigate(`/contacts/${contact.id}`, {
+            state: contact
+        });
+            };
 
     const collapseRegion = () => {
         setSelectedRegion(null);
@@ -227,31 +91,36 @@ const Contacts = () => {
 
     const getEmptyCompany = (selectedRegion = '') => ({
         id: uuidv4(), // Generates UUID v4
-        name: '',
-        type: '',
-        status: '',
-        city: '',
-        address: '',
+        firstName: '',
+        lastName: '',
+        surname: '',
+        companyId: '',
+        title: '',
         region: selectedRegion,
-        description: '',
         phone1: '',
         phone2: '',
         manager: email,
         whatsapp: '',
         telegram: '',
-        recyclers: [],
-        tt: '',
-        dealers: '',
-        url: '',
-        logo: '',
-        firm: '',
+        note: '',
         new: true
     });
 
-    const handleAddCompany = () => {
-        const emptyCompany = getEmptyCompany(selectedRegion || '');
-        // navigate(`/companies/new/edit`, { state: emptyCompany });
+    const handleAddContact = () => {
+        const emptyContact = getEmptyCompany(selectedRegion || '');
+        navigate(`/contacts/new/edit`, { state: emptyContact });
     };
+
+    const formatNumber = (number) => {
+    const cleanNumber = number.replace(/\D/g, '');
+    if (cleanNumber.startsWith('8')) {
+      return '7' + cleanNumber.slice(1);
+    }
+    if (cleanNumber.startsWith('7')) {
+      return cleanNumber;
+    }
+    return '7' + cleanNumber;
+  };
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
@@ -269,7 +138,7 @@ const Contacts = () => {
 
     // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
-    if (isLoading || loading) {
+    if (isLoading) {
         return (
             <div className={styles.container}>
                 <CircularProgress color='008ad1' className={styles.loading} />
@@ -286,7 +155,7 @@ const Contacts = () => {
             </div>
         );
     }
-    console.log(regionsWithCompanies);
+    console.log(regionsWithContacts);
     return (
         <div className={styles.container}>
             
@@ -302,7 +171,7 @@ const Contacts = () => {
                     <IconButton
                         onClick={(e) => {
                             e.stopPropagation();
-                            handleAddCompany();
+                            handleAddContact();
                         }}
                         sx={{
                             color: 'white',
@@ -325,7 +194,7 @@ const Contacts = () => {
                     </AvatarGroup>
                 </div>
                 <div className={styles.allRegions}>
-                    {regionsWithCompanies?.map((region) => (
+                    {regionsWithContacts?.map((region) => (
                         <div key={region.id} className={styles.regionContainer}>
                             <button
                                 onClick={() => handleRegionClick(region.region)}
@@ -336,26 +205,24 @@ const Contacts = () => {
                                         .split(" ")
                                         .filter((item) => item !== "область")
                                         .join(" ")}{" "}
-                                    ({region.contact_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}
+                                    ({region.contacts_count})
                                     <div className={styles.regionButtonArrow} />
                                 </span>
                             </button>
                             {loadingRegion === region.region && <span className={styles.loadingdots}>Загрузка</span>}
                             {selectedRegion === region.region && (
                                 <div className={styles.dataGridContainer}>
-                                    {regionsWithCompanies.find((r) => r.region === region.region)?.contacts?.map((contact) => (
+                                    {regionsWithContacts.find((r) => r.region === region.region)?.contacts?.map((contact) => (
                                         <div key={contact.id} className={styles.companyItem}>
                                             <div className={styles.companyInfo}>
                                                 <div className={styles.nameAndIcon}>
                                                     <div
-                                                        onClick={() => handleSelectCompany(contact)}
+                                                        onClick={() => handleSelectContact(contact)}
                                                         className={styles.companyName}
                                                     >
-                                                        {contact.fullName}
+                                                        {getContactFullNmae(contact)}
                                                     </div>
-                                                    <div className={styles.iconContainer}>
-                                                        {getCompanyTypeIcon(contact.type)}
-                                                    </div>
+                                                  
                                                 </div>
                                                 <div className={styles.checksContainer}>
                                                     <div>
@@ -363,6 +230,7 @@ const Contacts = () => {
                                                             src={phoneIcon}
                                                             alt="переработчик"
                                                             fill="#008ad1"
+                                                            onClick={() => window.location.href = `tel:${contact.phone1}`}
                                                             className={styles.checkIcon}
                                                         />}
                                                     </div>
@@ -371,6 +239,7 @@ const Contacts = () => {
                                                             src={phoneIcon}
                                                             alt="переработчик"
                                                             fill="#008ad1"
+                                                            onClick={() => window.location.href = `tel:${contact.phone2}`}
                                                             className={styles.checkIcon}
                                                         />}
                                                     </div>
@@ -379,6 +248,7 @@ const Contacts = () => {
                                                             src={whatsappIcon}
                                                             alt="переработчик"
                                                             fill="#008ad1"
+                                                            onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
                                                             className={styles.checkIcon}
                                                         />}
                                                     </div>
@@ -387,6 +257,7 @@ const Contacts = () => {
                                                             src={telegramIcon}
                                                             alt="переработчик"
                                                             fill="#008ad1"
+                                                            onClick={() => window.location.href = `https://t.me/${formatNumber(contact.telegram)}`}
                                                             className={styles.checkIcon}
                                                         />}
                                                     </div>
@@ -395,7 +266,7 @@ const Contacts = () => {
                                             <div
                                                 className={styles.companyStatus}
                                                 style={{
-                                                    color: getStatusColor(contact.companyName),
+                                                    color: 'var(--hintColor, #888)',
                                                     fontSize: '0.7rem'
                                                 }}
                                             >

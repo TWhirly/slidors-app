@@ -8,6 +8,7 @@ import Main from "./components/Main/Main";
 import { DataProvider } from './DataContext.jsx';
 import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
+import ContactDetails from './components/Contacts/ContactDetails';
 import CompanyEditForm from './components/Companies/CompanyEditForm';
 import Contacts from './components/Contacts/Contacts';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
@@ -81,6 +82,7 @@ function App() {
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/companies/:id" element={<CompanyDetails />} />
             <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
+             <Route path="/contacts/:id" element={<ContactDetails />} />
           </Routes>
         </div>
       </DataProvider>

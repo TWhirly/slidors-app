@@ -6,7 +6,7 @@ import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
-import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useIsFetching  } from '@tanstack/react-query';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
@@ -23,6 +23,7 @@ const CompanyEditForm = () => {
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { regionsWithCompanies } = useRegions(chat_id);
+    const isFetching = useIsFetching(['regions'])
 
      tg.BackButton.isVisible = true;
 
@@ -80,6 +81,7 @@ const CompanyEditForm = () => {
             );
            
             if (response.status === 200) {
+                await queryClient.invalidateQueries({ queryKey: ['regions'] })
                 // Get current data from sessionStorage
                 const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies') || '[]');
                 
@@ -108,7 +110,7 @@ const CompanyEditForm = () => {
                     });
                 }
 
-             await queryClient.invalidateQueries({ queryKey: ['regions'] })
+             
                 
             } else {
                 console.error('Error saving:', response);
@@ -117,12 +119,15 @@ const CompanyEditForm = () => {
             console.error('Save failed:', error);
         } finally {
             // tg.MainButton.hideProgress();
-            
+            console.log('isFetching', isFetching)
             showNotification(`Данные сохранены успешно!`, true);
             
         }
     }, [chat_id, navigate, queryClient, showNotification]);
 
+    
+           
+      
     useEffect(() => {
         if (!company) {
             navigate('/companies');
