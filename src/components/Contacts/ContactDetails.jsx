@@ -8,11 +8,11 @@ import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 
-function CompanyDetails() {
+function ContactDetails() {
 
   
   const navigate = useNavigate();
-  const { state: company } = useLocation();
+  const { state: contact } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
@@ -37,35 +37,17 @@ function CompanyDetails() {
     tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
 
   }, [navigate, tg.BackButton, tg.BackButton.isVisible]);
-  const id = company.id;
+  const id = contact.id;
 
 
-  const fetchContacts = async () => {
-    console.log('fecthcontacts')
-    const params = {
-      name: 'Ваше имя',
-      companyId: id,
-      api: 'getContacts'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    let fetchedContacts = response.data;
-    console.log('fetchedContacts', fetchedContacts)
-    if (fetchedContacts) {
-      console.log('contacts', fetchedContacts);
-    }
-    return fetchedContacts;
-  };
+  
 
-  const fetchActivity = async () => {
+  const fetchContactActivity = async () => {
     console.log('fecthActivity')
     const params = {
       name: 'Ваше имя',
-      companyId: id,
-      api: 'getActivities'
+      contactId: id,
+      api: 'getContactActivities'
     };
     const formData = JSON.stringify(params);
     const response = await axios.post(
@@ -73,18 +55,20 @@ function CompanyDetails() {
       formData,
     );
     let fetchedActivity = response.data;
+    console.log('fetchedActivity', fetchedActivity)
     if (fetchedActivity) {
       console.log('Activity', fetchedActivity);
+      return fetchedActivity
     }
-    return fetchedActivity;
+    return [];
   };
 
-  const fetchMail = async () => {
+  const fetchContactMail = async () => {
       console.log('fecthcMail')
       const params = {
         name: 'Ваше имя',
-        companyId: id,
-        api: 'getEmails'
+        contactId: id,
+        api: 'getContactEmails'
       };
       const formData = JSON.stringify(params);
       const response = await axios.post(
@@ -93,29 +77,24 @@ function CompanyDetails() {
       );
       let fetchedMails = response.data;
       if (fetchedMails) {
-        setLoadingMail(false);
+        // setLoadingMail(false);
         console.log('mails', fetchedMails);
       }
       return fetchedMails;
     };
 
-  const { data: contacts, isLoading: isContactsLoading, error } = useQuery({
-    queryKey: ['contacts' + company.id],
-    queryFn: fetchContacts,
-    staleTime: 600000, 
-    refetchInterval: 600000,
-  });
+  
 
-  const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
-    queryKey: ['activity' + company.id],
-    queryFn: fetchActivity,
+  const { data: contactActivity, isLoading: isActivityLoading, activityFetchError } = useQuery({
+    queryKey: ['contactActivity' + contact.id],
+    queryFn: fetchContactActivity,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
-  const { data: mails, isLoading: isMailsLoading, mailsFetchError } = useQuery({
-    queryKey: ['mails' + company.id],
-    queryFn: fetchMail,
+  const { data: contactMails, isLoading: isContactsMailsLoading, mailsFetchError } = useQuery({
+    queryKey: ['contactMails' + contact.id],
+    queryFn: fetchContactMail,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
@@ -127,7 +106,7 @@ function CompanyDetails() {
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+      tg.BackButton.onClick(() => navigate('/contacts/', { replace: true }));
     };
 
     initializeBackButton();
@@ -141,7 +120,7 @@ function CompanyDetails() {
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/companies/${company.id}/edit`, { state: { ...company, new: false } });
+      navigate(`/companies/${contact.id}/edit`, { state: { ...contact, new: false } });
     }
   };
 
@@ -206,7 +185,7 @@ function CompanyDetails() {
           src={whatsappIcon}
           className={styles.contactPhone}
           alt="WhatsApp icon"
-          onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
+          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
           style={{ cursor: 'pointer' }}
         />
       );
@@ -273,116 +252,80 @@ function CompanyDetails() {
     }
   };
 
-  console.log('company', company)
-  console.log('isContactsLoading', isContactsLoading)
-  console.log('contacts', contacts)
+  console.log('company', contact)
 
-  if (!company) {
-    return <div>Company not found</div>;
+  if (!contact) {
+    return <div>contact not found</div>;
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.naviPanel}>
         <span className={styles.nameAndIcon}>
-          {company.name}
-          <div className={styles.iconContainer}>
-            {getCompanyTypeIcon(company.type)}
-          </div>
+          {contact.fullName}
+         
         </span>
         <LongMenu
           onSelect={handleMenuSelection}
         />
       </div>
       <div className={styles.CompanyDetails}>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
-        {company.recyclers.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
-        {company.phone1 && (
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.companyName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.lastName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.firstName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.surname}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.title}</div></div>
+        
+        {contact.phone1 && (
           <div
             className={styles.companyMainContacts}
-            onClick={() => window.location.href = `tel:${company.phone1}`}
+            onClick={() => window.location.href = `tel:${formatNumber(contact.phone1)}`}
             style={{ cursor: 'pointer' }}
           >
             <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-            <div className={styles.companyRowVal}>{company.phone1}</div>
+            <div className={styles.companyRowVal}>{formatNumber(contact.phone1)}</div>
           </div>
         )}
-        {company.phone2 && (<div className={styles.companyMainContacts}
-          onClick={() => window.location.href = `tel:${company.phone2}`}
+        {contact.phone2 && (<div className={styles.companyMainContacts}
+          onClick={() => window.location.href = `tel:${formatNumber(contact.phone2)}`}
           style={{ cursor: 'pointer' }}
         > <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-          <div className={styles.companyRowVal}>{company.phone2}</div></div>)}
-        {company.whatsapp && (
+          <div className={styles.companyRowVal}>{formatNumber(contact.phone2)}</div></div>)}
+        {contact.whatsapp && (
 
           <div
             className={styles.companyMainContacts}
             // onClick={() => window.location.href = `https://wa.me/+79216146100`}
             // onClick={() => window.location.href = `whatsapp://send?phone=+79216146100`}
-            onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
+            onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
             style={{ cursor: 'pointer' }}
           >
             <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
-            <div className={styles.companyRowVal}>{company.whatsapp}</div>
-            <div>
-              {company.wa !== 0 && (
-                <img
-                  src={require('../../icons/checkedRed.png')}
-                  alt="переработчик"
-                  fill="#008ad1"
-                  className={styles.checkIcon}
-                />
-              )}
-            </div>
+            <div className={styles.companyRowVal}>{contact.whatsapp}</div>
+           
           </div>
 
 
         )}
-        {company.telegram && (
+        {contact.telegram && (
           <div className={styles.companyMainContacts}
-            onClick={() => window.location.href = `https://t.me/${formatNumber(company.telegram)}`}
+            onClick={() => window.location.href = `https://t.me/${formatNumber(contact.telegram)}`}
             style={{ cursor: 'pointer' }}
           >
             <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" />
-            <div className={styles.companyRowVal}>{company.telegram}</div>
-            <div>
-              {company.tg !== 0 && (
-                <img
-                  src={require('../../icons/checkedRed.png')}
-                  alt="переработчик"
-                  fill="#008ad1"
-                  className={styles.checkIcon}
-                />
-              )}
-            </div>
+            <div className={styles.companyRowVal}>{contact.telegram}</div>
+           
           </div>)}
-        {contacts && contacts.length > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Контакты {contacts.length > 0 ? `(${contacts.length}):` : ''}</div></div>}
-        {isContactsLoading ? (
-          <>
-            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-          </>
-        ) : (
-          <div className={styles.contactsContainer}>
-            {contacts?.map((contact, index) => (
-              <div key={index} className={styles.contactPerson}>
-                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
-                <div className={styles.contactEmail}>{contact.email}</div>
-              </div>
-            ))}
-          </div>
-        )
-        }
+        
+        
 
-        {mails?.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+        {contactMails?.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
           {
 
-            !isMailsLoading ? (
-              <div className={styles.companyRowVal}>
-                {mails?.map(item => item.email).join(', ')}
+            !isContactsMailsLoading ? (
+              <div className={styles.companyRowVal}
+              >
+                {contactMails?.map(item => item.email).join(', ')}
               </div>
             ) : (
               <>
@@ -391,13 +334,13 @@ function CompanyDetails() {
             )
           }
         </div>)}
-        {activity?.length > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>События {activity.length > 0 ? `(${activity.length}):` : ''}
-          {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+        {contactActivity?.length > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>События {contactActivity.length > 0 ? `(${contactActivity.length}):` : ''}
+          {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
         </div></div>}
         {
           !isActivityLoading ? (
             <div className={styles.contactItem}>
-              {activity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
+              {contactActivity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
                 <div key={index} className={styles.contactItem}>
                   <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
                     {activity.purpose}</div>
@@ -413,18 +356,18 @@ function CompanyDetails() {
         }
 
 
-        {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
+        {/* {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
         {+company.tt > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}
         {+company.dealers > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Дилеров:</div><div className={styles.companyRowVal}>{company.dealers}</div></div>}
         {company.url && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Сайт:</div><div
           onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
           className={styles.companyRowUrl}>{company.url}</div></div>}
         {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
-        {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)}
+        {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)} */}
       </div>
 
     </div>
   );
 }
 
-export default CompanyDetails;
+export default ContactDetails;

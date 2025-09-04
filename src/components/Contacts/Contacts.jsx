@@ -51,18 +51,8 @@ const Contacts = () => {
         
     }, [selectedRegion]);
 
-    const getContactFullNmae = (contact) => {
-        const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
-                    (contact.firstName ? contact.firstName + ' ' : '') + 
-                    (contact.surname ? contact.surname + ' ' : '')
-                    if (fullName === '') {
-                        return contact.companyName}
-                        return fullName
-    };
-
-    // Функция для получения регионов
+        // Функция для получения регионов
    
-
     const handleRegionClick = async (regionId) => {
         // setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
@@ -220,7 +210,7 @@ const Contacts = () => {
                                                         onClick={() => handleSelectContact(contact)}
                                                         className={styles.companyName}
                                                     >
-                                                        {getContactFullNmae(contact)}
+                                                        {contact.fullName}
                                                     </div>
                                                   
                                                 </div>

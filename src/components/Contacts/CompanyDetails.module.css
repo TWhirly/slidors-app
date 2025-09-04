@@ -118,7 +118,7 @@
     width: auto;
     display: flex;
     flex-direction: row;
-    color:  #729fcf;
+    /* color:  #729fcf; */
 }
 .companyRowDescriptionHeader{
     color:  #729fcf;

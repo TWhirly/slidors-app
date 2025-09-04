@@ -18,6 +18,15 @@ export const useContacts = (chat_id) => {
     return response.data;
   };
 
+  const getContactFullNmae = (contact) => {
+        const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
+                    (contact.firstName ? contact.firstName + ' ' : '') + 
+                    (contact.surname ? contact.surname + ' ' : '')
+                    if (fullName === '') {
+                        return contact.companyName}
+                        return fullName
+    };
+
 
   // Выносим функцию преобразования с useCallback
   const transformToRegionsWithContacts = useCallback((regionRows) => {
@@ -29,12 +38,12 @@ export const useContacts = (chat_id) => {
       if (!contactsByRegion[contact.region]) {
         contactsByRegion[contact.region] = [];
       }
-      contactsByRegion[contact.region].push(contact);
+      contactsByRegion[contact.region].push({...contact, fullName: getContactFullNmae(contact)});
     });
     console.log('contactsByRegion', contactsByRegion);
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
       const sortedCompanies = contacts.sort((a, b) =>
-        a.lastName.localeCompare(b.lastName)
+        a.fullName.localeCompare(b.fullName)
       );
 
       return {
