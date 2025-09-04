@@ -319,14 +319,22 @@ function ContactDetails() {
         
         
 
-        {contactMails?.length > 0 && (<div className={styles.companyRowInfo}><img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+        {contactMails?.length > 0 && (<div className={styles.companyRowInfo}>
           {
 
             !isContactsMailsLoading ? (
-              <div className={styles.companyRowVal}
-              >
-                {contactMails?.map(item => item.email).join(', ')}
-              </div>
+             
+               
+                <div className={styles.companyRowVal}>
+              {contactMails?.map((mail, index) => (
+                <div key={index} className={styles.contactItem}>
+                  <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+                  <div className={styles.activityRowVal}>{mail.email}</div>
+                   
+                </div>
+              ))}
+            </div>
+             
             ) : (
               <>
                 <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
