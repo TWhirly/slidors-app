@@ -6,7 +6,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import styles from './CompanyDetails.module.css';
 
 const options = [
-  'Редактировать'
+  'Редактировать',
+  'Добавить контакт'
 ];
 
 const ITEM_HEIGHT = 48;

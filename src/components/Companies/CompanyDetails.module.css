@@ -205,7 +205,7 @@
 .contactPerson{
     display: flex;
     flex-direction: row;
-    /* justify-content: space-between; */
+    cursor: pointer;
     align-items: center;
     width: 100%;
     padding-top: 2px;

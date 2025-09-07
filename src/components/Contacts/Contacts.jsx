@@ -79,7 +79,7 @@ const Contacts = () => {
         setSelectedRegion(null);
     };
 
-    const getEmptyCompany = (selectedRegion = '') => ({
+    const getEmptyContact = (selectedRegion = '') => ({
         id: uuidv4(), // Generates UUID v4
         firstName: '',
         lastName: '',
@@ -97,7 +97,7 @@ const Contacts = () => {
     });
 
     const handleAddContact = () => {
-        const emptyContact = getEmptyCompany(selectedRegion || '');
+        const emptyContact = getEmptyContact(selectedRegion || '');
         navigate(`/contacts/new/edit`, { state: emptyContact });
     };
 

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { set } from 'lodash';
 
 export const DataContext = createContext();
 
@@ -7,6 +8,7 @@ export const DataProvider = ({ children }) => {
     const [regions, setRegions] = useState([]);
     const [types, setTypes] = useState([]);
     const [statuses, setStatuses] = useState([]);
+    const [titles, setTitles] = useState([]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
@@ -34,6 +36,7 @@ export const DataProvider = ({ children }) => {
             setName(response.data || '');
             setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
+            
         } catch (error) {
             console.error('Error fetching regions:', error);
         }
@@ -51,6 +54,7 @@ export const DataProvider = ({ children }) => {
             );
             setTypes(response.data.types || []);
             setStatuses(response.data.statuses || []);
+            setTitles(response.data.titles || []);
         } catch (error) {
             console.error('Error fetching types and statuses:', error);
         }
@@ -77,6 +81,7 @@ export const DataProvider = ({ children }) => {
             email,
             regions,
             types,
+            titles,
             statuses
         }}>
             {children}

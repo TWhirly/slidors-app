@@ -26,7 +26,7 @@ const CompanyEditForm = () => {
     const isFetching = useIsFetching(['regions'])
 
      tg.BackButton.isVisible = true;
-
+    console.log('regionsWithCompanies', regionsWithCompanies);
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
@@ -170,10 +170,9 @@ const CompanyEditForm = () => {
     }, [formData.region, regionsWithCompanies]);
 
     useEffect(() => {
-        if (formData.type === 'Дилер' && sessionStorage.getItem('regionsWithCompanies')) {
-            const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies'));
+        if (formData.type === 'Дилер' && regionsWithCompanies) {
             const recyclers = [];
-            savedRegions.forEach(region => {
+            regionsWithCompanies.forEach(region => {
                 region.companies.forEach(company => {
                     if (company.type === 'Переработчик' && company.name.length > 0 && !recyclers.includes(company.name)) {
                         recyclers.push(company.name);
@@ -185,7 +184,7 @@ const CompanyEditForm = () => {
         } else {
             setRecyclers([]);
         }
-    }, [formData.type]);
+    }, [formData.type, regionsWithCompanies]);
 
     // Update ref whenever formData changes
     useEffect(() => {
@@ -197,7 +196,7 @@ const CompanyEditForm = () => {
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
     }
-    // console.log('formData', formData)
+    console.log('regions', regions)
     console.log('company', company)
 
     return (

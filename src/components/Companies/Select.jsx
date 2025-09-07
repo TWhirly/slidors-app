@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback, use } from 'react';
 import debounce from 'lodash/debounce';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -47,11 +47,12 @@ const BasicSelect = (props) => {
     const filteredList = useMemo(() => {
         if (!props.searchable) return localList;
         if (!debouncedSearchTerm) return localList;
+        if(props.useObjects) return localList.filter(item => item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
 
         return localList.filter(item =>
             item.toString().toLowerCase().includes(debouncedSearchTerm.toLowerCase())
         );
-    }, [localList, debouncedSearchTerm, props.searchable]);
+    }, [props.searchable, props.useObjects, localList, debouncedSearchTerm]);
 
     const handleClick = () => {
         if (search && !localList.includes(search)) {
@@ -73,7 +74,7 @@ const BasicSelect = (props) => {
          
         console.log('event', event)
         const { target: { value } } = event;
-        if (value !== undefined) {
+        if (value !== undefined && !props.useObjects) {
             setSearch('');
             let newValue;
             if (props.multiple) {
@@ -83,6 +84,23 @@ const BasicSelect = (props) => {
             }
             console.log('search2', search)
             props.onChange(newValue);
+        }
+    };
+
+    const handleItemClick = (id, name) => {
+         
+        console.log('handleItemClick', name, id)
+        
+        if (name !== undefined && props.useObjects) {
+            setSearch('');
+            let newValue;
+            if (props.multiple) {
+                newValue = typeof value === 'string' ? name.split(',') : name;
+            } else {
+                newValue = name;
+            }
+            console.log('search2', search)
+            props.onChange(newValue, id);
         }
     };
 
@@ -119,8 +137,11 @@ const BasicSelect = (props) => {
         };
     }, [debouncedSearch]);
 
+    // console.log('filteredList', filteredList)
+
     return (
-        <FormControl fullWidth>
+        <FormControl fullWidth
+        >
             <InputLabel
                 id={`${props.name}-label`}
                 shrink={!!props.value || isFocused}
@@ -145,6 +166,7 @@ const BasicSelect = (props) => {
 
             {props.list ? (
                 <Select
+                disabled={props.disabled}
                     labelId={`${props.name}-label`}
                     id={props.name}
                     multiple={props.multiple}
@@ -154,6 +176,7 @@ const BasicSelect = (props) => {
                     onBlur={handleBlur}
                     input={<OutlinedInput />}
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
+                    // renderValue={() => 'fff'}
                     MenuProps={{
                         ...MenuProps,
                         disableAutoFocus: true,
@@ -190,6 +213,7 @@ const BasicSelect = (props) => {
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             {props.multiple && props.value?.length > 0 && (
                                 <IconButton
+                                disabled={props.disabled}
                                     size="small"
                                     onClick={handleClearAll}
                                     sx={{
@@ -208,7 +232,9 @@ const BasicSelect = (props) => {
                     }
                 >
                     <button
+                        disabled={props.disabled}
                         onClick={(e) => {
+                            
                             e.stopPropagation();
                             setSearch('');
                             setDebouncedSearchTerm('');
@@ -233,6 +259,7 @@ const BasicSelect = (props) => {
 
                     {props.searchable && (
                         <div
+                        disabled={props.disabled}
                         onClose={handleBlur}
                         style={{
                             padding: '8px',
@@ -247,6 +274,7 @@ const BasicSelect = (props) => {
                         }}>
 
                             <OutlinedInput
+                            disabled={props.disabled}
                                 inputRef={searchInputRef}
                                 fullWidth
                                 placeholder="Поиск..."
@@ -255,6 +283,7 @@ const BasicSelect = (props) => {
                                 endAdornment={
                                     search && (
                                         <button
+                                        disabled={props.disabled}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSearch('');
@@ -318,13 +347,18 @@ const BasicSelect = (props) => {
                     {filteredList.length > 0 ? (
                         filteredList.map((name) => (
                             <MenuItem
-                            
-                                key={name}
-                                value={name}
+                                disabled={props.disabled}
+                                name={'name'}
+                                key={typeof name === 'string' ? name : name.id}
+                                value={!props.useObjects ? name : name.name}
+                                onClick={() => handleItemClick(!props.useObjects ? name : name.id, typeof name === 'string' ? name : name.name)}
                                 autoFocus={false}
+                                
                             >
                                 {props.multiple && <Checkbox checked={props.value?.includes(name) || false} />}
-                                <ListItemText primary={name} />
+                                <ListItemText primary={!props.useObjects ? name : name.name}
+                                renderValue={() => 'rr'} 
+                                />
                             </MenuItem>
                         ))
                     ) : (

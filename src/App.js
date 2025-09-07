@@ -10,6 +10,7 @@ import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
 import ContactDetails from './components/Contacts/ContactDetails';
 import CompanyEditForm from './components/Companies/CompanyEditForm';
+import ContactEditForm from './components/Contacts/ContactEditForm';
 import Contacts from './components/Contacts/Contacts';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
 import NotificationPanel from './components/notifications/NotificationPanel.jsx';
@@ -82,6 +83,7 @@ function App() {
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/companies/:id" element={<CompanyDetails />} />
             <Route path="/companies/:id/edit" element={<CompanyEditForm />} />
+            <Route path="/contacts/:id/edit" element={<ContactEditForm />} />
              <Route path="/contacts/:id" element={<ContactDetails />} />
           </Routes>
         </div>
