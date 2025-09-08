@@ -199,18 +199,18 @@ function ContactDetails() {
         />
       </div>
       <div className={styles.CompanyDetails}>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.companyName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.companyName}</div></div>
         {contact.lastName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.lastName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.lastName}</div></div>
         }
         {contact.firstName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.firstName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.firstName}</div></div>
         }
         {contact.surname &&
-          <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.surname}</div></div>
+          <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.surname}</div></div>
         }
         {contact.title &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>{contact.title}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.title}</div></div>
         }
         
         {contact.phone1 && (
@@ -262,48 +262,51 @@ function ContactDetails() {
             !isContactsMailsLoading ? (
              
                
-                  <div >
+                  <div className={styles.contactsContainer}>
               {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
                 <div key={index} className={styles.companyMainContacts}>
                   <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
                   <div className={styles.companyRowVal}>{mail}</div>
                    
                 </div>
-              ))) : 'нет'}
+              ))) : <div className={styles.companyMainContacts}>нет</div>}
             </div>
              
             ) : (
-              <>
+              <div className={styles.companyMainContacts}>
                 <Skeleton variant="rectangular"  animation="pulse" width={'10rem'} height={'1.3rem'} sx={{  fontSize: '1rem' }}>Проверяю почту</Skeleton> 
                 
-              </>
+              </div>
             )
           }
         </div>
-       
+          
+          <div className={styles.contactsMails}>
         { <div className={styles.companyRowHeader}>События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
           {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
         </div>}
         {
           !isActivityLoading ? (
-            <div className={styles.contactItem}>
+            <div className={styles.contactsContainer}>
               {contactActivity?.length > 0 ? (contactActivity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
                 <div key={index} className={styles.contactItem}>
                   <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
                     {activity.purpose}</div>
                 </div>
-              ))) : 'нет'}
+              ))) : <div className={styles.companyMainContacts}>нет</div>}
             </div>
           ) : (
-            <>
+            <div className={styles.companyMainContacts}>
               <Skeleton variant="rectangular" animation="pulse" width={'10rem'} height={'1.3rem'} sx={{  fontSize: '1rem' }} >
                 Проверяю события
               </Skeleton>
               
-            </>
+            </div>
+            
           )
         }
-
+          </div>
+          {contact.note && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{contact.note}</div></div>)}
 
         {/* {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
         {+company.tt > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}

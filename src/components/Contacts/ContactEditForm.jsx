@@ -121,8 +121,8 @@ const ContactEditForm = () => {
             //  navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             const params = {
                 chatID: chat_id,
-                api: 'updateCompany1',
-                company: currentFormData,
+                api: 'updateContact',
+                contact: currentFormData,
             };
             
             const response = await axios.post(
@@ -131,37 +131,8 @@ const ContactEditForm = () => {
             );
            
             if (response.status === 200) {
-                await queryClient.invalidateQueries({ queryKey: ['regions'] })
-                // Get current data from sessionStorage
-                const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies') || '[]');
-                
-                // Find and update/add the company in the correct region
-                const regionIndex = savedRegions.findIndex(r => r.region === currentFormData.region);
-                
-                if (regionIndex > -1) {
-                    // Region exists, update/add company
-                    const companyIndex = savedRegions[regionIndex].companies.findIndex(c => c.id === currentFormData.id);
-                    if (companyIndex > -1) {
-                        // Update existing company
-                        savedRegions[regionIndex].companies[companyIndex] = currentFormData;
-                    } else {
-                        // Add new company
-                        savedRegions[regionIndex].companies.push(currentFormData);
-                        savedRegions[regionIndex].company_count++;
-                    }
-                    // Sort companies by name
-                    savedRegions[regionIndex].companies.sort((a, b) => a.name.localeCompare(b.name));
-                } else {
-                    // Add new region with company
-                    savedRegions.push({
-                        region: currentFormData.region,
-                        companies: [currentFormData],
-                        company_count: 1
-                    });
-                }
-
-             
-                
+                await queryClient.invalidateQueries({ queryKey: ['contacts'] })
+              
             } else {
                 console.error('Error saving:', response);
             }
@@ -314,6 +285,16 @@ const ContactEditForm = () => {
                     value={formData.telegram || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, telegram: value }))}
                     label="Telegram"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="description"
+                    value={formData.note || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, note: value }))}
+                    label="Примечание"
+                    rows="3"
                 />
 
                 <BasicSelect

@@ -82,36 +82,6 @@ const CompanyEditForm = () => {
            
             if (response.status === 200) {
                 await queryClient.invalidateQueries({ queryKey: ['regions'] })
-                // Get current data from sessionStorage
-                const savedRegions = JSON.parse(sessionStorage.getItem('regionsWithCompanies') || '[]');
-                
-                // Find and update/add the company in the correct region
-                const regionIndex = savedRegions.findIndex(r => r.region === currentFormData.region);
-                
-                if (regionIndex > -1) {
-                    // Region exists, update/add company
-                    const companyIndex = savedRegions[regionIndex].companies.findIndex(c => c.id === currentFormData.id);
-                    if (companyIndex > -1) {
-                        // Update existing company
-                        savedRegions[regionIndex].companies[companyIndex] = currentFormData;
-                    } else {
-                        // Add new company
-                        savedRegions[regionIndex].companies.push(currentFormData);
-                        savedRegions[regionIndex].company_count++;
-                    }
-                    // Sort companies by name
-                    savedRegions[regionIndex].companies.sort((a, b) => a.name.localeCompare(b.name));
-                } else {
-                    // Add new region with company
-                    savedRegions.push({
-                        region: currentFormData.region,
-                        companies: [currentFormData],
-                        company_count: 1
-                    });
-                }
-
-             
-                
             } else {
                 console.error('Error saving:', response);
             }
@@ -123,7 +93,7 @@ const CompanyEditForm = () => {
             showNotification(`Данные сохранены успешно!`, true);
             
         }
-    }, [chat_id, navigate, queryClient, showNotification]);
+    }, [chat_id, isFetching, navigate, queryClient, showNotification]);
 
     
            

@@ -371,7 +371,7 @@ function CompanyDetails() {
         {isContactsLoading ? (
           <>
             <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+            
           </>
         ) : (
           <div className={styles.contactsContainer}>
@@ -434,7 +434,7 @@ function CompanyDetails() {
           ) : (
             <>
               <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-              <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+              
             </>
           )
         }

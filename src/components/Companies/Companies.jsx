@@ -163,6 +163,7 @@ const Companies = () => {
         };
     }, [navigate]);
     
+    console.log('regionsWithCompanies', regionsWithCompanies);
     // queryClient.invalidateQueries({ queryKey: ['regions'] })
 
     if (isLoading) {

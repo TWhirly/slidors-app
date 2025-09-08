@@ -118,7 +118,7 @@
     width: auto;
     display: flex;
     flex-direction: row;
-    /* color:  #729fcf; */
+    color:  #729fcf;
 }
 .companyRowDescriptionHeader{
     color:  #729fcf;
@@ -132,6 +132,13 @@
     padding: 0 0.5rem;
 }
 
+.companyRowValWoHeader{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 0;
+}
+
 .companyMainContacts{
     display: flex;
     flex-direction: row;
@@ -143,7 +150,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    padding: 5px 0px;
+    padding: 0px 0px;
 }
 
 .buttonArrow {
