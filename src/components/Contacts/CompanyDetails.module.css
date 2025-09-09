@@ -118,6 +118,7 @@
     width: auto;
     display: flex;
     flex-direction: row;
+    margin-right: 0.5rem;
     color:  #729fcf;
 }
 .companyRowDescriptionHeader{
@@ -274,6 +275,49 @@
     text-decoration: underline;
     cursor: pointer;
      gap: 1rem;
+}
+
+.contactRowInfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    width: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0;
+}
+
+.contactRowValWoHeader {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 0.5rem;
+    min-height: 1.2rem; /* Выравнивание высоты с CompanyDetails */
+}
+
+.contactMainContacts {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 5px 0px;
+    align-items: center;
+}
+
+/* Убедитесь, что контейнеры событий и почты имеют одинаковые отступы */
+.contactEvents {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0px 0px;
+}
+
+/* Выравнивание текста "нет" */
+.noDataText {
+    padding: 5px 0;
+    color: var(--text-color);
+    /* font-style: italic; */
 }
 
 /* Пример ховера для масштабирования */

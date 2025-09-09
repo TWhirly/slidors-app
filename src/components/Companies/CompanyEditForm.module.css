@@ -163,3 +163,14 @@
     color: white !important;
     -webkit-text-fill-color: white !important;
 }
+
+.emailSection {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 500;
+}

@@ -9,6 +9,7 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
+import AddIcon from '@mui/icons-material/Add'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -211,24 +212,45 @@ const BasicSelect = (props) => {
                     }}
                     endAdornment={
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {props.multiple && props.value?.length > 0 && (
-                                <IconButton
-                                disabled={props.disabled}
-                                    size="small"
-                                    onClick={handleClearAll}
-                                    sx={{
-                                        color: 'white',
-                                        padding: '4px',
-                                        marginRight: '10px',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                        }
-                                    }}
-                                >
-                                    <ClearIcon fontSize="small" />
-                                </IconButton>
-                            )}
-                        </div>
+    {props.showAddButton && (
+      <IconButton
+        disabled={props.disabled}
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          props.onAdd && props.onAdd();
+        }}
+        sx={{
+          color: 'white',
+          padding: '4px',
+          marginRight: '10px',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          }
+        }}
+      >
+        {/* <AddIcon fontSize="small" /> */}
+        +
+      </IconButton>
+    )}
+    {props.multiple && props.value?.length > 0 && (
+      <IconButton
+        disabled={props.disabled}
+        size="small"
+        onClick={handleClearAll}
+        sx={{
+          color: 'white',
+          padding: '4px',
+          marginRight: '10px',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          }
+        }}
+      >
+        <ClearIcon fontSize="small" />
+      </IconButton>
+    )}
+  </div>
                     }
                 >
                     <button
@@ -405,6 +427,30 @@ const BasicSelect = (props) => {
                             },
                         },
                     }}
+                    endAdornment={
+                        <div style={{ display: 'flex', alignItems: 'center', padding: '0', margin: '0' }}>
+    {props.showAddButton && (
+      <IconButton
+        disabled={props.disabled}
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          props.onAdd && props.onAdd();
+        }}
+        sx={{
+          color: 'white',
+          padding: '0px',
+          marginRight: '0px',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          }
+        }}
+      >
+        {/* <AddIcon fontSize="small" /> */}
+        +
+        
+      </IconButton>
+    )}</div>}
                 />
             )}
         </FormControl>

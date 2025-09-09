@@ -179,6 +179,7 @@ function ContactDetails() {
     };
 
 
+
  
 
   console.log('contact', contact)
@@ -199,18 +200,18 @@ function ContactDetails() {
         />
       </div>
       <div className={styles.CompanyDetails}>
-        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.companyName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Компания:</div>{contact.companyName}</div>
         {contact.lastName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.lastName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Фамилия:</div>{contact.lastName}</div>
         }
         {contact.firstName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.firstName}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Имя:</div>{contact.firstName}</div>
         }
         {contact.surname &&
-          <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.surname}</div></div>
+          <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Отчество:</div>{contact.surname}</div>
         }
         {contact.title &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowValWoHeader}>{contact.title}</div></div>
+        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Должность:</div>{contact.title}</div>
         }
         
         {contact.phone1 && (
@@ -253,71 +254,74 @@ function ContactDetails() {
           </div>)}
         
         
-
-        <div className={styles.contactsMails}><div className={styles.companyRowHeader}>
-          Адреса электронной почты
-           </div>
+        <div className={styles.contactsMails}>
+          <div className={styles.companyRowHeader}>
+            Адреса электронной почты
+          </div>
           {
-
             !isContactsMailsLoading ? (
-             
-               
-                  <div className={styles.contactsContainer}>
-              {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
-                <div key={index} className={styles.companyMainContacts}>
-                  <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                  <div className={styles.companyRowVal}>{mail}</div>
-                   
-                </div>
-              ))) : <div className={styles.companyMainContacts}>нет</div>}
-            </div>
-             
+              <div className={styles.contactsContainer}>
+                {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
+                  <div key={index} className={styles.companyMainContacts}>
+                    <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+                    <div className={styles.companyRowVal}>{mail}</div>
+                  </div>
+                ))) : (
+                  <div className={styles.noDataText}>
+                    нет
+                  </div>
+                )}
+              </div>
             ) : (
               <div className={styles.companyMainContacts}>
-                <Skeleton variant="rectangular"  animation="pulse" width={'10rem'} height={'1.3rem'} sx={{  fontSize: '1rem' }}>Проверяю почту</Skeleton> 
-                
+                <Skeleton variant="rectangular" animation="pulse" width={'10rem'} height={'1.3rem'} sx={{ fontSize: '1rem' }}>
+                  Проверяю почту
+                </Skeleton>
               </div>
             )
           }
         </div>
-          
-          <div className={styles.contactsMails}>
-        { <div className={styles.companyRowHeader}>События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
-          {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
-        </div>}
-        {
-          !isActivityLoading ? (
-            <div className={styles.contactsContainer}>
-              {contactActivity?.length > 0 ? (contactActivity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
-                <div key={index} className={styles.contactItem}>
-                  <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
-                    {activity.purpose}</div>
-                </div>
-              ))) : <div className={styles.companyMainContacts}>нет</div>}
-            </div>
-          ) : (
-            <div className={styles.companyMainContacts}>
-              <Skeleton variant="rectangular" animation="pulse" width={'10rem'} height={'1.3rem'} sx={{  fontSize: '1rem' }} >
-                Проверяю события
-              </Skeleton>
-              
-            </div>
-            
-          )
-        }
+        
+        <div className={styles.contactsMails}>
+          <div className={styles.companyRowHeader}>
+            События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
+            {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
           </div>
-          {contact.note && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{contact.note}</div></div>)}
-
-        {/* {company.address && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Адрес:</div><div className={styles.companyRowVal}>{company.address ? company.address : '(не указан)'}</div></div>}
-        {+company.tt > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Торговых точек:</div><div className={styles.companyRowVal}>{company.tt}</div></div>}
-        {+company.dealers > 0 && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Дилеров:</div><div className={styles.companyRowVal}>{company.dealers}</div></div>}
-        {company.url && <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Сайт:</div><div
-          onClick={() => tg.openLink(`${formatUrl(company.url)}`)}
-          className={styles.companyRowUrl}>{company.url}</div></div>}
-        {company.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{company.description}</div></div>)}
-        {company.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{company.manager}</div></div>)} */}
+          {
+            !isActivityLoading ? (
+              <div className={styles.contactsContainer}>
+                {contactActivity?.length > 0 ? (
+                  contactActivity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
+                    <div key={index} className={styles.contactItem}>
+                      <div className={styles.activityRowVal}>
+                        {activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
+                        {activity.purpose}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.noDataText}>
+                    нет
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className={styles.companyMainContacts}>
+                <Skeleton variant="rectangular" animation="pulse" width={'10rem'} height={'1.3rem'} sx={{ fontSize: '1rem' }}>
+                  Проверяю события
+                </Skeleton>
+              </div>
+            )
+          }
+        </div>
+        
+        {contact.note && (
+          <div className={styles.companyDescriptionRowInfo}>
+            <div className={styles.companyRowHeader}>Примечание:</div>
+            <div className={styles.companyDescriptionRowVal}>{contact.note}</div>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

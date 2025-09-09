@@ -6,13 +6,15 @@ import BasicSelect from '../Companies/Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
-import { useQuery, useQueryClient, useIsFetching  } from '@tanstack/react-query';
+import { useEmail } from '../../hooks/useEmail';
+import AddIcon from '@mui/icons-material/Add';
+import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     const queryClient = useQueryClient();
     const [companiesList, setCompaniesList] = useState([]);
     const [regionList, setRegionList] = useState([]);
@@ -25,10 +27,38 @@ const ContactEditForm = () => {
     const { showNotification } = useNotification();
     const { regionsWithCompanies } = useRegions(chat_id);
     const isFetching = useIsFetching(['regions'])
+    const [emailInputs, setEmailInputs] = useState([]);
+    const id = contact.id;
+    tg.BackButton.isVisible = true;
 
-     tg.BackButton.isVisible = true;
+    console.log('regionsWithCompanies', regionsWithCompanies);
+    const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
+
+    useEffect(() => {
+        if (contactMails) {
+            setEmailInputs(contactMails);
+        }
+    }, [contactMails]);
+    const addEmailInput = () => {
+        setEmailInputs(prev => [...prev, '']);
+    };
+
+    const handleEmailChange = (index, value) => {
+        setEmailInputs(prev => {
+            const newEmails = [...prev];
+            newEmails[index] = value;
+            return newEmails;
+        });
+    };
+
+    useEffect(() => {
+        // Фильтруем пустые email адреса
+        const nonEmptyEmails = emailInputs.filter(email => email.trim() !== '');
+        setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
+    }, [emailInputs]);
+
     
-     console.log('regionsWithCompanies', regionsWithCompanies);
+
 
     useEffect(() => {
         formData.manager = email;
@@ -48,7 +78,7 @@ const ContactEditForm = () => {
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
-            
+
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
@@ -74,48 +104,48 @@ const ContactEditForm = () => {
         };
     }, [contact, navigate, tg]);
 
-   useEffect(() => {
-       setRegionList(regionsWithCompanies.reduce((acc, region) => { 
-        acc.push(region.region)
+    useEffect(() => {
+        setRegionList(regionsWithCompanies.reduce((acc, region) => {
+            acc.push(region.region)
             return acc;
         }, []));
-   }, [regionsWithCompanies], );
+    }, [regionsWithCompanies],);
 
-   useEffect(() => {
-       setCompaniesList(regionsWithCompanies.reduce((acc, region) => { 
-        if(region.region === formData.region) {
-            region.companies.forEach(company => {
-                acc.push(company)
-            })
+    useEffect(() => {
+        setCompaniesList(regionsWithCompanies.reduce((acc, region) => {
+            if (region.region === formData.region) {
+                region.companies.forEach(company => {
+                    acc.push(company)
+                })
+            }
+            return acc;
+
+        }, []));
+    }, [formData.region, regionsWithCompanies],);
+
+    useEffect(() => {
+        if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
+            formDataRef.current = formData;
+            setAllowSave(true);
         }
-            return acc;
-            
-        }, []));
-   }, [formData.region, regionsWithCompanies], );
+        else {
+            setAllowSave(false);
+            tg.MainButton.setText('Для сохранения заполните поля')
+        }
+    }, [formData, tg.MainButton]);
 
-   useEffect(() => {
-       if(formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
-        formDataRef.current = formData;
-        setAllowSave(true);
-       }
-       else {
-        setAllowSave(false);
-        tg.MainButton.setText('Для сохранения заполните поля')
-       }
-   }, [formData, tg.MainButton]);
-
-//    console.log('regionList', regionList);
+    //    console.log('regionList', regionList);
 
     const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current;
-        if(!allowSave) return
-        if(!hasChanged) {
+        if (!allowSave) return
+        if (!hasChanged) {
             navigate(`/contacts/${currentFormData.id}`, { state: currentFormData });
             showNotification(`Данные не изменились`, true);
             return
         }
         try {
-            
+
             console.log('Current form data:', currentFormData);
             navigate(`/contacts/${currentFormData.id}`, { state: currentFormData });
             //  navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
@@ -124,15 +154,15 @@ const ContactEditForm = () => {
                 api: 'updateContact',
                 contact: currentFormData,
             };
-            
+
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-           
+
             if (response.status === 200) {
                 await queryClient.invalidateQueries({ queryKey: ['contacts'] })
-              
+
             } else {
                 console.error('Error saving:', response);
             }
@@ -142,13 +172,13 @@ const ContactEditForm = () => {
             // tg.MainButton.hideProgress();
             console.log('isFetching', isFetching)
             showNotification(`Данные сохранены успешно!`, true);
-            
+
         }
     }, [allowSave, chat_id, hasChanged, isFetching, navigate, queryClient, showNotification]);
 
-    
-           
-      
+
+
+
     useEffect(() => {
         if (!contact) {
             navigate('/companies');
@@ -156,8 +186,8 @@ const ContactEditForm = () => {
         }
         tg.setBottomBarColor("#131313")
         allowSave ? tg.MainButton.setText('Сохранить')
-         : tg.MainButton.setText('Для сохранения заполните поля'); ;
-        
+            : tg.MainButton.setText('Для сохранения заполните поля');;
+
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
         console.log(tg.MainButton)
@@ -167,13 +197,13 @@ const ContactEditForm = () => {
             tg.MainButton.hide();
         };
     }, [allowSave, contact, handleSave, navigate, tg]);
-   
+
     // Update ref whenever formData changes
     useEffect(() => {
         formDataRef.current = formData;
     }, [formData]);
 
-    
+
 
     if (!contact) {
         return <div className={styles.container}>Контакт не найден</div>;
@@ -183,12 +213,13 @@ const ContactEditForm = () => {
     console.log('contact', contact)
     console.log('formData', formData)
     console.log('hasChanged', hasChanged)
+    console.log('emailInputs', emailInputs)
 
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
-                    {contact.new === true ? "Новый контакт" : "Редактирование"} 
+                    {contact.new === true ? "Новый контакт" : "Редактирование"}
                 </span>
             </div>
 
@@ -200,8 +231,10 @@ const ContactEditForm = () => {
                     list={regionList}
                     name="region"
                     value={formData.region || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, 
-                        region: value, company: '', companyName: '', companyId: null}))}
+                    onChange={(value) => setFormData(prev => ({
+                        ...prev,
+                        region: value, company: '', companyName: '', companyId: null
+                    }))}
                     label="Регион"
                 />
 
@@ -215,10 +248,10 @@ const ContactEditForm = () => {
                     value={formData.companyName || ''}
                     onChange={(value, companyId) => setFormData(prev => ({ ...prev, companyName: value, companyId: companyId }))}
                     label="Компания"
-                    
+
                 />
 
-                 <BasicSelect
+                <BasicSelect
                     className={styles.formGroup}
                     name="firstName"
                     value={formData.lastName || ''}
@@ -286,6 +319,24 @@ const ContactEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, telegram: value }))}
                     label="Telegram"
                 />
+
+               
+                   
+                    {emailInputs.map((email, index) => (
+                        <BasicSelect
+                            key={index}
+                            className={styles.formGroup}
+                            type="email"
+                            name={`email-${index}`}
+                            value={email}
+                            onChange={(value) => handleEmailChange(index, value)}
+                            label={`Email ${index + 1}`}
+                            // Показываем кнопку добавления только в последнем инпуте
+                            showAddButton={index === emailInputs.length - 1 || emailInputs.length === 1}
+                            onAdd={addEmailInput}
+                        />
+                    ))}
+               
 
                 <BasicSelect
                     className={styles.formGroup}

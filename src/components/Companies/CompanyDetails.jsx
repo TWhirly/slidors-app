@@ -424,7 +424,7 @@ function CompanyDetails() {
           !isActivityLoading ? (
             activity?.length > 0 ? (
             <div className={styles.contactItem}>
-              {activity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
+              {activity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
                 <div key={index} className={styles.contactItem}>
                   <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
                     {activity.purpose}</div>
