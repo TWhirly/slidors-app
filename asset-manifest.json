@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/slidors-app/static/css/main.c7ded3a3.css",
-    "main.js": "/slidors-app/static/js/main.c26c582c.js",
+    "main.css": "/slidors-app/static/css/main.a97bca3c.css",
+    "main.js": "/slidors-app/static/js/main.9d8b46aa.js",
     "static/media/background.jpg": "/slidors-app/static/media/background.a4f43ad06fc9318db81c.jpg",
     "static/media/menu-items-logo.png": "/slidors-app/static/media/menu-items-logo.141f532d63ad0fb93716.png",
     "static/media/checkedRed.png": "/slidors-app/static/media/checkedRed.3097c42e8bb8f6b8096c.png",
     "index.html": "/slidors-app/index.html",
-    "main.c7ded3a3.css.map": "/slidors-app/static/css/main.c7ded3a3.css.map",
-    "main.c26c582c.js.map": "/slidors-app/static/js/main.c26c582c.js.map"
+    "main.a97bca3c.css.map": "/slidors-app/static/css/main.a97bca3c.css.map",
+    "main.9d8b46aa.js.map": "/slidors-app/static/js/main.9d8b46aa.js.map"
   },
   "entrypoints": [
-    "static/css/main.c7ded3a3.css",
-    "static/js/main.c26c582c.js"
+    "static/css/main.a97bca3c.css",
+    "static/js/main.9d8b46aa.js"
   ]
 }
