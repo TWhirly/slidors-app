@@ -40,20 +40,21 @@ const ContactEditForm = () => {
         }
     }, [contactMails]);
     const addEmailInput = () => {
-        setEmailInputs(prev => [...prev, '']);
+        setEmailInputs(prev => [...prev, {}]);
     };
 
     const handleEmailChange = (index, value) => {
         setEmailInputs(prev => {
             const newEmails = [...prev];
             newEmails[index] = value;
+            console.log('newEmails', newEmails)
             return newEmails;
         });
     };
 
     useEffect(() => {
         // Фильтруем пустые email адреса
-        const nonEmptyEmails = emailInputs.filter(email => email.trim() !== '');
+        const nonEmptyEmails = emailInputs.filter(email => email.mail.trim() !== '');
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
     }, [emailInputs]);
 
@@ -328,7 +329,7 @@ const ContactEditForm = () => {
                             className={styles.formGroup}
                             type="email"
                             name={`email-${index}`}
-                            value={email}
+                            value={email.mail}
                             onChange={(value) => handleEmailChange(index, value)}
                             label={`Email ${index + 1}`}
                             // Показываем кнопку добавления только в последнем инпуте

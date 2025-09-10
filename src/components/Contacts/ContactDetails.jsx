@@ -264,7 +264,7 @@ function ContactDetails() {
                 {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
                   <div key={index} className={styles.companyMainContacts}>
                     <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                    <div className={styles.companyRowVal}>{mail}</div>
+                    <div className={styles.companyRowVal}>{mail.mail}</div>
                   </div>
                 ))) : (
                   <div className={styles.noDataText}>
