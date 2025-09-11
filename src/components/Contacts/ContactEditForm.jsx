@@ -7,6 +7,7 @@ import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useEmail } from '../../hooks/useEmail';
+import { v4 as uuidv4 } from 'uuid';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
 const ContactEditForm = () => {
@@ -40,21 +41,27 @@ const ContactEditForm = () => {
         }
     }, [contactMails]);
     const addEmailInput = () => {
-        setEmailInputs(prev => [...prev, {}]);
+        setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
     };
 
     const handleEmailChange = (index, value) => {
         setEmailInputs(prev => {
             const newEmails = [...prev];
-            newEmails[index] = value;
-            console.log('newEmails', newEmails)
+            const id = newEmails[index].id;
+            newEmails[index] = {id: id, mail: value};
             return newEmails;
         });
     };
 
     useEffect(() => {
         // Фильтруем пустые email адреса
-        const nonEmptyEmails = emailInputs.filter(email => email.mail.trim() !== '');
+        const nonEmptyEmails = emailInputs.reduce((acc, email) => {
+            if (email.mail.trim() !== '') {
+                acc.push(email);
+            }
+            return acc;
+        }, []);
+        console.log('nonEmptyEmails', nonEmptyEmails);
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
     }, [emailInputs]);
 
