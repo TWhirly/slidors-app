@@ -32,15 +32,22 @@ const ContactEditForm = () => {
     const id = contact.id;
     tg.BackButton.isVisible = true;
     
-    console.log('contact.relative', contact.relative);
+    console.log('contact.relative', contact, path);
     console.log('regionsWithCompanies', regionsWithCompanies);
     const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
 
+    
+
     useEffect(() => {
-        if (contactMails) {
+        if (contactMails && contactMails.length > 0) {
             setEmailInputs(contactMails);
         }
-    }, [contactMails]);
+        else {
+            setEmailInputs(contact.emails || [{id: uuidv4(), mail: ''}]);
+        }
+        console.log('EmailInputs', emailInputs);
+        console.log('contactMails', contactMails);
+    }, [contact, contactMails, emailInputs]);
     const addEmailInput = () => {
         setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
     };
@@ -54,17 +61,7 @@ const ContactEditForm = () => {
         });
     };
 
-    useEffect(() => {
-        // Фильтруем пустые email адреса
-        const nonEmptyEmails = emailInputs.reduce((acc, email) => {
-            if (email.mail.trim() !== '') {
-                acc.push(email);
-            }
-            return acc;
-        }, []);
-        console.log('nonEmptyEmails', nonEmptyEmails);
-        setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-    }, [emailInputs]);
+    
 
     
 
@@ -91,9 +88,8 @@ const ContactEditForm = () => {
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
-             tg.BackButton.onClick(() => navigate(path ? '/companies/' + contact.companyId : '/contacts/', 
-        {state: contact.company},
-        { replace: true }));
+             tg.BackButton.onClick(() => navigate(contact.relative ? '/companies/' + contact.companyId : '/contacts/', 
+        {state: contact.company}));
         };
 
         initBackButton();
@@ -141,6 +137,15 @@ const ContactEditForm = () => {
     //    console.log('regionList', regionList);
 
     const handleSave = useCallback(async () => {
+        // Фильтруем пустые email адреса
+        const nonEmptyEmails = emailInputs.reduce((acc, email) => {
+            if (email.mail.trim() !== '') {
+                acc.push(email);
+            }
+            return acc;
+        }, []);
+        console.log('nonEmptyEmails', nonEmptyEmails);
+        setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
         const currentFormData = formDataRef.current;
         if (!allowSave) return
         if (!hasChanged) {
@@ -178,7 +183,7 @@ const ContactEditForm = () => {
             showNotification(`Данные сохранены успешно!`, true);
 
         }
-    }, [allowSave, chat_id, hasChanged, isFetching, navigate, queryClient, showNotification]);
+    }, [allowSave, chat_id, hasChanged, id, isFetching, navigate, queryClient, showNotification]);
 
 
 
@@ -326,7 +331,7 @@ const ContactEditForm = () => {
 
                
                    
-                    {emailInputs.map((email, index) => (
+                    {emailInputs?.map((email, index) => (
                         <BasicSelect
                             key={index}
                             className={styles.formGroup}

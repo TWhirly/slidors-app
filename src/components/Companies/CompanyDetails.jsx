@@ -159,9 +159,10 @@ function CompanyDetails() {
               whatsapp: '',
               telegram: '',
               note: '',
-              emails: [],
+              emails: [{id: uuidv4(), mail: ''}],
               new: true,
-              relative: `/companies/${id}`
+              relative: `/companies/${id}`,
+              company: company
           });
       
       navigate(`/contacts/new/edit`, { state: getEmptyContact(company.region),

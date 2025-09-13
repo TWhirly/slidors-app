@@ -93,7 +93,7 @@ const Contacts = () => {
         whatsapp: '',
         telegram: '',
         note: '',
-        emails: [],
+        emails: [{id: uuidv4(), mail: ''}],
         new: true
     });
 
