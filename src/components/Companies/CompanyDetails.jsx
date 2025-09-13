@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
 import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
+import { DataContext } from '../../DataContext.jsx';
 import { useEmail } from '../../hooks/useEmail';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 
@@ -28,6 +30,7 @@ function CompanyDetails() {
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   const id = company.id;
   const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
+  const { email } = useContext(DataContext)
   tg.BackButton.isVisible = true
 
   
@@ -139,6 +142,32 @@ function CompanyDetails() {
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
       navigate(`/companies/${company.id}/edit`, { state: { ...company, new: false } });
+    }
+    if (selectedOption === 'Добавить контакт') {
+      const getEmptyContact = (selectedRegion = '') => ({
+              id: uuidv4(), // Generates UUID v4
+              firstName: '',
+              lastName: '',
+              surname: '',
+              companyId: id,
+              companyName: company.name,
+              title: '',
+              region: selectedRegion,
+              phone1: '',
+              phone2: '',
+              manager: email.mail || '',
+              whatsapp: '',
+              telegram: '',
+              note: '',
+              emails: [],
+              new: true,
+              relative: `/companies/${id}`
+          });
+      
+      navigate(`/contacts/new/edit`, { state: getEmptyContact(company.region),
+        relative: `/companies/${id}`,
+          company: company
+       });
     }
   };
 

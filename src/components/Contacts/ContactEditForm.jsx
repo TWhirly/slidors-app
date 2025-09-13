@@ -12,7 +12,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
-    const { state: contact } = useLocation();
+    const { state: contact, relative: path, company } = useLocation();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -31,7 +31,8 @@ const ContactEditForm = () => {
     const [emailInputs, setEmailInputs] = useState([]);
     const id = contact.id;
     tg.BackButton.isVisible = true;
-
+    
+    console.log('contact.relative', contact.relative);
     console.log('regionsWithCompanies', regionsWithCompanies);
     const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
 
@@ -86,18 +87,13 @@ const ContactEditForm = () => {
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
-
+            
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                // Return to list if company.new === true (new company) or to details if editing
-                if (contact?.new) {
-                    navigate('/contacts');
-                } else {
-                    navigate(`/contacts/${contact.id}`, { state: contact });
-                }
-            });
+             tg.BackButton.onClick(() => navigate(path ? '/companies/' + contact.companyId : '/contacts/', 
+        {state: contact.company},
+        { replace: true }));
         };
 
         initBackButton();
@@ -170,7 +166,7 @@ const ContactEditForm = () => {
 
             if (response.status === 200) {
                 await queryClient.invalidateQueries({ queryKey: ['contacts'] })
-
+                await queryClient.invalidateQueries({ queryKey: ['contactMails' + id] });
             } else {
                 console.error('Error saving:', response);
             }

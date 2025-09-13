@@ -6,7 +6,7 @@ import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
-import { useQuery, useQueryClient, useIsFetching  } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
@@ -18,6 +18,8 @@ const CompanyEditForm = () => {
     const [regions, setRegions] = useState([]);
     const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
+    const [hasChanged, setHasChanged] = useState(false);
+    const [allowSave, setAllowSave] = useState(false);
     const tg = window.Telegram.WebApp;
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
@@ -25,12 +27,12 @@ const CompanyEditForm = () => {
     const { regionsWithCompanies } = useRegions(chat_id);
     const isFetching = useIsFetching(['regions'])
 
-     tg.BackButton.isVisible = true;
+    tg.BackButton.isVisible = true;
     console.log('regionsWithCompanies', regionsWithCompanies);
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
-            
+
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
@@ -57,6 +59,24 @@ const CompanyEditForm = () => {
     }, [company, navigate, tg]);
 
     useEffect(() => {
+        const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
+        setHasChanged(hasChanged);
+        console.log('hasChanged', hasChanged);
+    }, [formData, company]);
+
+    useEffect(() => {
+        if (formData.name.trim() !== '' && formData.region.length > 0) {
+            formDataRef.current = formData;
+            setAllowSave(true);
+            tg.MainButton.setText('Сохранить');
+        }
+        else {
+            setAllowSave(false);
+            tg.MainButton.setText('Для сохранения заполните поля')
+        }
+    }, [formData, tg.MainButton]);
+
+    useEffect(() => {
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
@@ -64,22 +84,28 @@ const CompanyEditForm = () => {
 
 
     const handleSave = useCallback(async () => {
-        // tg.MainButton.showProgress()
+        const currentFormData = formDataRef.current;
+        console.log('Current form data:', currentFormData);
+        if (!allowSave) return
+        if (!hasChanged) {
+            navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
+            showNotification(`Данные не изменились`, true);
+            return
+        }
         try {
-            const currentFormData = formDataRef.current;
             console.log('Current form data:', currentFormData);
-             navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
+            navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             const params = {
                 chatID: chat_id,
                 api: 'updateCompany',
                 company: currentFormData,
             };
-            
+
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-           
+
             if (response.status === 200) {
                 await queryClient.invalidateQueries({ queryKey: ['regions'] })
             } else {
@@ -91,13 +117,13 @@ const CompanyEditForm = () => {
             // tg.MainButton.hideProgress();
             console.log('isFetching', isFetching)
             showNotification(`Данные сохранены успешно!`, true);
-            
-        }
-    }, [chat_id, isFetching, navigate, queryClient, showNotification]);
 
-    
-           
-      
+        }
+    }, [allowSave, chat_id, hasChanged, isFetching, navigate, queryClient, showNotification]);
+
+
+
+
     useEffect(() => {
         if (!company) {
             navigate('/companies');
@@ -105,10 +131,10 @@ const CompanyEditForm = () => {
         }
         tg.setBottomBarColor("#131313")
         // Инициализация Telegram кнопки
-        tg.MainButton.setText('Сохранить');
+        // tg.MainButton.setText('Сохранить');
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
-        console.log(tg.MainButton)
+        // console.log(tg.MainButton)
 
         return () => {
             tg.MainButton.offClick(handleSave);
@@ -161,7 +187,7 @@ const CompanyEditForm = () => {
         formDataRef.current = formData;
     }, [formData]);
 
-    
+
 
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
@@ -173,7 +199,7 @@ const CompanyEditForm = () => {
         <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
-                    {company.new === true ? "Новая компания" : "Редактирование"} 
+                    {company.new === true ? "Новая компания" : "Редактирование"}
                 </span>
             </div>
 
@@ -294,7 +320,7 @@ const CompanyEditForm = () => {
                     label="Статус компании"
                 />
 
-                 <BasicSelect
+                <BasicSelect
                     className={styles.formGroup}
                     type="number"
                     name="tt"
@@ -312,7 +338,7 @@ const CompanyEditForm = () => {
                     label="Дилеров"
                 />
 
-                 <BasicSelect
+                <BasicSelect
                     className={styles.formGroup}
                     type="text"
                     name="firm"
@@ -320,7 +346,7 @@ const CompanyEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, firm: value }))}
                     label="Юрлицо"
                 />
-               
+
                 <BasicSelect
                     className={styles.formGroup}
                     type="text"
@@ -331,7 +357,7 @@ const CompanyEditForm = () => {
                     rows="3"
                 />
 
-                 <BasicSelect
+                <BasicSelect
                     className={styles.formGroup}
                     disabled={true}
                     type="text"
