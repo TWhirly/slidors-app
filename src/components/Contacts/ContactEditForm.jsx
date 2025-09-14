@@ -12,9 +12,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
-    const { state: contact, relative: path, company } = useLocation();
+    const { state: contact } = useLocation();
+    const isNewContact = contact?.new === true; // Явный флаг
+    console.log('isNewContact', isNewContact);
     const navigate = useNavigate();
-    const location = useLocation();
+    
 
     const queryClient = useQueryClient();
     const [companiesList, setCompaniesList] = useState([]);
@@ -29,25 +31,23 @@ const ContactEditForm = () => {
     const { regionsWithCompanies } = useRegions(chat_id);
     const isFetching = useIsFetching(['regions'])
     const [emailInputs, setEmailInputs] = useState([]);
-    const id = contact.id;
+    const id = contact?.id;
     tg.BackButton.isVisible = true;
     
-    console.log('contact.relative', contact, path);
-    console.log('regionsWithCompanies', regionsWithCompanies);
-    const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
+    console.log('contact.relative', contact.prevComponent);
+    // console.log('regionsWithCompanies', regionsWithCompanies);
+    
+    const { contactMails, isContactsMailsLoading, error } = useEmail(null, id, isNewContact);
 
     
 
     useEffect(() => {
-        if (contactMails && contactMails.length > 0) {
-            setEmailInputs(contactMails);
-        }
-        else {
-            setEmailInputs(contact.emails || [{id: uuidv4(), mail: ''}]);
-        }
-        console.log('EmailInputs', emailInputs);
-        console.log('contactMails', contactMails);
-    }, [contact, contactMails, emailInputs]);
+        if(contactMails.length > 0)
+        setEmailInputs(contactMails);
+    else{
+        setEmailInputs([{id: uuidv4(), mail: ''}]);
+    }
+    }, [contactMails]);
     const addEmailInput = () => {
         setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
     };
@@ -88,20 +88,23 @@ const ContactEditForm = () => {
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
-             tg.BackButton.onClick(() => navigate(contact.relative ? '/companies/' + contact.companyId : '/contacts/', 
-        {state: contact.company}));
+             tg.BackButton.onClick(() => navigate(contact.path || '/contacts/', 
+        {state: contact.prevComponent}, { replace: true }));
         };
 
         initBackButton();
-        window.addEventListener('focus', initBackButton);
-
         return () => {
-            if (tg) {
-                tg.BackButton.offClick();
-                tg.BackButton.hide();
-            }
-            window.removeEventListener('focus', initBackButton);
-        };
+      tg.BackButton.offClick();
+    };
+        // window.addEventListener('focus', initBackButton);
+
+        // return () => {
+        //     if (tg) {
+        //         tg.BackButton.offClick();
+        //         tg.BackButton.hide();
+        //     }
+        //     window.removeEventListener('focus', initBackButton);
+        // };
     }, [contact, navigate, tg]);
 
     useEffect(() => {
@@ -134,10 +137,7 @@ const ContactEditForm = () => {
         }
     }, [formData, tg.MainButton]);
 
-    //    console.log('regionList', regionList);
-
-    const handleSave = useCallback(async () => {
-        // Фильтруем пустые email адреса
+    useEffect(() => {
         const nonEmptyEmails = emailInputs.reduce((acc, email) => {
             if (email.mail.trim() !== '') {
                 acc.push(email);
@@ -146,17 +146,28 @@ const ContactEditForm = () => {
         }, []);
         console.log('nonEmptyEmails', nonEmptyEmails);
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-        const currentFormData = formDataRef.current;
+    },[emailInputs]);
+
+    //    console.log('regionList', regionList);
+
+    const handleSave = useCallback(async () => {
+        // Фильтруем пустые email адреса
+        
+        
         if (!allowSave) return
         if (!hasChanged) {
-            navigate(`/contacts/${currentFormData.id}`, { state: currentFormData });
+             navigate(contact.path || '/contacts/', 
+        {state: contact.prevComponent || {}})
             showNotification(`Данные не изменились`, true);
             return
         }
         try {
-
+            const currentFormData = formDataRef.current;
+             navigate(contact.path || '/contacts/', 
+        {state: currentFormData || {}})
+            
             console.log('Current form data:', currentFormData);
-            navigate(`/contacts/${currentFormData.id}`, { state: currentFormData });
+            
             //  navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             const params = {
                 chatID: chat_id,
@@ -171,7 +182,7 @@ const ContactEditForm = () => {
 
             if (response.status === 200) {
                 await queryClient.invalidateQueries({ queryKey: ['contacts'] })
-                await queryClient.invalidateQueries({ queryKey: ['contactMails' + id] });
+                await queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id, isNewContact] }); //
             } else {
                 console.error('Error saving:', response);
             }
@@ -183,7 +194,8 @@ const ContactEditForm = () => {
             showNotification(`Данные сохранены успешно!`, true);
 
         }
-    }, [allowSave, chat_id, hasChanged, id, isFetching, navigate, queryClient, showNotification]);
+        
+    }, [allowSave, chat_id, contact.id, contact.path, contact.prevComponent, hasChanged, isFetching, isNewContact, navigate, queryClient, showNotification]);
 
 
 

@@ -58,8 +58,9 @@ export const useContacts = (chat_id) => {
     queryKey: ['contacts'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchContacts,
     select: transformToRegionsWithContacts, // ← Стабильная ссылка
-    staleTime: 700000,
-    refetchInterval: 600000
+    staleTime: 1000 * 60 * 30,
+    refetchInterval: 1000 * 60 * 5,
+    refetchIntervalInBackground: true
   });
 
   return {

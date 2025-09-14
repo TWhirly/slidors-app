@@ -77,8 +77,9 @@ export const useRegions = (chat_id) => {
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
     select: transformToRegionsWithCompanies, // ← Стабильная ссылка
-    staleTime: 700000,
-    refetchInterval: 600000
+    staleTime: 1000 * 60 * 30,
+    refetchIntervalInBackground: true,
+    refetchInterval: 1000 * 60 * 5
   });
 
   return {

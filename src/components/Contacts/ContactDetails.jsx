@@ -8,6 +8,7 @@ import { useEmail } from '../../hooks/useEmail';
 import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
 import { useNotification } from '../notifications/NotificationContext.jsx';
+import { replace } from 'lodash';
 
 function ContactDetails() {
 
@@ -67,9 +68,8 @@ function ContactDetails() {
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(contact.relative ? contact.relative : '/contacts/', 
-        {state: contact.company},
-        { replace: true }));
+     tg.BackButton.onClick(() => navigate(contact.path || '/contacts/', 
+        {state: contact.prevComponent},  { replace: true }));
     };
 
     initializeBackButton();
@@ -77,13 +77,16 @@ function ContactDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [navigate, tg]);
+  }, [contact.path, contact.prevComponent, navigate, tg]);
 
   // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/contacts/${contact.id}/edit`, { state: { ...contact, new: false } });
+      navigate(`/contacts/${contact.id}/edit`, {
+            state: {...contact,
+            path: `/contacts/${id}`, prevComponent : contact, new: false}
+        });
     }
   };
 
@@ -113,61 +116,7 @@ function ContactDetails() {
     return formattedUrl;
   };
 
-  const getContactIcons = (contact) => {
-    const icons = [];
-    if (contact.phone1) {
-      icons.push(
-        <img
-          key="phone1"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone1}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.phone2) {
-      icons.push(
-        <img
-          key="phone2"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone2}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.whatsapp) {
-      icons.push(
-        <img
-          key="whatsapp"
-          src={whatsappIcon}
-          className={styles.contactPhone}
-          alt="WhatsApp icon"
-          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.telegram) {
-      icons.push(
-        <img
-          key="telegram"
-          src={telegramIcon}
-          className={styles.contactPhone}
-          alt="Telegram icon"
-          onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-    return icons;
-  }
+ 
 
   const getContactFullNmae = (contact) => {
         const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 

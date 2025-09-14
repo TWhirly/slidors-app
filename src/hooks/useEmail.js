@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
-export const useEmail = (companyId = null, contactId = null) => {
+export const useEmail = (companyId = null, contactId = null, isNewContact = false) => {
 
-  console.log('contactId', contactId, 'companyId', companyId)
   const fetchContactMail = async () => {
+    if(isNewContact) return [{id: uuidv4(), mail: ''}];
       console.log('fecthcContactMail')
       const params = {
         name: 'Ваше имя',
@@ -25,6 +26,7 @@ export const useEmail = (companyId = null, contactId = null) => {
     };
 
     const fetchCompanyMail = async () => {
+      if(isNewContact) return [{id: uuidv4(), mail: ''}];
       console.log('fecthcMail')
       const params = {
         name: 'Ваше имя',
@@ -44,11 +46,12 @@ export const useEmail = (companyId = null, contactId = null) => {
     };
 
   const { data: contactMails, isLoading: isContactsMailsLoading, mailsFetchError } = useQuery({
-    queryKey: contactId ? ['contactMails' + contactId] : ['companyMails', companyId],
+    queryKey: ['emails', companyId, contactId, isNewContact],
     queryFn: contactId ? fetchContactMail : fetchCompanyMail,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
+  console.log('useEmail', 'contactId', contactId, 'companyId', companyId, 'isContactsMailsLoading', isContactsMailsLoading)
 
   return {
     contactMails: contactMails || [],

@@ -1,33 +1,36 @@
 import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
-import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEmail } from '../../hooks/useEmail';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
-    const location = useLocation();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...company });
-    const [focusedFields, setFocusedFields] = useState({});
+    const isNewComapny = company?.new === true;
     const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
     const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
-    const tg = window.Telegram.WebApp;
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { regionsWithCompanies } = useRegions(chat_id);
-    const isFetching = useIsFetching(['regions'])
+    const [emailInputs, setEmailInputs] = useState([]);
+    const tgRef = useRef(window.Telegram.WebApp);
+    const tg = tgRef.current;
+    const id = company.id;
+    const { contactMails } = useEmail(id, null, isNewComapny)
 
-    tg.BackButton.isVisible = true;
     console.log('regionsWithCompanies', regionsWithCompanies);
     useEffect(() => {
         const initBackButton = () => {
@@ -47,16 +50,46 @@ const CompanyEditForm = () => {
         };
 
         initBackButton();
-        window.addEventListener('focus', initBackButton);
-
+        
         return () => {
             if (tg) {
                 tg.BackButton.offClick();
-                tg.BackButton.hide();
+                // tg.BackButton.hide();
             }
-            window.removeEventListener('focus', initBackButton);
+            
         };
     }, [company, navigate, tg]);
+
+     useEffect(() => {
+            if(contactMails.length > 0)
+            setEmailInputs(contactMails);
+        else{
+            setEmailInputs([{id: uuidv4(), mail: ''}]);
+        }
+        }, [contactMails]);
+        const addEmailInput = () => {
+            setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
+        };
+    
+        const handleEmailChange = (index, value) => {
+            setEmailInputs(prev => {
+                const newEmails = [...prev];
+                const id = newEmails[index].id;
+                newEmails[index] = {id: id, mail: value};
+                return newEmails;
+            });
+        };
+
+         useEffect(() => {
+                const nonEmptyEmails = emailInputs.reduce((acc, email) => {
+                    if (email.mail.trim() !== '') {
+                        acc.push(email);
+                    }
+                    return acc;
+                }, []);
+                console.log('nonEmptyEmails', nonEmptyEmails);
+                setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
+            },[emailInputs]);
 
     useEffect(() => {
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
@@ -65,7 +98,7 @@ const CompanyEditForm = () => {
     }, [formData, company]);
 
     useEffect(() => {
-        if (formData.name.trim() !== '' && formData.region.length > 0) {
+        if (formData?.name.trim() !== '' && formData.region.length > 0) {
             formDataRef.current = formData;
             setAllowSave(true);
             tg.MainButton.setText('Сохранить');
@@ -85,7 +118,7 @@ const CompanyEditForm = () => {
 
     const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current;
-        console.log('Current form data:', currentFormData);
+        console.log('Current form data:', formData);
         if (!allowSave) return
         if (!hasChanged) {
             navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
@@ -107,7 +140,8 @@ const CompanyEditForm = () => {
             );
 
             if (response.status === 200) {
-                await queryClient.invalidateQueries({ queryKey: ['regions'] })
+                await queryClient.invalidateQueries({ queryKey: ['regions'] });
+                await queryClient.invalidateQueries({ queryKey: ['emails', company.id, null,  isNewComapny] });
             } else {
                 console.error('Error saving:', response);
             }
@@ -115,32 +149,29 @@ const CompanyEditForm = () => {
             console.error('Save failed:', error);
         } finally {
             // tg.MainButton.hideProgress();
-            console.log('isFetching', isFetching)
             showNotification(`Данные сохранены успешно!`, true);
 
         }
-    }, [allowSave, chat_id, hasChanged, isFetching, navigate, queryClient, showNotification]);
+    }, [allowSave, chat_id, formData, hasChanged, navigate, queryClient, showNotification]);
 
 
 
 
     useEffect(() => {
-        if (!company) {
-            navigate('/companies');
-            return;
-        }
-        tg.setBottomBarColor("#131313")
-        // Инициализация Telegram кнопки
-        // tg.MainButton.setText('Сохранить');
-        tg.MainButton.show();
-        tg.MainButton.onClick(handleSave);
-        // console.log(tg.MainButton)
+    if (!company) {
+        navigate('/companies');
+        return;
+    }
+    
+    tg.setBottomBarColor("#131313");
+    tg.MainButton.show();
+    tg.MainButton.onClick(handleSave);
 
-        return () => {
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.hide();
-        };
-    }, [company, handleSave, navigate, tg]);
+    return () => {
+        tg.MainButton.offClick(handleSave);
+        tg.MainButton.hide();
+    };
+}, [company, handleSave, navigate, tg]);
 
     useEffect(() => {
         formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
@@ -277,6 +308,21 @@ const CompanyEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, telegram: value }))}
                     label="Telegram"
                 />
+
+                 {emailInputs?.map((email, index) => (
+                                        <BasicSelect
+                                            key={index}
+                                            className={styles.formGroup}
+                                            type="email"
+                                            name={`email-${index}`}
+                                            value={email.mail}
+                                            onChange={(value) => handleEmailChange(index, value)}
+                                            label={`Email ${index + 1}`}
+                                            // Показываем кнопку добавления только в последнем инпуте
+                                            showAddButton={index === emailInputs.length - 1 || emailInputs.length === 1}
+                                            onAdd={addEmailInput}
+                                        />
+                                    ))}
 
                 <BasicSelect
                     className={styles.formGroup}

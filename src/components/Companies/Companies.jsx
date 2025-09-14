@@ -142,6 +142,7 @@ const Companies = () => {
         url: '',
         logo: '',
         firm: '',
+        emails: [{id: uuidv4(), mail: ''}],
         new: true
     });
 
@@ -155,7 +156,7 @@ const Companies = () => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
 
-        tg.BackButton.show();
+        // tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
 
         return () => {

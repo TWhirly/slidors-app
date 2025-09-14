@@ -160,15 +160,13 @@ function CompanyDetails() {
               telegram: '',
               note: '',
               emails: [{id: uuidv4(), mail: ''}],
-              new: true,
-              relative: `/companies/${id}`,
-              company: company
+              new: true
+              
           });
+          const emptyContact = getEmptyContact(company.region);
       
-      navigate(`/contacts/new/edit`, { state: getEmptyContact(company.region),
-        relative: `/companies/${id}`,
-          company: company
-       });
+      navigate(`/contacts/new/edit`, { state: {...emptyContact, path: `/companies/${id}`, prevComponent : company} });
+             
     }
   };
 
@@ -176,8 +174,7 @@ function CompanyDetails() {
         console.log('handleSelectCompany', contact);
          navigate(`/contacts/${contact.id}`, {
             state: {...contact,
-            relative: `/companies/${company.id}`,
-          company: company}
+            path: `/companies/${id}`, prevComponent : company}
         });
             };
 
@@ -332,7 +329,7 @@ function CompanyDetails() {
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
-        {company.recyclers.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
+        {company.recyclers?.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
@@ -430,7 +427,7 @@ function CompanyDetails() {
               {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
                 <div key={index} className={styles.companyMainContacts}>
                   <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                  <div className={styles.companyRowVal}>{mail}</div>
+                  <div className={styles.companyRowVal}>{mail.mail}</div>
                    
                 </div>
               ))) : 'нет'}

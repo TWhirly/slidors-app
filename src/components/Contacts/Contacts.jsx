@@ -115,8 +115,8 @@ const Contacts = () => {
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return;
+        // const tg = window.Telegram?.WebApp;
+        // if (!tg) return;
 
         tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
@@ -125,7 +125,7 @@ const Contacts = () => {
             tg.BackButton.offClick();
             //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
-    }, [navigate]);
+    }, [navigate, tg.BackButton]);
 
     // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
