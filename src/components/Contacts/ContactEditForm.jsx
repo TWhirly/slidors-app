@@ -157,16 +157,16 @@ const ContactEditForm = () => {
         if (!allowSave) return
         if (!hasChanged) {
              navigate(contact.path || '/contacts/', 
-        {state: contact.prevComponent || {}})
+        {state: contact.prevComponent || {}}, { replace: true })
             showNotification(`Данные не изменились`, true);
             return
         }
         try {
             const currentFormData = formDataRef.current;
              navigate(contact.path || '/contacts/', 
-        {state: currentFormData || {}})
+        {state: contact.prevComponent || {}}, { replace: true })
             
-            console.log('Current form data:', currentFormData);
+            // console.log('Current form data:', currentFormData);
             
             //  navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
             const params = {

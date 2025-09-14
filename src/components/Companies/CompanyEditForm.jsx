@@ -234,7 +234,7 @@ const CompanyEditForm = () => {
                 </span>
             </div>
 
-            <div className={styles.formContainer}>
+            <div className={styles.formContainer} autoComplete="off">
                 <BasicSelect
                     className={styles.formGroup}
                     name="name"

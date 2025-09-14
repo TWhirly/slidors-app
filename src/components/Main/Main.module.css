@@ -17,6 +17,13 @@
     margin-top: 45vh;
 }
 
+.itemLoading {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    /* margin-top: 45vh; */
+}
+
 .box {
     display: flex;
     height: 100vh;

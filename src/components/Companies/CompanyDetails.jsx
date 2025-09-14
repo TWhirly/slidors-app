@@ -10,6 +10,7 @@ import LongMenu from './CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
 import { useEmail } from '../../hooks/useEmail';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
+import { useContacts } from '../../hooks/useContacts.js';
 
 function CompanyDetails() {
 
@@ -19,6 +20,7 @@ function CompanyDetails() {
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
+  const [contacts, setContacts] = useState([]);
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
@@ -30,40 +32,17 @@ function CompanyDetails() {
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   const id = company.id;
   const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
+  const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError } = useContacts(chat_id)
   const { email } = useContext(DataContext)
   tg.BackButton.isVisible = true
-
   
-  console.log('navigate', navigate.options);
-
-  // useEffect(() => {
-  //   tg.BackButton.isVisible = true;
-  //   tg.BackButton.show();
-  //   tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
-
-  // }, [navigate, tg.BackButton, tg.BackButton.isVisible]);
-  
-
-
-  const fetchContacts = async () => {
-    console.log('fecthcontacts')
-    const params = {
-      name: 'Ваше имя',
-      companyId: id,
-      api: 'getContacts'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    let fetchedContacts = response.data;
-    console.log('fetchedContacts', fetchedContacts)
-    if (fetchedContacts) {
-      console.log('contacts', fetchedContacts);
+    useEffect(() => {
+    if (regionsWithContacts) {
+     const reg = (regionsWithContacts?.filter(contact => contact.region === company.region))[0]
+     const contacts = reg?.contacts.filter(contact => contact.companyId === id)
+     setContacts(contacts)
     }
-    return fetchedContacts;
-  };
+  }, [regionsWithContacts, company.region, id]);
 
   const fetchActivity = async () => {
     console.log('fecthActivity')
@@ -104,14 +83,7 @@ function CompanyDetails() {
       return fetchedMails;
     };
 
-  const { data: contacts, isLoading: isContactsLoading, contactsLoadingError } = useQuery({
-    queryKey: ['contacts' + company.id],
-    queryFn: fetchContacts,
-    staleTime: 600000, 
-    refetchInterval: 600000,
-  });
-
-  const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
+   const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
     queryKey: ['activity' + company.id],
     queryFn: fetchActivity,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
@@ -307,7 +279,6 @@ function CompanyDetails() {
   };
 
   console.log('company', company)
-  console.log('isContactsLoading', isContactsLoading)
   console.log('contacts', contacts)
 
   if (!company) {

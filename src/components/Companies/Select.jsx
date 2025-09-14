@@ -142,6 +142,7 @@ const BasicSelect = (props) => {
 
     return (
         <FormControl fullWidth
+        // autocomplete = "off"
         >
             <InputLabel
                 id={`${props.name}-label`}
@@ -400,6 +401,7 @@ const BasicSelect = (props) => {
                     disabled={props.disabled}
                     multiline={props.rows ? true : false}
                     rows={props.rows || 1}
+                    // autocomplete = "off"
                     sx={{
                         color: 'white',
                         height: props.rows ? 'auto' : '3rem',

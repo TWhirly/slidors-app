@@ -204,8 +204,11 @@ function ContactDetails() {
         
         
         <div className={styles.contactsMails}>
+          <div className={styles.companyRowInfo} id='mail'>
           <div className={styles.companyRowHeader}>
+            
             Адреса электронной почты
+          </div>
           </div>
           {
             !isContactsMailsLoading ? (
@@ -232,9 +235,11 @@ function ContactDetails() {
         </div>
         
         <div className={styles.contactsMails}>
+          <div className={styles.companyRowInfo}>
           <div className={styles.companyRowHeader}>
             События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
             {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+          </div>
           </div>
           {
             !isActivityLoading ? (
@@ -266,7 +271,7 @@ function ContactDetails() {
         
         {contact.note && (
           <div className={styles.companyDescriptionRowInfo}>
-            <div className={styles.companyRowHeader}>Примечание:</div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div>
             <div className={styles.companyDescriptionRowVal}>{contact.note}</div>
           </div>
         )}
