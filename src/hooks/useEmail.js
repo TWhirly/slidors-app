@@ -48,20 +48,20 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
   // Мутация для обновления всех email
   const updateEmailsMutation = useMutation({
     mutationFn: async (contact) => {
-      // console.log('mutationFn, emails', contact);
-      // const params = {
-      //   name: 'Ваше имя',
-      //   contactId: contactId,
-      //   companyId: companyId,
-      //   contact: contact,
-      //   api: 'getEmails'
-      // };
-      // const formData = JSON.stringify(params);
-      // const response = await axios.post(
-      //   process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      //   formData,
-      // );
-      // return response.data;
+      console.log('mutationFn, emails', contact);
+      const params = {
+        name: 'Ваше имя',
+        contactId: contactId,
+        companyId: companyId,
+        contact: contact,
+        api: 'getEmails'
+      };
+      const formData = JSON.stringify(params);
+      const response = await axios.post(
+        process.env.REACT_APP_GOOGLE_SHEETS_URL,
+        formData,
+      );
+      return response.data;
     },
     onMutate: async (newEmails) => {
       await queryClient.cancelQueries({ queryKey: ['emails', companyId, contactId, isNewContact] });
@@ -84,12 +84,17 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     }
   });
 
+  const optimisticUpdateEmails = async (newEmails) => {
+    queryClient.setQueryData(['emails', companyId, contactId, isNewContact], newEmails);
+  };
+
   return {
     contactMails: contactMails || [],
     isContactsMailsLoading,
     mailsFetchError,
     updateEmails: updateEmailsMutation.mutate,
     updateEmailsAsync: updateEmailsMutation.mutateAsync,
-    isUpdating: updateEmailsMutation.isLoading
+    isUpdating: updateEmailsMutation.isLoading,
+    optimisticUpdateEmails
   };
 };

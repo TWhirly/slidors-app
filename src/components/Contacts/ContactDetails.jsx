@@ -162,7 +162,7 @@ function ContactDetails() {
     <div className={styles.container}>
       <div className={styles.naviPanel}>
         <span className={styles.nameAndIcon}>
-          {contact.fullName ? contact.fullName : getContactFullNmae(contact)}
+          {getContactFullNmae(contact)}
          
         </span>
         <LongMenu

@@ -39,8 +39,8 @@ const ContactEditForm = () => {
     // console.log('contact.relative', contact.prevComponent);
     // console.log('regionsWithCompanies', regionsWithCompanies);
     
-    const { contactMails, isContactsMailsLoading, updateEmails, updateEmailsAsync, isUpdating } = useEmail(null, id, isNewContact);
-    const { updateConatcts } = useContacts(chat_id);
+    const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
+    const { updateContact , optimisticUpdateContact} = useContacts(chat_id);
 
     
 
@@ -149,112 +149,46 @@ const ContactEditForm = () => {
 
     //    console.log('regionList', regionList);
 
-   const handleSave = useCallback(async () => {
-    if (!allowSave) return;
-    if (!hasChanged) {
-        navigate(contact.path || '/contacts/', 
-            { state: contact.prevComponent || {} }, { replace: true });
-        showNotification(`Данные не изменились`, true);
-        return;
-    }
-
-    try {
-        const currentFormData = formDataRef.current;
-        
-        // ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ КОНТАКТА В КЭШЕ
-       queryClient.setQueryData(['contacts'], (oldContacts = []) => {
-  if (isNewContact) {
-    // Для нового контакта - добавляем в соответствующий регион
-    const contactRegion = currentFormData.region || '?';
-    
-    return oldContacts.map(regionGroup => {
-      if (regionGroup.region === contactRegion) {
-        // Добавляем контакт в существующий регион
-        return {
-          ...regionGroup,
-          contacts: [...regionGroup.contacts, currentFormData],
-          contacts_count: regionGroup.contacts_count + 1
-        };
-      }
-      return regionGroup;
-    });
-  } else {
-    // Для существующего контакта - обновляем
-    
-    const updatedContacts = oldContacts.map(regionGroup => {
-      // Ищем контакт в текущей группе региона
-      const contactIndex = regionGroup.contacts.findIndex(
-        contact => contact.id === currentFormData.id
-      );
-      
-      if (contactIndex !== -1) {
-        // Если контакт найден в этой группе
-        const updatedContacts = [...regionGroup.contacts];
-        updatedContacts[contactIndex] = currentFormData;
-        
-        return {
-          ...regionGroup,
-          contacts: updatedContacts
-        };
-      }
-      return regionGroup;
-    })
-    console.log('updatedContacts', updatedContacts);
-    return updatedContacts
+ const handleSave = useCallback(async () => {
+  if (!allowSave) return;
+  if (!hasChanged) {
+    navigate(contact.path || '/contacts/', 
+      { state: contact.prevComponent || {} }, { replace: true });
+    showNotification(`Данные не изменились`, true);
+    return;
   }
-});
-        
-        // Сразу выполняем навигацию
-        navigate(contact.path || '/contacts/', 
-            { state: currentFormData.id  }, 
-            { replace: true });
-        queryClient.invalidateQueries({ queryKey: ['contacts'] });
-            console.log('currentFormData Emails', currentFormData);
-        // Фоновая синхронизация
-        // updateConatcts(currentFormData || [], {
-            
-            
-        //     onSuccess: async () => {
-        //         // const params = {
-        //         //     chatID: chat_id,
-        //         //     api: 'updateContact',
-        //         //     contact: currentFormData,
-        //         // };
 
-        //         // const response = await axios.post(
-        //         //     process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        //         //     JSON.stringify(params)
-        //         // );
-
-        //         // if (response.status === 200) {
-        //             // Перезапрашиваем для синхронизации
-        //             // await queryClient.invalidateQueries({ queryKey: ['contacts'] });
-        //             await queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id, isNewContact] });
-                    
-        //             showNotification(`Данные сохранены успешно!`, true);
-        //         // }
-        //     },
-        //     onError: (error) => {
-        //         console.error('Email update failed:', error);
-        //         showNotification(`Ошибка при сохранении email: ${error.message}`, false);
-                
-        //         // Откатываем оптимистичное обновление
-        //         queryClient.invalidateQueries({ queryKey: ['contacts'] });
-        //         queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id, isNewContact] });
-        //     }
-        // });
-        // updateEmails(currentFormData.emails || [], {
-           
-        // })
-
-    } catch (error) {
-        console.error('Save failed:', error);
+  try {
+    const currentFormData = formDataRef.current;
+    
+    // 1. Сначала оптимистичное обновление
+    optimisticUpdateContact(currentFormData, isNewContact);
+    updateEmails(currentFormData.emails);
+   
+    // 2. Затем навигация (немедленно)
+    navigate(contact.path || '/contacts/', 
+      { state: currentFormData.id }, 
+      { replace: true });
+    
+    // 3. Фоновая отправка на сервер
+    updateContact(currentFormData, {
+      onSuccess: () => {
+        showNotification(`Данные сохранены успешно!`, true);
+        queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id] });
+      },
+      onError: (error) => {
+        console.error('Contact update failed:', error);
         showNotification(`Ошибка при сохранении: ${error.message}`, false);
-        
-        // Откатываем при ошибке
-        queryClient.invalidateQueries({ queryKey: ['contacts'] });
-    }
-}, [allowSave, contact.path, contact.prevComponent, hasChanged, isNewContact, navigate, queryClient, showNotification]);
+        // Автоматический откат через onError в мутации
+      }
+    });
+
+  } catch (error) {
+    console.error('Save failed:', error);
+    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+    queryClient.invalidateQueries({ queryKey: ['contacts'] });
+  }
+}, [allowSave, contact, hasChanged, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact]);
 
 
     useEffect(() => {
