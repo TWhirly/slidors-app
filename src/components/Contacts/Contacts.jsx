@@ -17,7 +17,7 @@ import { useContacts } from '../../hooks/useContacts';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
-    const { email } = useContext(DataContext);
+    const { email, chat_id } = useContext(DataContext);
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -31,12 +31,12 @@ const Contacts = () => {
     
 
     const tg = window.Telegram.WebApp;
-    const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    const user = JSON.parse(params.get('user'));
-    const chat_id = user.id;
+    // const params = new URLSearchParams(window.Telegram.WebApp.initData);
+    // const user = JSON.parse(params.get('user'));
+    // const chat_id = user.id;
     
-    tg.BackButton.show();
-    console.log(email, 'email');
+    // tg.BackButton.show();
+    // console.log(email, 'email');
     const { regionsWithContacts, isLoading, error } = useContacts(chat_id);
     
     useEffect(() => {
@@ -71,7 +71,7 @@ const Contacts = () => {
     const handleSelectContact = (contact) => {
         console.log('handleSelectCompany', contact);
          navigate(`/contacts/${contact.id}`, {
-            state: contact
+            state: contact.id
         });
             };
 

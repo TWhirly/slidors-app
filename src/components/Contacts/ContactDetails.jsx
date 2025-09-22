@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState, useContext } from 'react';
+import { useQuery , useQueryClient} from '@tanstack/react-query';
+import { DataContext } from '../../DataContext.jsx';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
@@ -9,30 +10,50 @@ import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { replace } from 'lodash';
+import { useContacts } from '../../hooks/useContacts';
 
 function ContactDetails() {
 
-  
+  const queryClient = useQueryClient();
+
   const navigate = useNavigate();
-  const { state: contact, relative: path } = useLocation();
+  const { state: id, relative: path } = useLocation();
+  const [contact, setContact] = useState({});
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const tg = window.Telegram.WebApp;
-  const params = new URLSearchParams(window.Telegram.WebApp.initData);
-  const chat_id = JSON.parse(params.get('user')).id;
+  // const params = new URLSearchParams(window.Telegram.WebApp.initData);
+  const {  chat_id } = useContext(DataContext);
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
-  const id = contact.id;
+  
   const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
   tg.BackButton.isVisible = true
+  console.log('id', id);
+  const { regionsWithContacts } = useContacts(chat_id)
+  console.log('contacts', regionsWithContacts);
+
+  useEffect(() => {
+    if(regionsWithContacts){
+      const contact = regionsWithContacts.map((region) => region.contacts).flat().find((contact) => contact.id === id);
+      console.log('contact', contact);
+      if (contact) {
+        setContact(contact);
+      }
+    }
+  }, [regionsWithContacts, id]);
+  
+
+  // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))
+  // console.log('contactMails', contactMails);
 
   const fetchContactActivity = async () => {
-    console.log('fecthActivity')
+    // console.log('fecthActivity')
     const params = {
       name: 'Ваше имя',
       contactId: id,
@@ -44,9 +65,9 @@ function ContactDetails() {
       formData,
     );
     let fetchedActivity = response.data;
-    console.log('fetchedActivity', fetchedActivity)
+    // console.log('fetchedActivity', fetchedActivity)
     if (fetchedActivity) {
-      console.log('Activity', fetchedActivity);
+      // console.log('Activity', fetchedActivity);
       return fetchedActivity
     }
     return [];
@@ -131,7 +152,7 @@ function ContactDetails() {
 
  
 
-  console.log('contact', contact)
+  // console.log('contact', contact)
 
   if (!contact) {
     return <div>contact not found</div>;

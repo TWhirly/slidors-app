@@ -73,7 +73,7 @@ const BasicSelect = (props) => {
 
     const handleChange = (event) => {
          
-        console.log('event', event)
+        // console.log('event', event)
         const { target: { value } } = event;
         if (value !== undefined && !props.useObjects) {
             setSearch('');
@@ -83,14 +83,14 @@ const BasicSelect = (props) => {
             } else {
                 newValue = value;
             }
-            console.log('search2', search)
+            // console.log('search2', search)
             props.onChange(newValue);
         }
     };
 
     const handleItemClick = (id, name) => {
          
-        console.log('handleItemClick', name, id)
+        // console.log('handleItemClick', name, id)
         
         if (name !== undefined && props.useObjects) {
             setSearch('');
@@ -100,7 +100,7 @@ const BasicSelect = (props) => {
             } else {
                 newValue = name;
             }
-            console.log('search2', search)
+            // console.log('search2', search)
             props.onChange(newValue, id);
         }
     };
