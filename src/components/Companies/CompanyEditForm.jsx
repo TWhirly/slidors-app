@@ -24,7 +24,7 @@ const CompanyEditForm = () => {
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { regionsWithCompanies } = useRegions(chat_id);
+    const { regionsWithCompanies , optimisticUpdateCompany} = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
@@ -44,7 +44,7 @@ const CompanyEditForm = () => {
                 if (company?.new) {
                     navigate('/companies');
                 } else {
-                    navigate(`/companies/${company.id}`, { state: company });
+                    navigate(`/companies/${company.id}`, { state: {companyId: id} });
                 }
             });
         };
@@ -58,7 +58,7 @@ const CompanyEditForm = () => {
             }
             
         };
-    }, [company, navigate, tg]);
+    }, [company, id, navigate, tg]);
 
      useEffect(() => {
             if(contactMails.length > 0)
@@ -121,30 +121,31 @@ const CompanyEditForm = () => {
         console.log('Current form data:', formData);
         if (!allowSave) return
         if (!hasChanged) {
-            navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
+            navigate(`/companies/${currentFormData.id}`, { state: {id: id} });
             showNotification(`Данные не изменились`, true);
             return
         }
         try {
             console.log('Current form data:', currentFormData);
-            navigate(`/companies/${currentFormData.id}`, { state: currentFormData });
-            const params = {
-                chatID: chat_id,
-                api: 'updateCompany',
-                company: currentFormData,
-            };
+            optimisticUpdateCompany(currentFormData, isNewComapny)
+            navigate(`/companies/${currentFormData.id}`, { state: {id: id} });
+            // const params = {
+            //     chatID: chat_id,
+            //     api: 'updateCompany',
+            //     company: currentFormData,
+            // };
 
-            const response = await axios.post(
-                process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
-            );
+            // const response = await axios.post(
+            //     process.env.REACT_APP_GOOGLE_SHEETS_URL,
+            //     JSON.stringify(params)
+            // );
 
-            if (response.status === 200) {
-                await queryClient.invalidateQueries({ queryKey: ['regions'] });
-                await queryClient.invalidateQueries({ queryKey: ['emails', company.id, null,  isNewComapny] });
-            } else {
-                console.error('Error saving:', response);
-            }
+            // if (response.status === 200) {
+            //     await queryClient.invalidateQueries({ queryKey: ['regions'] });
+            //     await queryClient.invalidateQueries({ queryKey: ['emails', company.id, null,  isNewComapny] });
+            // } else {
+            //     console.error('Error saving:', response);
+            // }
         } catch (error) {
             console.error('Save failed:', error);
         } finally {

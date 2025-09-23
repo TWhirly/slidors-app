@@ -17,7 +17,7 @@ function ContactDetails() {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: id, relative: path } = useLocation();
+  const { state: {contactId: id ,  path , companyId } } = useLocation();
   const [contact, setContact] = useState({});
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -36,7 +36,7 @@ function ContactDetails() {
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { regionsWithContacts } = useContacts(chat_id)
-  console.log('contacts', regionsWithContacts);
+  // console.log('contacts', regionsWithContacts);
 
   useEffect(() => {
     if(regionsWithContacts){
@@ -89,8 +89,8 @@ function ContactDetails() {
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-     tg.BackButton.onClick(() => navigate(contact.path || '/contacts/', 
-        {state: contact.prevComponent},  { replace: true }));
+     tg.BackButton.onClick(() => navigate(path || '/contacts/', 
+        {state: {companyId : contact.companyId, contactId: contact.id}},  { replace: true }));
     };
 
     initializeBackButton();
@@ -98,7 +98,7 @@ function ContactDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [contact.path, contact.prevComponent, navigate, tg]);
+  }, [contact.companyId, contact.path, contact.prevComponent, navigate, path, tg]);
 
   // console.log('company', company);
 
@@ -106,7 +106,8 @@ function ContactDetails() {
     if (selectedOption === 'Редактировать') {
       navigate(`/contacts/${contact.id}/edit`, {
             state: {...contact,
-            path: `/contacts/${id}`, prevComponent : contact, new: false}
+            path: `/contacts/${id}`, prevComponent : contact, new: false, contactId: contact.id},
+            replace: true
         });
     }
   };
@@ -152,7 +153,7 @@ function ContactDetails() {
 
  
 
-  // console.log('contact', contact)
+  console.log('contact', contact)
 
   if (!contact) {
     return <div>contact not found</div>;

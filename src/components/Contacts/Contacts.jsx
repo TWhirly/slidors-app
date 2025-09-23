@@ -71,7 +71,7 @@ const Contacts = () => {
     const handleSelectContact = (contact) => {
         console.log('handleSelectCompany', contact);
          navigate(`/contacts/${contact.id}`, {
-            state: contact.id
+            state: {contactId: contact.id}
         });
             };
 
@@ -99,7 +99,7 @@ const Contacts = () => {
 
     const handleAddContact = () => {
         const emptyContact = getEmptyContact(selectedRegion || '');
-        navigate(`/contacts/new/edit`, { state: emptyContact });
+        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' });
     };
 
     const formatNumber = (number) => {

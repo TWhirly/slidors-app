@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery , useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
+  const queryClient = useQueryClient();
   const fetchRegions = async () => {
     console.log('fetchRegions executed');
     const params = {
@@ -14,11 +15,11 @@ export const useRegions = (chat_id) => {
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       JSON.stringify(params),
     );
-    return response.data;
+    return transformToRegionsWithCompanies(response.data);
   };
 
   // Выносим функцию преобразования с useCallback
-  const transformToRegionsWithCompanies = useCallback((regionRows) => {
+  const transformToRegionsWithCompanies = (regionRows) => {
     console.log('select function executed - TRANSFORMATION');
     if (!regionRows) return [];
     
@@ -71,12 +72,55 @@ export const useRegions = (chat_id) => {
         regionTurnover
       };
     });
-  }, []); // ← Пустой массив зависимостей, функция стабильна
+  }; // ← Пустой массив зависимостей, функция стабильна
+
+  const optimisticUpdateCompany = (companyData, isNewComapny = false) => {
+    queryClient.setQueryData(['regions'], (oldComapnies = []) => {
+      if (isNewComapny) {
+        // Для нового контакта - добавляем в соответствующий регион
+        const companyRegion = companyData.region || '?';
+        
+        return oldComapnies.map(regionGroup => {
+          if (regionGroup.region === companyRegion) {
+            // Добавляем контакт в существующий регион
+            return {
+              ...regionGroup,
+              contacts: [...regionGroup.companies, companyData],
+              companies_count: regionGroup.companies_count + 1
+            };
+          }
+          return regionGroup;
+        });
+      } else {
+        // Для существующего контакта - обновляем
+         console.log('optimisticUpdateCompany', oldComapnies);
+        return oldComapnies.map(regionGroup => {
+         
+          // Ищем контакт в текущей группе региона
+          const companyIndex = regionGroup.companies.findIndex(
+            company => company.id === companyData.id
+          );
+          
+          if (companyIndex !== -1) {
+            // Если контакт найден в этой группе
+            const updatedCompanies = [...regionGroup.companies];
+            updatedCompanies[companyIndex] = companyData;
+            
+            return {
+              ...regionGroup,
+              companies: updatedCompanies
+            };
+          }
+          return regionGroup;
+        });
+      }
+    });
+  };
 
   const { data: regionsWithCompanies, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
-    select: transformToRegionsWithCompanies, // ← Стабильная ссылка
+    // select: transformToRegionsWithCompanies, // ← Стабильная ссылка
     staleTime: 1000 * 60 * 30,
     refetchIntervalInBackground: true,
     refetchInterval: 1000 * 60 * 5
@@ -85,6 +129,7 @@ export const useRegions = (chat_id) => {
   return {
     regionsWithCompanies: regionsWithCompanies || [],
     isLoading,
-    error
+    error,
+    optimisticUpdateCompany
   };
 };

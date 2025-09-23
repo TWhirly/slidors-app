@@ -10,17 +10,19 @@ import LongMenu from './CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
 import { useEmail } from '../../hooks/useEmail';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
+import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 
 function CompanyDetails() {
 
   
   const navigate = useNavigate();
-  const { state: company } = useLocation();
+  const { state: { companyId: id , path} } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [company, setCompany] = useState({});
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
@@ -30,19 +32,34 @@ function CompanyDetails() {
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
-  const id = company.id;
+  // const id = company.id;
   const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
-  const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError } = useContacts(chat_id)
+  const { regionsWithCompanies, contactsLoadingError } = useRegions(chat_id)
+  const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
   const { email } = useContext(DataContext)
   tg.BackButton.isVisible = true
-  
+  console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
     useEffect(() => {
-    if (regionsWithContacts) {
-     const reg = (regionsWithContacts?.filter(contact => contact.region === company.region))[0]
-     const contacts = reg?.contacts.filter(contact => contact.companyId === id)
-     setContacts(contacts)
+    if (regionsWithCompanies) {
+     const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
+     setCompany(company)
+     
     }
-  }, [regionsWithContacts, company.region, id]);
+  }, [regionsWithCompanies, id]);
+
+  useEffect(() => {
+    if (regionsWithContacts) {
+      const contacts = regionsWithContacts.reduce((acc, region) => {
+        region.contacts.forEach((contact) => {
+          if (contact.companyId === id) {
+            acc.push(contact);
+          }
+        });
+        return acc;
+      }, [])
+      setContacts(contacts)
+    }
+  }, [id, regionsWithContacts]);
 
   const fetchActivity = async () => {
     console.log('fecthActivity')
@@ -63,28 +80,10 @@ function CompanyDetails() {
     return fetchedActivity;
   };
 
-  const fetchMail = async () => {
-      console.log('fecthcMail')
-      const params = {
-        name: 'Ваше имя',
-        companyId: id,
-        api: 'getEmails'
-      };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
-      );
-      let fetchedMails = response.data;
-      if (fetchedMails) {
-        setLoadingMail(false);
-        console.log('mails', fetchedMails);
-      }
-      return fetchedMails;
-    };
+  
 
    const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
-    queryKey: ['activity' + company.id],
+    queryKey: ['activity' + id],
     queryFn: fetchActivity,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
@@ -95,11 +94,12 @@ function CompanyDetails() {
   useEffect(() => {
     const initializeBackButton = () => {
       if (!tg) return;
-
+      console.log('back button init', path)
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
+      tg.BackButton.onClick(() => navigate(path || '/companies/', 
+         { replace: true }));
     };
 
     initializeBackButton();
@@ -107,7 +107,7 @@ function CompanyDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [navigate, tg]);
+  }, [navigate, path, tg]);
 
   // console.log('company', company);
 
@@ -137,7 +137,7 @@ function CompanyDetails() {
           });
           const emptyContact = getEmptyContact(company.region);
       
-      navigate(`/contacts/new/edit`, { state: {...emptyContact, path: `/companies/${id}`, prevComponent : company} });
+      navigate(`/contacts/new/edit`, { state: {...emptyContact, path: `/companies/${id}`, prevComponent : company, companyId: id} });
              
     }
   };
@@ -145,7 +145,7 @@ function CompanyDetails() {
    const handleSelectContact = (contact) => {
         console.log('handleSelectCompany', contact);
          navigate(`/contacts/${contact.id}`, {
-            state: {...contact,
+            state: {id: contact.id,
             path: `/companies/${id}`, prevComponent : company}
         });
             };

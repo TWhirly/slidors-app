@@ -113,7 +113,7 @@ const Companies = () => {
 
     const handleSelectCompany = (company) => {
         navigate(`/companies/${company.id}`, {
-            state: company
+            state: {companyId: company.id, path: '/companies'}, replace: true
         });
     };
 

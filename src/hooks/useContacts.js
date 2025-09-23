@@ -84,6 +84,7 @@ export const useContacts = (chat_id) => {
         });
       } else {
         // Для существующего контакта - обновляем
+        // console.log('optimisticUpdateContact', oldContacts);
         return oldContacts.map(regionGroup => {
           // Ищем контакт в текущей группе региона
           const contactIndex = regionGroup.contacts.findIndex(
