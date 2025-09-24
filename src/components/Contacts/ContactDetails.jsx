@@ -98,7 +98,7 @@ function ContactDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [contact.companyId, contact.path, contact.prevComponent, navigate, path, tg]);
+  }, [contact.companyId, contact.id, contact.path, contact.prevComponent, navigate, path, tg]);
 
   // console.log('company', company);
 

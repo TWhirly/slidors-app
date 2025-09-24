@@ -1,8 +1,10 @@
-import { useQuery , useQueryClient } from '@tanstack/react-query';
+import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCallback } from 'react';
+import { useNotification } from '../components/notifications/NotificationContext.jsx';
 
 export const useRegions = (chat_id) => {
+  const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
     console.log('fetchRegions executed');
@@ -85,7 +87,7 @@ export const useRegions = (chat_id) => {
             // Добавляем контакт в существующий регион
             return {
               ...regionGroup,
-              contacts: [...regionGroup.companies, companyData],
+              companies: [...regionGroup.companies, companyData],
               companies_count: regionGroup.companies_count + 1
             };
           }
@@ -117,6 +119,44 @@ export const useRegions = (chat_id) => {
     });
   };
 
+  const updateCompanyMutation = useMutation({
+
+ mutationFn: async (companyData) => {
+ 
+      const params = {
+        name: 'Ваше имя',
+        chatID: chat_id,
+        api: 'updateCompany',
+        company: companyData
+      };
+      const formData = JSON.stringify(params);
+      const response = await axios.post(
+        process.env.REACT_APP_GOOGLE_SHEETS_URL,
+        formData,
+      );
+      return response.data;
+    },
+    onMutate: async (companyData) => {
+      await queryClient.cancelQueries({ queryKey: ['regions'] });
+      const previousCompanies = queryClient.getQueryData(['regions']) || [];
+      return { previousCompanies };
+    },
+    onError: (error, companyData, context) => {
+      // Откатываем изменения при ошибке
+      queryClient.setQueryData(['regions'], context.previousCompanies);
+      console.error('Failed to update contact:', error);
+    },
+    onSuccess: (data, companyData) => {
+      // Дополнительные действия при успехе
+       showNotification(`Данные сохранены успешно!`, true);
+      console.log('Contact updated successfully:', data);
+    },
+    onSettled: () => {
+      // Перезапрашиваем данные для синхронизации
+      queryClient.invalidateQueries({ queryKey: ['regions'] });
+    }
+  });
+
   const { data: regionsWithCompanies, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
@@ -129,6 +169,8 @@ export const useRegions = (chat_id) => {
   return {
     regionsWithCompanies: regionsWithCompanies || [],
     isLoading,
+    updateCompany: updateCompanyMutation.mutate,
+    updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
     optimisticUpdateCompany
   };

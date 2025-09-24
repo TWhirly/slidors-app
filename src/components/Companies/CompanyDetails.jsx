@@ -12,6 +12,7 @@ import { useEmail } from '../../hooks/useEmail';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
+import { replace } from 'lodash';
 
 function CompanyDetails() {
 
@@ -145,9 +146,9 @@ function CompanyDetails() {
    const handleSelectContact = (contact) => {
         console.log('handleSelectCompany', contact);
          navigate(`/contacts/${contact.id}`, {
-            state: {id: contact.id,
+            state: {contactId: contact.id, companyId: id,
             path: `/companies/${id}`, prevComponent : company}
-        });
+        },  { replace:  true});
             };
 
   const formatNumber = (number) => {

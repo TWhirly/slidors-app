@@ -188,7 +188,7 @@ const ContactEditForm = () => {
     showNotification(`Ошибка при сохранении: ${error.message}`, false);
     queryClient.invalidateQueries({ queryKey: ['contacts'] });
   }
-}, [allowSave, contact.id, contact.path, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
+}, [allowSave, contact.companyId, contact.id, contact.path, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
 
 
     useEffect(() => {

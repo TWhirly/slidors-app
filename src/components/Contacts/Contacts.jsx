@@ -14,6 +14,7 @@ import sha256 from 'crypto-js/sha256'; // Import the hashing library
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useContacts } from '../../hooks/useContacts';
+import { replace } from 'lodash';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -99,7 +100,7 @@ const Contacts = () => {
 
     const handleAddContact = () => {
         const emptyContact = getEmptyContact(selectedRegion || '');
-        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' });
+        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' }, replace = true);
     };
 
     const formatNumber = (number) => {
