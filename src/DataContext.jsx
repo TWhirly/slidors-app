@@ -1,10 +1,13 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useRegions } from './hooks/useRegions';
+import { useContacts } from './hooks/useContacts.js';
 import { set } from 'lodash';
 
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
+    
     const [regions, setRegions] = useState([]);
     const [types, setTypes] = useState([]);
     const [statuses, setStatuses] = useState([]);
@@ -16,7 +19,10 @@ export const DataProvider = ({ children }) => {
     const params = new URLSearchParams(tg.initData);
     const chat_id = JSON.parse(params.get('user')).id;
 
-    
+    const contacts = useContacts(chat_id || null);
+    const regionsWithComapnies = useRegions(chat_id || null);
+
+   
 
     
 

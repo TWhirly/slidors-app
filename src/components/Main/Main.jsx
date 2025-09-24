@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import CircularProgress from '@mui/material/CircularProgress';
 import { DataContext } from '../../DataContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
-import styles from './Main.module.css';
 import { useContacts } from '../../hooks/useContacts.js';
+import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
   const { name, loading, chat_id  } = useContext(DataContext);

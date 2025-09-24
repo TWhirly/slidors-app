@@ -13,6 +13,7 @@ import CompanyEditForm from './components/Companies/CompanyEditForm';
 import ContactEditForm from './components/Contacts/ContactEditForm';
 import Contacts from './components/Contacts/Contacts';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
+
 import NotificationPanel from './components/notifications/NotificationPanel.jsx';
 import { useNotification } from './components/notifications/NotificationContext.jsx';
 
