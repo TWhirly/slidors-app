@@ -12,6 +12,8 @@ export const DataProvider = ({ children }) => {
     const [types, setTypes] = useState([]);
     const [statuses, setStatuses] = useState([]);
     const [titles, setTitles] = useState([]);
+    const [activityTypes, setActivityTypes] = useState([]);
+    const [activityPurporses, setActivityPurporses] = useState([]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
@@ -58,9 +60,12 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
+            console.log('response', response.data);
             setTypes(response.data.types || []);
             setStatuses(response.data.statuses || []);
             setTitles(response.data.titles || []);
+            setActivityPurporses(response.data.activityPurporses || []);
+            setActivityTypes(response.data.activityTypes || []);
         } catch (error) {
             console.error('Error fetching types and statuses:', error);
         }
@@ -88,7 +93,10 @@ export const DataProvider = ({ children }) => {
             regions,
             types,
             titles,
-            statuses
+            statuses,
+            activityTypes,
+            activityPurporses,
+            
         }}>
             {children}
         </DataContext.Provider>

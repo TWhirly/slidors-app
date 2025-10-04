@@ -4,6 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { DataContext } from '../../DataContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
 import { useContacts } from '../../hooks/useContacts.js';
+import { useActivity } from '../../hooks/useActivity.js';
 import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
@@ -12,6 +13,7 @@ export default function PersistentDrawerLeft() {
   const tg = window.Telegram.WebApp;
   const { isLoading : isCompaniesLoading} = useRegions(chat_id);
   const { isLoading : isContactsLoading} = useContacts(chat_id);
+  const { isLoading : isActivityLoading} = useActivity(chat_id);
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -36,6 +38,8 @@ export default function PersistentDrawerLeft() {
         return !isCompaniesLoading;
         case 'Контакты':
         return !isContactsLoading;
+        case 'События':
+        return !isActivityLoading;
       default:
         return true;
     }
