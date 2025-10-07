@@ -42,7 +42,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     queryKey: ['emails', companyId, contactId, isNewContact],
     queryFn: contactId ? fetchContactMail : fetchCompanyMail,
     staleTime: 600000,
-    refetchInterval: 600000,
+    refetchInterval: 1000 * 60 * 50,
   });
 
   // Мутация для обновления всех email

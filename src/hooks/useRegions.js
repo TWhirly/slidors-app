@@ -163,7 +163,7 @@ export const useRegions = (chat_id) => {
     // select: transformToRegionsWithCompanies, // ← Стабильная ссылка
     staleTime: 1000 * 60 * 30,
     refetchIntervalInBackground: true,
-    refetchInterval: 1000 * 60 * 5
+    refetchInterval: 1000 * 60 * 50
   });
 
   return {

@@ -18,8 +18,9 @@ export const useActivity = (chat_id) => {
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
     );
-    console.log('getActivities', response.data)
-    return (response.data);
+    const sortedActivity = transformActivitySort(response.data);
+    console.log('sortedActivity', sortedActivity);
+    return (sortedActivity);
   };
 
   const getContactFullNmae = (contact) => {
@@ -32,36 +33,65 @@ export const useActivity = (chat_id) => {
     return fullName
   };
 
-  const transformToRegionsWithContacts = (regionRows) => {
-    console.log('Contacts select function executed - TRANSFORMATION', regionRows);
-    if (!regionRows) return [];
+  const transformActivitySort = (activities) => {
+    console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
+   if (!Array.isArray(activities)) {
+    return { planned: [], other: [] };
+  }
 
-    const contactsByRegion = {};
-    regionRows.forEach(contact => {
-      if (!contactsByRegion[contact.region]) {
-        contactsByRegion[contact.region] = [];
-      }
-      contactsByRegion[contact.region].push({...contact, fullName: getContactFullNmae(contact)});
-    });
-    console.log('contactsByRegion', contactsByRegion);
-    return Object.entries(contactsByRegion).map(([region, contacts]) => {
-      const sortedCompanies = contacts.sort((a, b) =>
-        a.fullName.localeCompare(b.fullName)
-      );
+  // Разделяем массив на две группы
+  const planned = [];
+  const other = [];
 
-      return {
-        region,
-        contacts: sortedCompanies,
-        contacts_count: contacts.length,
-      };
-    });
+  activities.forEach(lead => {
+    if (lead.plan && lead.plan.trim() !== '') {
+      planned.push(lead);
+    } else {
+      other.push(lead);
+    }
+  });
+
+  // Сортируем массив с plan по дате и времени
+  planned.sort((a, b) => {
+    const aDateTime = createDateTime(a.plan, a.planTime);
+    const bDateTime = createDateTime(b.plan, b.planTime);
+    
+    return aDateTime - bDateTime;
+  });
+
+  // Сортируем массив без plan по endDatetime по убыванию
+  other.sort((a, b) => {
+    const aEnd = new Date(a.endDatetime).getTime();
+    const bEnd = new Date(b.endDatetime).getTime();
+    
+    return bEnd - aEnd;
+  });
+
+  return {
+    planned,
+    other
+  };
+}
+
+// Вспомогательная функция для создания полной даты-времени
+function createDateTime(dateStr, timeStr) {
+  const date = new Date(dateStr);
+  
+  if (timeStr && timeStr.trim() !== '') {
+    const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+    date.setHours(hours, minutes, seconds || 0, 0);
+  } else {
+    date.setHours(0, 0, 0, 0);
+  }
+  
+  return date.getTime();
   };
 
   const { data: activity, isLoading, error } = useQuery({
     queryKey: ['activity'],
     queryFn: fetchActivity,
     staleTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60 * 50,
     refetchIntervalInBackground: true
   });
 
@@ -108,14 +138,14 @@ export const useActivity = (chat_id) => {
     });
   };
 
-  const updateContactMutation = useMutation({
-    mutationFn: async (contactData) => {
-      console.log('mutationFn, contact', contactData);
+  const updateActivityMutation = useMutation({
+    mutationFn: async (activityData) => {
+      console.log('mutationFn, contact', activityData);
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,
-        api: 'updateContact',
-        contact: contactData
+        api: 'updateActivity',
+        activity: activityData
       };
       const formData = JSON.stringify(params);
       const response = await axios.post(
@@ -124,38 +154,37 @@ export const useActivity = (chat_id) => {
       );
       return response.data;
     },
-    onMutate: async (contactData) => {
-      await queryClient.cancelQueries({ queryKey: ['contacts'] });
+onMutate: async (activityData) => {
       
-      const previousContacts = queryClient.getQueryData(['contacts']) || [];
+      const previousActivity = queryClient.getQueryData(['activity']) || [];
       
       // Оптимистичное обновление через функцию
-      optimisticUpdateContact(contactData, contactData.isNew);
+      optimisticUpdateContact(activityData, activityData.isNew);
       
-      return { previousContacts };
+      return { previousActivity };
     },
-    onError: (error, contactData, context) => {
+    onError: (error, activityData, context) => {
       // Откатываем изменения при ошибке
-      queryClient.setQueryData(['contacts'], context.previousContacts);
+      queryClient.setQueryData(['activity'], context.previousActivity);
       console.error('Failed to update contact:', error);
     },
-    onSuccess: (data, contactData) => {
+    onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
        showNotification(`Данные сохранены успешно!`, true);
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['activity'] });
     }
   });
 
   return {
     activity: activity || [],
     isLoading,
-    updateContact: updateContactMutation.mutate,
-    updateContactAsync: updateContactMutation.mutateAsync,
-    isUpdating: updateContactMutation.isLoading,
+    updateActivity: updateActivityMutation.mutate,
+    updateActivityAsync: updateActivityMutation.mutateAsync,
+    isUpdating: updateActivityMutation.isLoading,
     optimisticUpdateContact, // Экспортируем для ручного использования
     error
   };

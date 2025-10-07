@@ -13,7 +13,7 @@ export default function PersistentDrawerLeft() {
   const tg = window.Telegram.WebApp;
   const { isLoading : isCompaniesLoading} = useRegions(chat_id);
   const { isLoading : isContactsLoading} = useContacts(chat_id);
-  const { isLoading : isActivityLoading} = useActivity(chat_id);
+  const { isLoading : isActivityLoading , activity} = useActivity(chat_id);
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -48,11 +48,14 @@ export default function PersistentDrawerLeft() {
   const menu = [
     { name: 'Компании', path: '/companies', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Контакты', path: '/contacts', icon: require('../../icons/menu-items-logo.png') },
-    { name: 'События', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'События', path: '/activities', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
+
+  if(!isActivityLoading)
+    console.log('Activity', activity);
 
   return (
     <div className={styles.container}>

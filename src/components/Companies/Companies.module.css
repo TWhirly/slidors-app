@@ -1,5 +1,5 @@
 .container {
-    background-image: url('../../icons/background.jpg');
+    /* background-image: url('../../icons/background.jpg'); */
     background-size: cover;
     background-repeat: repeat;
     background-attachment: fixed;
@@ -22,8 +22,19 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    margin-top: 3rem;
+    margin-top: 2.9rem;
     padding: 5px 8px 2px 25px;
+}
+
+.allRegions2 {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    /* margin-top: 3rem; */
+    padding: 5px 8px 2px 25px;
+    /* margin-bottom: 500px; */
+    /* bottom: 1000px; */
 }
 
 .regionContainer {
@@ -177,6 +188,17 @@
     width: 100%;
 }
 
+.plannedHeader{
+    color: #729fcf;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: -10px;
+    margin-bottom: 5px;
+    width: 100%;
+    cursor: pointer;
+}
+
 .nameAndIcon {
     display: flex;
     align-items: center;   
@@ -213,6 +235,23 @@
     font-size: 1rem;
     position: relative;
     z-index: 1;
+}
+
+.companyPlanDate{
+   display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: auto;
+    height: auto;
+    padding: 2px 0px;
+    margin-bottom: -4px;
+    /* margin-bottom: 5px; */
+    border-radius: 50%;
+    background: none;
+    color: white;
+    font-size: 1rem;
+    position: relative;
+    z-index: 1; 
 }
 
 .loading {
@@ -285,4 +324,25 @@
     display: inline-block;
     width: 20px;
     text-align: left;
+}
+
+.scrollContainer {
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+.loadingMore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    color: var(--hintColor, #888);
+    gap: 10px;
+}
+
+.endOfList {
+    text-align: center;
+    padding: 10px;
+    color: var(--hintColor, #888);
+    font-style: italic;
 }
