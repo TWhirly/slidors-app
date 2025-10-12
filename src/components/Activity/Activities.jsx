@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef, useCallback } from 'rea
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
+import Switch from '@mui/material/Switch';
 import styles from '../Companies/Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG.js';
 import { IconsLine } from './IconsLine.jsx';
@@ -15,6 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
+import { get } from 'lodash';
 
 const Activities = () => {
     const queryClient = useQueryClient();
@@ -29,6 +31,10 @@ const Activities = () => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const observerRef = useRef(null);
     const lastItemRef = useRef(null);
+    const [checked, setChecked] = useState(true);
+    const [planned, setPlanned] = useState([]);
+    const [other, setOther] = useState([]);
+    const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
 
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
@@ -38,7 +44,7 @@ const Activities = () => {
     tg.BackButton.show();
     console.log(email, 'email');
     
-    const { activity: activities, isLoading, error } = useActivity(chat_id);
+    const { activity, isLoading, error } = useActivity(chat_id);
 
     const handlePlannedExpand = () => {
         setPlannedExpand(!plannedExpand);
@@ -49,15 +55,36 @@ const Activities = () => {
         setOtherPage(1);
     };
 
-    const getPaginatedOtherActivities = () => {
-        if (!activities?.other) return [];
+    useEffect(() => {
+        let planned = [];
+        let other = [];
+        if(!activity) return;
+        if(!checked){
+            planned = activity.planned.filter(item => item.manager === email);
+            other = activity.other.filter(item => item.manager === email);
+        } else {
+            planned = activity.planned;
+            other = activity.other;
+        }
+       
+        console.log('planned', other);   
+        setPlanned(planned);
+        setOther(other);
+         const getPaginatedOtherActivities = () => {
+        if (!other) return [];
         
         const endIndex = otherPage * itemsPerPage;
-        return activities.other.slice(0, endIndex);
+        return other.slice(0, endIndex);
     };
+        const displayedOtherActivities = getPaginatedOtherActivities();
+        console.log('displayedOtherActivities', displayedOtherActivities);
+        setDisplayedOtherActivities(displayedOtherActivities);
+    }, [activity, checked, email, otherPage, itemsPerPage]);
 
-    const totalOtherPages = activities?.other 
-        ? Math.ceil(activities.other.length / itemsPerPage)
+    
+
+    const totalOtherPages = other 
+        ? Math.ceil(other.length / itemsPerPage)
         : 0;
 
     const hasMore = otherPage < totalOtherPages;
@@ -105,6 +132,11 @@ const Activities = () => {
             loadMore();
         }
     }, [hasMore, isLoadingMore, loadMore]);
+
+    const handleChange = (e) => {
+        // const { checked } = e.target;
+        setChecked(!checked);
+    }
 
     const getPurporseColor = (status) => {
         
@@ -164,7 +196,7 @@ const Activities = () => {
     const handleSelectActivity = (activity) => {
         console.log('click')
         navigate(`/activities/${activity.id}`, {
-            state: {activityID: activity.id, path: '/activities'}, replace: true
+            state: {activityId: activity.id, path: '/activities'}, replace: true
         });
     };
 
@@ -189,6 +221,8 @@ const Activities = () => {
         };
     }, [navigate]);
 
+   
+
     if (isLoading) {
         return (
             <div className={styles.container}>
@@ -207,7 +241,8 @@ const Activities = () => {
         );
     }
 
-    const displayedOtherActivities = getPaginatedOtherActivities();
+    // const displayedOtherActivities = getPaginatedOtherActivities();
+    //  console.log('displayedOtherActivities', displayedOtherActivities)
 
     return (
         <div className={styles.container}>
@@ -215,6 +250,15 @@ const Activities = () => {
                 <div className={styles.companyNamePanel}>
                     События
                 </div>
+                <div className={styles.checkBoxOnPanel}>
+                    <div>{checked? "Все" : "Мои"}</div>
+                </div>
+               
+                <Switch
+      checked={checked}
+      onChange={handleChange}
+      slotProps={{ input: { 'aria-label': 'controlled' } }}
+    />
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
@@ -252,7 +296,7 @@ const Activities = () => {
                             marginTop: '0' // убираем отступ, так как заголовок фиксированный
                         }}
                     >
-                        {activities?.planned?.map((activity, index) => (
+                        {planned.map((activity, index) => (
                             <div key={index}
                              className={styles.dataGridContainer}
                              onClick={() => handleSelectActivity(activity)}

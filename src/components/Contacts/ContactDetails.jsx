@@ -17,7 +17,7 @@ function ContactDetails() {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: {contactId: id ,  path , companyId } } = useLocation();
+  const { state: {contactId: id ,  path , activityId } } = useLocation();
   const [contact, setContact] = useState({});
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -36,7 +36,7 @@ function ContactDetails() {
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { regionsWithContacts } = useContacts(chat_id)
-  // console.log('contacts', regionsWithContacts);
+  console.log('ActivityID', activityId, path);
 
   useEffect(() => {
     if(regionsWithContacts){
@@ -90,7 +90,7 @@ function ContactDetails() {
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
      tg.BackButton.onClick(() => navigate(path || '/contacts/', 
-        {state: {companyId : contact.companyId, contactId: contact.id}},  { replace: true }));
+        {state: {companyId : contact.companyId, contactId: contact.id, activityId}},  { replace: true }));
     };
 
     initializeBackButton();
@@ -98,7 +98,7 @@ function ContactDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [contact.companyId, contact.id, contact.path, contact.prevComponent, navigate, path, tg]);
+  }, [activityId, contact.companyId, contact.id, contact.path, contact.prevComponent, navigate, path, tg]);
 
   // console.log('company', company);
 

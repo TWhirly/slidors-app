@@ -212,7 +212,7 @@ function CompanyDetails() {
           src={whatsappIcon}
           className={styles.contactPhone}
           alt="WhatsApp icon"
-          onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
+          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
           style={{ cursor: 'pointer' }}
         />
       );
@@ -453,4 +453,4 @@ function CompanyDetails() {
   );
 }
 
-export default CompanyDetails;
+export  default CompanyDetails;

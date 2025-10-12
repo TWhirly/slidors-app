@@ -14,16 +14,19 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
 import { useActivity } from '../../hooks/useActivity.js';
+import {getContactIcons} from '../Companies/CompanyDetails.jsx';
+import {handleSelectContact} from '../Companies/CompanyDetails.jsx';
 
 function ActivityDetails() {
 
   
   const navigate = useNavigate();
-  const { state: { activityID: id , path} } = useLocation();
+  const { state: { activityId: id , path} } = useLocation();
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
-  const [contacts, setContacts] = useState([]);
+  const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
+  const [hasAtLeastOneField, setHasAtLeastOneField] = useState(false);
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
@@ -32,6 +35,7 @@ function ActivityDetails() {
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const { activity: activities, isLoading } = useActivity(chat_id)
+  const { regionsWithContacts: contacts } = useContacts(chat_id)
   const { email } = useContext(DataContext)
   tg.BackButton.isVisible = true
     useEffect(() => {
@@ -47,19 +51,19 @@ function ActivityDetails() {
     }
   }, [id, activities]);
 
-  // useEffect(() => {
-  //   if (regionsWithContacts) {
-  //     const contacts = regionsWithContacts.reduce((acc, region) => {
-  //       region.contacts.forEach((contact) => {
-  //         if (contact.companyId === id) {
-  //           acc.push(contact);
-  //         }
-  //       });
-  //       return acc;
-  //     }, [])
-  //     setContacts(contacts)
-  //   }
-  // }, [id, regionsWithContacts]);
+  useEffect(() => {
+    if (contacts && activity) {
+      const contact = contacts.reduce((acc, region) => {
+        region.contacts.forEach((contact) => {
+          if (contact.id === activity.contactId) {
+            acc = {...contact}
+          }
+        });
+        return acc;
+      }, {})
+      setContact(contact)
+    }
+  }, [contacts, activity]);
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -68,7 +72,7 @@ function ActivityDetails() {
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(path || '/companies/', 
+      tg.BackButton.onClick(() => navigate(path || '/activities/', 
          { replace: true }));
     };
 
@@ -131,53 +135,83 @@ function ActivityDetails() {
     return formattedUrl;
   };
 
-  const getCompanyTypeIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'переработчик':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
-            alt="переработчик"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'дистрибьютор':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
-            alt="дистрибьютор"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'дилер':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
-            alt="Дилер"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'смешанный':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
-            alt="Смешанный"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'избранный':
-        return <YellowStarIcon className={styles.factoryIcon} />;
-      default:
-        return <></>;
+  const getContactIcons = (contact) => {
+    const icons = [];
+    if (contact.phone1) {
+      icons.push(
+        <img
+          key="phone1"
+          src={phoneIcon}
+          className={styles.contactPhone}
+          alt="Phone icon"
+          onClick={() => window.location.href = `tel:${contact.phone1}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
     }
-  };
+
+    if (contact.phone2) {
+      icons.push(
+        <img
+          key="phone2"
+          src={phoneIcon}
+          className={styles.contactPhone}
+          alt="Phone icon"
+          onClick={() => window.location.href = `tel:${contact.phone2}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+
+    if (contact.whatsapp) {
+      icons.push(
+        <img
+          key="whatsapp"
+          src={whatsappIcon}
+          className={styles.contactPhone}
+          alt="WhatsApp icon"
+          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+
+    if (contact.telegram) {
+      icons.push(
+        <img
+          key="telegram"
+          src={telegramIcon}
+          className={styles.contactPhone}
+          alt="Telegram icon"
+          onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+    return icons;
+  }
+
+  useEffect(() => {
+    if (activity){
+    setHasAtLeastOneField(['haveAdv?', 'haveSample?', 'haveTraining?', 'subscribed?', 'status']
+  .some(field => {
+    const value = activity[field];
+    return value && value.toString().trim() !== '';
+  }))
+}
+  },[activity])
+  
+
+  const handleSelectContact = (contact) => {
+          console.log('handleSelectCompany', contact);
+           navigate(`/contacts/${contact.id}`, {
+              state: {contactId: contact.id, companyId: activity.companyId, activityId: id,
+              path: `/activities/${id}`, prevComponent : activity}
+          },  { replace:  true});
+              };
 
   console.log('activity', activity)
-  console.log('contacts', contacts)
+  console.log('contact', contact)
 
   if (!activity) {
     return <div>Activity not found</div>;
@@ -197,9 +231,37 @@ function ActivityDetails() {
         />
       </div>
       <div className={styles.CompanyDetails}>
+         <div className={styles.contactsContainer}>
+                   
+                    {contact.id && (
+                      <div key={contact.id} className={styles.contactPerson} onClick={() => handleSelectContact(contact)}>
+                        <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
+                        <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
+                        <div className={styles.contactEmail}>{contact.email}</div>
+                      </div>
+                    ) }
+                  </div>
+        {activity.plan &&(<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Запланировано на:</div><div className={styles.companyRowVal}>{Intl.DateTimeFormat('ru-RU', {
+                                        day: 'numeric',
+                                        month: 'numeric',
+                                        year: 'numeric'
+                                    }).format(new Date(activity.plan)) + ` ${activity.planTime}`}</div></div>)}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{activity.type}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Цель:</div><div className={styles.companyRowVal}>{activity.purpose}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{activity.region}</div></div>
+        {hasAtLeastOneField && (
+          <div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Работают ли с системой Слайдорс?</div><div className={styles.companyRowVal}>{activity['status']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли реклама?</div><div className={styles.companyRowVal}>{activity['haveAdv?']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли образец?</div><div className={styles.companyRowVal}>{activity['haveSample?']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Проведено ли обучение?</div><div className={styles.companyRowVal}>{activity['haveTraining?']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Подписан ли на группу?</div><div className={styles.companyRowVal}>{activity['subscribed?']}</div></div>
+            </div>
+        )}
+
+        {activity.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{activity.description}</div></div>)}
+        {activity.responsible && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Ответственный:</div><div className={styles.companyRowVal}>{activity.responsible}</div></div>)}
+        {activity.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{activity.manager}</div></div>)}
             </div>
           </div>
        

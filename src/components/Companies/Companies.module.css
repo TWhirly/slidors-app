@@ -71,6 +71,15 @@
     line-height: 0.8; /* Устанавливаем межстрочный интервал */
 }
 
+.checkBoxOnPanel {
+    display: flex;
+    padding: 0;
+    /* flex-grow: 1;     */
+    align-self: center;
+    /* margin-left: 5px; */
+    line-height: 0.8; /* Устанавливаем межстрочный интервал */
+}
+
 
 
 .paper {
