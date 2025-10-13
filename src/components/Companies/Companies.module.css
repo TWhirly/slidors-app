@@ -1,5 +1,5 @@
 .container {
-    /* background-image: url('../../icons/background.jpg'); */
+    background-image: url('../../icons/background.jpg');
     background-size: cover;
     background-repeat: repeat;
     background-attachment: fixed;
@@ -13,15 +13,17 @@
     justify-content: flex-start;
     align-items: center;
     z-index: var(--z-base);
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     padding-top: 0;
     margin-top: 0;
 }
 .allRegions {
+    /* overflow-x: hidden; */
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
+    max-width: 100%;
     margin-top: 2.9rem;
     padding: 5px 8px 2px 25px;
 }
@@ -31,6 +33,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
+    overflow-x: hidden;
     /* margin-top: 3rem; */
     padding: 5px 8px 2px 25px;
     /* margin-bottom: 500px; */
@@ -162,8 +165,11 @@
 
 .dataGridContainer {
     width: 100%;
+     max-width: 100%; /* Добавьте это */
+    box-sizing: border-box; /* Важно! */
     font-size: 16px;
     background: none;
+    overflow-x: hidden;
     /* Прозрачный фон */
     padding: 1px 0;
     display: flex;
@@ -206,6 +212,7 @@
     margin-bottom: 5px;
     width: 100%;
     cursor: pointer;
+    overflow-x: hidden;
 }
 
 .nameAndIcon {
@@ -258,7 +265,7 @@
     border-radius: 50%;
     background: none;
     color: white;
-    font-size: 1rem;
+    font-size: 0.7rem;
     position: relative;
     z-index: 1; 
 }
@@ -336,22 +343,32 @@
 }
 
 .scrollContainer {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     max-height: calc(100vh - 4rem);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .loadingMore {
+    width: 100%;
+    max-width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    /* padding: 10px; */
     color: var(--hintColor, #888);
-    gap: 10px;
+    /* gap: 10px; */
+    overflow-x: hidden;
 }
 
 .endOfList {
+    width: 100%;
+    max-width: 100%;
     text-align: center;
-    padding: 10px;
+    /* padding: 10px; */
     color: var(--hintColor, #888);
     font-style: italic;
+    overflow-x: hidden;
 }

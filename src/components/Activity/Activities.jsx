@@ -31,7 +31,7 @@ const Activities = () => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const observerRef = useRef(null);
     const lastItemRef = useRef(null);
-    const [checked, setChecked] = useState(true);
+    const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
     const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
@@ -46,14 +46,33 @@ const Activities = () => {
     
     const { activity, isLoading, error } = useActivity(chat_id);
 
+    useEffect(() => {
+        const storedPlannedExpand = sessionStorage.getItem('plannedExpand');
+        if (storedPlannedExpand !== null) {
+            setPlannedExpand(storedPlannedExpand === 'true');
+        }
+        const storedOtherExpand = sessionStorage.getItem('otherExpand');
+        if (storedOtherExpand !== null) {
+            setOtherExpand(storedOtherExpand === 'true');
+        }
+        const storedChecked = sessionStorage.getItem('checked');
+        if (storedChecked !== null) {
+            setChecked(storedChecked === 'true');
+        }
+    }, []);
+
     const handlePlannedExpand = () => {
         setPlannedExpand(!plannedExpand);
+        sessionStorage.setItem('plannedExpand', !plannedExpand);
     };
 
     const handleOtherExpand = () => {
         setOtherExpand(!otherExpand);
         setOtherPage(1);
+        sessionStorage.setItem('otherExpand', !otherExpand);
     };
+
+
 
     useEffect(() => {
         let planned = [];
@@ -136,6 +155,7 @@ const Activities = () => {
     const handleChange = (e) => {
         // const { checked } = e.target;
         setChecked(!checked);
+        sessionStorage.setItem('checked', !checked);
     }
 
     const getPurporseColor = (status) => {
@@ -303,10 +323,10 @@ const Activities = () => {
                              >
                                 <div
                                     className={styles.companyPlanDate}
-                                    style={{
-                                        color: "white",
-                                        fontSize: '0.7rem'
-                                    }}
+                                    // style={{
+                                    //     color: "white",
+                                    //     fontSize: '0.7rem'
+                                    // }}
                                 >
                                     {Intl.DateTimeFormat('ru-RU', {
                                         day: 'numeric',
@@ -351,7 +371,8 @@ const Activities = () => {
                     onClick={handleOtherExpand}
                     style={{
                         position: 'sticky',
-                        top: 0,
+                        // width: '100%',
+                        overflowX: 'hidden',
                         backgroundColor: 'transparent', // или нужный вам цвет фона
                         zIndex: 10,
                     }}
@@ -365,7 +386,8 @@ const Activities = () => {
                         onScroll={handleScroll}
                         style={{ 
                             
-                            overflow: 'auto',
+                            overflowY: 'auto',
+                            overflowX: 'hidden',
                             marginTop: '0'
                         }}
                     >
@@ -380,11 +402,12 @@ const Activities = () => {
                                  <div
                                     className={styles.companyPlanDate}
                                     style={{
+                                        width: '100%',
                                         color: "white",
                                         fontSize: '0.7rem'
                                     }}
                                 >
-                                    {Intl.DateTimeFormat('ru-RU', {
+                                 {activity.endDatetime && Intl.DateTimeFormat('ru-RU', {
                                         day: 'numeric',
                                         month: 'numeric',
                                         year: 'numeric',
@@ -392,7 +415,7 @@ const Activities = () => {
                                         minute: 'numeric'
                                     }).format(new Date(activity.endDatetime))}
                                 </div>
-                                <div
+                                {/* <div
                                     className={styles.companyPlanDate}
                                     style={{
                                         color: "white",
@@ -406,7 +429,7 @@ const Activities = () => {
                                             year: 'numeric'
                                         }).format(new Date(activity.plan)) + (activity.planTime ? ` ${activity.planTime}` : '')
                                     }
-                                </div>
+                                </div> */}
                                 <div className={styles.companyInfo}>
                                     <div className={styles.nameAndIcon}>
                                         <div className={styles.companyName}>

@@ -86,19 +86,19 @@ function ActivityDetails() {
   // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
-    if (selectedOption === 'Редактировать') {
-      navigate(`/companies/${activity.id}/edit`, { state: { ...activity, new: false } });
-    }
-    if (selectedOption === 'Добавить контакт') {
-      const getEmptyActivity = () => ({
-              id: uuidv4(), // Generates UUID v4
-              new: true
-          });
-          const emptyActivity = getEmptyActivity();
+    // if (selectedOption === 'Редактировать') {
+    //   navigate(`/companies/${activity.id}/edit`, { state: { ...activity, new: false } });
+    // }
+    // if (selectedOption === 'Добавить контакт') {
+    //   const getEmptyActivity = () => ({
+    //           id: uuidv4(), // Generates UUID v4
+    //           new: true
+    //       });
+    //       const emptyActivity = getEmptyActivity();
       
-      navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/activities/${id}`, prevComponent : activity, activityId: id} });
+    //   navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/activities/${id}`, prevComponent : activity, activityId: id} });
              
-    }
+    // }
   };
 
   //  const handleSelectContact = (contact) => {
