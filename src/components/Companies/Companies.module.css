@@ -372,3 +372,9 @@
     font-style: italic;
     overflow-x: hidden;
 }
+
+.FilterModal {
+    position: absolute;
+    top: 0;
+    z-index: 1000;
+}

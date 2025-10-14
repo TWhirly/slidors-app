@@ -7,6 +7,7 @@ import styles from '../Companies/Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG.js';
 import { IconsLine } from './IconsLine.jsx';
 import { LearningIcon } from './LearningIcon.jsx';
+import { FilterModal } from './FilterModal';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from '../Companies/sx.js';
@@ -17,6 +18,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
 import { get } from 'lodash';
+import { useEventFilters } from '../../hooks/useEventFilters';
 
 const Activities = () => {
     const queryClient = useQueryClient();
@@ -35,16 +37,26 @@ const Activities = () => {
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
     const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
-
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
     const chat_id = user.id;
+    const { activity, isLoading, error } = useActivity(chat_id);
+   
+    const {filters,
+        setFilters,
+        filteredEvents,
+        isFilterModalOpen,
+        setIsFilterModalOpen,
+        availableCategories,
+        availableTags } = useEventFilters(activity.planned || [])
+    
+        const activeFiltersCount = 0;
     
     tg.BackButton.show();
     console.log(email, 'email');
     
-    const { activity, isLoading, error } = useActivity(chat_id);
+    
 
     useEffect(() => {
         const storedPlannedExpand = sessionStorage.getItem('plannedExpand');
@@ -262,14 +274,27 @@ const Activities = () => {
     }
 
     // const displayedOtherActivities = getPaginatedOtherActivities();
-    //  console.log('displayedOtherActivities', displayedOtherActivities)
+     console.log('planned', planned)
 
     return (
-        <div className={styles.container}>
+       
+            <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <div className={styles.companyNamePanel}>
                     События
                 </div>
+
+                <button
+            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+            className="relative px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-2 bg-white hover:bg-gray-50"
+          >
+            <span>Фильтры</span>
+            {activeFiltersCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
                 <div className={styles.checkBoxOnPanel}>
                     <div>{checked? "Все" : "Мои"}</div>
                 </div>
@@ -294,6 +319,7 @@ const Activities = () => {
             </div>
             
             {/* Блок для запланированных активностей с фиксированным заголовком */}
+            {!isFilterModalOpen ? <>
             <div className={styles.allRegions}>
                 <div 
                     className={styles.plannedHeader} 
@@ -470,6 +496,15 @@ const Activities = () => {
                     </div>
                 )}
             </div>
+            </>
+             : <FilterModal className={styles.FilterModal}
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        onFiltersChange={setFilters}
+        availableCategories={availableCategories}
+        availableTags={availableTags}
+      />}
         </div>
     );
 };
