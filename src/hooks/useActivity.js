@@ -33,6 +33,14 @@ export const useActivity = (chat_id) => {
     return fullName
   };
 
+   const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+  };
+
   const transformActivitySort = (activities) => {
     console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
    if (!Array.isArray(activities)) {
@@ -61,9 +69,10 @@ export const useActivity = (chat_id) => {
 
   // Сортируем массив без plan по endDatetime по убыванию
   other.sort((a, b) => {
-    const aEnd = new Date(a.endDatetime).getTime();
-    const bEnd = new Date(b.endDatetime).getTime();
-    
+    const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
+    const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
+    if (a.id === 'Import23122600392')
+      console.log('aEnd', aEnd, 'bEnd', bEnd)
     return bEnd - aEnd;
   });
 

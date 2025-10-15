@@ -36,7 +36,7 @@ const Activities = () => {
     const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
-    const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
+    // const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
@@ -45,11 +45,14 @@ const Activities = () => {
    
     const {filters,
         setFilters,
-        filteredEvents,
+        filteredEvents : filteredPlannedEvents,
+        filteredOtherEvents,
         isFilterModalOpen,
         setIsFilterModalOpen,
-        availableCategories,
-        availableTags } = useEventFilters(activity.planned || [])
+        availableStatuses,
+        availablePurposes } = useEventFilters(activity || {planned: [], other: []});
+
+        
     
         const activeFiltersCount = 0;
     
@@ -84,38 +87,15 @@ const Activities = () => {
         sessionStorage.setItem('otherExpand', !otherExpand);
     };
 
-
-
-    useEffect(() => {
-        let planned = [];
-        let other = [];
-        if(!activity) return;
-        if(!checked){
-            planned = activity.planned.filter(item => item.manager === email);
-            other = activity.other.filter(item => item.manager === email);
-        } else {
-            planned = activity.planned;
-            other = activity.other;
-        }
-       
-        console.log('planned', other);   
-        setPlanned(planned);
-        setOther(other);
-         const getPaginatedOtherActivities = () => {
-        if (!other) return [];
+    const getPaginatedOtherActivities = () => {
+        if (!filteredOtherEvents) return [];
         
         const endIndex = otherPage * itemsPerPage;
-        return other.slice(0, endIndex);
-    };
-        const displayedOtherActivities = getPaginatedOtherActivities();
-        console.log('displayedOtherActivities', displayedOtherActivities);
-        setDisplayedOtherActivities(displayedOtherActivities);
-    }, [activity, checked, email, otherPage, itemsPerPage]);
-
-    
+        return filteredOtherEvents.slice(0, endIndex);
+    };    
 
     const totalOtherPages = other 
-        ? Math.ceil(other.length / itemsPerPage)
+        ? Math.ceil(filteredOtherEvents.length / itemsPerPage)
         : 0;
 
     const hasMore = otherPage < totalOtherPages;
@@ -157,7 +137,10 @@ const Activities = () => {
         };
     }, [otherExpand, hasMore, isLoadingMore, loadMore]);
 
+    
+
     const handleScroll = useCallback((e) => {
+        
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         if (scrollHeight - scrollTop - clientHeight < 100 && hasMore && !isLoadingMore) {
             loadMore();
@@ -273,8 +256,8 @@ const Activities = () => {
         );
     }
 
-    // const displayedOtherActivities = getPaginatedOtherActivities();
-     console.log('planned', planned)
+    const displayedOtherActivities = getPaginatedOtherActivities();
+     console.log('displayedOtherActivities', displayedOtherActivities)
 
     return (
        
@@ -299,11 +282,11 @@ const Activities = () => {
                     <div>{checked? "Все" : "Мои"}</div>
                 </div>
                
-                <Switch
+                {/* <Switch
       checked={checked}
       onChange={handleChange}
       slotProps={{ input: { 'aria-label': 'controlled' } }}
-    />
+    /> */}
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
@@ -342,7 +325,7 @@ const Activities = () => {
                             marginTop: '0' // убираем отступ, так как заголовок фиксированный
                         }}
                     >
-                        {planned.map((activity, index) => (
+                        {filteredPlannedEvents.map((activity, index) => (
                             <div key={index}
                              className={styles.dataGridContainer}
                              onClick={() => handleSelectActivity(activity)}
@@ -502,8 +485,8 @@ const Activities = () => {
         onClose={() => setIsFilterModalOpen(false)}
         filters={filters}
         onFiltersChange={setFilters}
-        availableCategories={availableCategories}
-        availableTags={availableTags}
+        availableStatuses={availableStatuses}
+        availablePurposes={availablePurposes}
       />}
         </div>
     );

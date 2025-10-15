@@ -1,0 +1,17 @@
+.mainContainer {
+    position: fixed ;
+    inset: 0; 
+    background-color:black ;
+    opacity: 50;
+     z-index: 50;
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    max-height: fit-content;
+    padding: 10px;
+    align-items: flex-start;
+    justify-content: center;
+    box-sizing: border-box;
+     /* items-end justify-center */
+}
