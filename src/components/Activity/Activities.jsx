@@ -271,11 +271,11 @@ const Activities = () => {
             onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
             className="relative px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-2 bg-white hover:bg-gray-50"
           >
-            <span>Фильтры</span>
+            <div>Фильтры</div>
             {activeFiltersCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
                 {activeFiltersCount}
-              </span>
+              </div>
             )}
           </button>
                 <div className={styles.checkBoxOnPanel}>
@@ -302,7 +302,7 @@ const Activities = () => {
             </div>
             
             {/* Блок для запланированных активностей с фиксированным заголовком */}
-            {!isFilterModalOpen ? <>
+           
             <div className={styles.allRegions}>
                 <div 
                     className={styles.plannedHeader} 
@@ -479,8 +479,9 @@ const Activities = () => {
                     </div>
                 )}
             </div>
-            </>
-             : <FilterModal className={styles.FilterModal}
+            
+            {isFilterModalOpen && <FilterModal 
+            //  className={styles.allRegions}
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filters={filters}

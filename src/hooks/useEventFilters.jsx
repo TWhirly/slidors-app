@@ -23,6 +23,7 @@ export const useEventFilters = (events) => {
   };
 
   const filteredEvents = useMemo(() => {
+    if (!events.planned) return [];
     return events.planned.filter(event => {
       // Фильтр по тексту (частичное совпадение)
       if (filters.searchText && 
@@ -57,6 +58,7 @@ export const useEventFilters = (events) => {
   }, [events, filters]);
 
    const filteredOtherEvents = useMemo(() => {
+    if (!events.other) return [];
     return events.other.filter(event => {
       // Фильтр по тексту (частичное совпадение)
       if (filters.searchText && 
@@ -107,24 +109,26 @@ export const useEventFilters = (events) => {
 
 
   const availableStatuses = useMemo(() =>{
-    const plannedSet = new Set(events.planned.map(event => event.status));
-    const otherSet = new Set(events.other.map(event => event.status));
+    
+    const plannedSet = new Set(events.planned?.map(event => event.status));
+
+    const otherSet = new Set(events.other?.map(event => event.status));
     return Array.from(new Set([...plannedSet, ...otherSet])).filter(status => status !== '');
   }, 
     [events]
 );
 
   const availablePurposes = useMemo(() => {
-    const plannedSet = new Set(events.planned.map(event => event.purpose));
-    const otherSet = new Set(events.other.map(event => event.purpose));
+    const plannedSet = new Set(events.planned?.map(event => event.purpose));
+    const otherSet = new Set(events.other?.map(event => event.purpose));
     return Array.from(new Set([...plannedSet, ...otherSet]));
   },
     [events]
   );
 
   const avialableRegions = useMemo(() => {
-    const plannedSet = new Set(events.planned.map(event => event.region));
-    const otherSet = new Set(events.other.map(event => event.region));
+    const plannedSet = new Set(events.planned?.map(event => event.region));
+    const otherSet = new Set(events.other?.map(event => event.region));
     return Array.from(new Set([...plannedSet, ...otherSet]));
   }
     , 

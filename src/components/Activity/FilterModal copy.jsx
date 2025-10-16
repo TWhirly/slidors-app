@@ -39,14 +39,14 @@ export const FilterModal = ({
   return (
     <div className={styles.mainContainer}>
       <div
-        // className={styles.modalContent}
-        // onTouchStart={handleTouchStart}
-        // onTouchEnd={handleTouchEnd}
+        className={styles.modalContent}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Индикатор свайпа */}
-        {/* <div className={styles.swipeIndicator}>
+        <div className={styles.swipeIndicator}>
           <div className={styles.swipeLine} />
-        </div> */}
+        </div>
 
         {/* Заголовок */}
         <div className={styles.modalHeader}>
@@ -67,7 +67,7 @@ export const FilterModal = ({
               type="text"
               value={filters.searchText}
               onChange={(e) => updateFilter('searchText', e.target.value)}
-              placeholder="Введите название или часть названия компании..."
+              placeholder="Введите название компании..."
               className={styles.textInput}
             />
           </div>
@@ -96,35 +96,52 @@ export const FilterModal = ({
           </div>
 
           {/* Выбор целей */}
-
-              <div className={styles.filterSection}>
+          <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Цели</label>
-            <div className={styles.checkboxList}>
-              {availablePurposes.map(purpose => (
-                <label key={purpose} className={styles.checkboxItem}>
-                  <input
-                    type="checkbox"
-                    checked={filters.purpose.includes(purpose)}
-                    onChange={(e) => {
-                      const newPurposes = e.target.checked
-                        ? [...filters.purpose, purpose]
-                        : filters.purpose.filter(c => c !== purpose);
-                      updateFilter('purpose', newPurposes);
-                    }}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>{purpose}</span>
-                </label>
+            
+            {/* Выбранные цели */}
+            <div className={styles.selectedTags}>
+              {filters.purpose.map(purpose => (
+                <span key={purpose} className={styles.tag}>
+                  {purpose}
+                  <button
+                    onClick={() => updateFilter('purpose', filters.purpose.filter(t => t !== purpose))}
+                    className={styles.removeTagButton}
+                  >
+                    ✕
+                  </button>
+                </span>
               ))}
+              {filters.purpose.length === 0 && (
+                <span className={styles.noTags}>Цели не выбраны</span>
+              )}
+            </div>
+            
+            {/* Выбор целей */}
+            <select
+              multiple
+              value={filters.purpose}
+              onChange={(e) => {
+                const selectedPurposes = Array.from(e.target.selectedOptions, option => option.value);
+                updateFilter('purpose', selectedPurposes);
+              }}
+              className={styles.multiSelect}
+              size={4}
+            >
+              {availablePurposes.map(purpose => (
+                <option key={purpose} value={purpose}>{purpose}</option>
+              ))}
+            </select>
+            <div className={styles.selectHint}>
+              Для множественного выбора удерживайте Ctrl (или нажмите и удерживайте на мобильном)
             </div>
           </div>
-              {/*  */}
-          
+
           {/* Фильтр по дате */}
           <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Период</label>
             <div className={styles.dateGrid}>
-              <div className={styles.dateBox}>
+              <div>
                 <input
                   type="date"
                   value={filters.dateRange.from}
@@ -135,10 +152,9 @@ export const FilterModal = ({
                   className={styles.dateInput}
                 />
               </div>
-              <div className={styles.dateBox}>
+              <div>
                 <input
                   type="date"
-                 
                   value={filters.dateRange.to}
                   onChange={(e) => updateFilter('dateRange', {
                     ...filters.dateRange,
