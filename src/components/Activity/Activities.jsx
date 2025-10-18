@@ -19,6 +19,8 @@ import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query
 import { useActivity } from '../../hooks/useActivity.js';
 import { get } from 'lodash';
 import { useEventFilters } from '../../hooks/useEventFilters';
+import { getEmptyActivity } from './activity.js';
+
 
 const Activities = () => {
     const queryClient = useQueryClient();
@@ -42,6 +44,8 @@ const Activities = () => {
     const user = JSON.parse(params.get('user'));
     const chat_id = user.id;
     const { activity, isLoading, error } = useActivity(chat_id);
+    const filterIcon = require('../../icons/filter.png')
+    const filterActiveIcon = require('../../icons/filterActive.png')
    
     const {filters,
         setFilters,
@@ -49,12 +53,41 @@ const Activities = () => {
         filteredOtherEvents,
         isFilterModalOpen,
         setIsFilterModalOpen,
-        availableStatuses,
-        availablePurposes } = useEventFilters(activity || {planned: [], other: []});
+        avialableStatuses,
+        avialablePurposes,
+        avialableManagers,
+        avialableRegions,
+        avialableTypes
+    } = useEventFilters(activity || {planned: [], other: []});
 
-        
+    const activeFiltersCount = [
+    filters.searchText ? 1 : 0,
+    filters.purpose.length,
+    filters.status.length,
+    filters.manager.length,
+    filters.region.length,
+    filters.type.length,
+    filters.dateRange.from ? 1 : 0,
+    filters.dateRange.to ? 1 : 0
+  ].reduce((sum, count) => sum + count, 0);
+
+  const removeFilter = () => {
+    localStorage.removeItem('eventFilters');
+    const emptyFilters = {
+                searchText: '',
+                purpose: [],
+                status: [],
+                tags: [],
+                region: [],
+                manager: [],
+                type: [],
+                dateRange: { from: '', to: '' }
+              };
+
+    setFilters(emptyFilters);
+  };
     
-        const activeFiltersCount = 0;
+    
     
     tg.BackButton.show();
     console.log(email, 'email');
@@ -162,52 +195,6 @@ const Activities = () => {
                 return 'var(--hintColor, #888)';
         }
     };
-
-    const getCompanyTypeIcon = (type) => {
-        switch (type?.toLowerCase()) {
-            case 'переработчик':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
-                        alt="переработчик"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дистрибьютор':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
-                        alt="дистрибьютор"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дилер':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
-                        alt="Дилер"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'смешанный':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
-                        alt="Смешанный"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'избранный':
-                return <YellowStarIcon className={styles.factoryIcon} />;
-            default:
-                return <></>;
-        }
-    };
-
     const handleSelectActivity = (activity) => {
         console.log('click')
         navigate(`/activities/${activity.id}`, {
@@ -215,14 +202,11 @@ const Activities = () => {
         });
     };
 
-    const getEmptyActivity = (selectedRegion = '') => ({
-        id: uuidv4(),
-        new: true
-    });
+    
 
-    const handleAddCompany = () => {
-        // const emptyCompany = getEmptyCompany(selectedRegion || '');
-        // navigate(`/companies/new/edit`, { state: emptyCompany });
+    const handleAddActivity = () => {
+        const emptyActivity = getEmptyActivity(email);
+        navigate(`/activities/new/edit`, { state: emptyActivity });
     };
 
     useEffect(() => {
@@ -257,7 +241,7 @@ const Activities = () => {
     }
 
     const displayedOtherActivities = getPaginatedOtherActivities();
-     console.log('displayedOtherActivities', displayedOtherActivities)
+    //  console.log('eventFilters', localStorage.getItem('eventFilters'))
 
     return (
        
@@ -267,30 +251,31 @@ const Activities = () => {
                     События
                 </div>
 
-                <button
-            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-            className="relative px-4 py-2 border border-gray-300 rounded-lg flex items-center gap-2 bg-white hover:bg-gray-50"
+                <div
+            
+            className={styles.filterButton}
           >
-            <div>Фильтры</div>
-            {activeFiltersCount > 0 && (
-              <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                {activeFiltersCount}
-              </div>
-            )}
-          </button>
-                <div className={styles.checkBoxOnPanel}>
-                    <div>{checked? "Все" : "Мои"}</div>
+            <div
+            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+            >
+            <img src={activeFiltersCount > 0 ? filterActiveIcon : filterIcon} 
+            alt="Filter icon" 
+            className={styles.filterIcon}
+            >
+                
+            </img>
+            </div>
+             <div className={styles.filterCountPanel}
+             onClick={() =>activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
+             >
+                    {activeFiltersCount === 0 ? "Все" : `✕`}
                 </div>
-               
-                {/* <Switch
-      checked={checked}
-      onChange={handleChange}
-      slotProps={{ input: { 'aria-label': 'controlled' } }}
-    /> */}
+            
+          </div>
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
-                        handleAddCompany();
+                        handleAddActivity();
                     }}
                     sx={{
                         color: 'white',
@@ -314,7 +299,7 @@ const Activities = () => {
                         zIndex: 10,
                     }}
                 >
-                    Запланированные <div className={styles.regionButtonArrow}></div>
+                    Запланированные ({filteredPlannedEvents?.length})<div className={styles.regionButtonArrow}></div>
                 </div>
                 
                 {plannedExpand && (
@@ -386,7 +371,7 @@ const Activities = () => {
                         zIndex: 10,
                     }}
                 >
-                    Завершенные <div className={styles.regionButtonArrow}></div>
+                    Завершенные ({filteredOtherEvents?.length})<div className={styles.regionButtonArrow}></div>
                 </div>
                 
                 {otherExpand && (
@@ -486,8 +471,11 @@ const Activities = () => {
         onClose={() => setIsFilterModalOpen(false)}
         filters={filters}
         onFiltersChange={setFilters}
-        availableStatuses={availableStatuses}
-        availablePurposes={availablePurposes}
+        avialableStatuses={avialableStatuses}
+        avialablePurposes={avialablePurposes}
+        avialableRegions={avialableRegions}
+        avialableManagers={avialableManagers}
+        avialableTypes={avialableTypes}
       />}
         </div>
     );

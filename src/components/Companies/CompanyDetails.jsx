@@ -14,7 +14,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
 
-function CompanyDetails() {
+const CompanyDetails = () => {
 
   
   const navigate = useNavigate();

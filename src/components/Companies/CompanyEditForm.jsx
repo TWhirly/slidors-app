@@ -17,6 +17,7 @@ const CompanyEditForm = () => {
     const isNewComapny = company?.new === true;
     const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
+    const [companiesNames, setCompaniesNames] = useState([]);
     const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const [hasChanged, setHasChanged] = useState(false);

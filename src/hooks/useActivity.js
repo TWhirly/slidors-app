@@ -22,16 +22,7 @@ export const useActivity = (chat_id) => {
     console.log('sortedActivity', sortedActivity);
     return (sortedActivity);
   };
-
-  const getContactFullNmae = (contact) => {
-    const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
-                (contact.firstName ? contact.firstName + ' ' : '') + 
-                (contact.surname ? contact.surname + ' ' : '')
-    if (fullName === '') {
-      return contact.companyName
-    }
-    return fullName
-  };
+  
 
    const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -105,7 +96,7 @@ function createDateTime(dateStr, timeStr) {
   });
 
   // Функция для оптимистичного обновления контакта
-  const optimisticUpdateContact = (contactData, isNewContact = false) => {
+  const optimisticUpdateActivity = (contactData, isNewContact = false) => {
     queryClient.setQueryData(['contacts'], (oldContacts = []) => {
       if (isNewContact) {
         // Для нового контакта - добавляем в соответствующий регион
@@ -168,7 +159,7 @@ onMutate: async (activityData) => {
       const previousActivity = queryClient.getQueryData(['activity']) || [];
       
       // Оптимистичное обновление через функцию
-      optimisticUpdateContact(activityData, activityData.isNew);
+      optimisticUpdateActivity(activityData, activityData.isNew);
       
       return { previousActivity };
     },
@@ -194,7 +185,7 @@ onMutate: async (activityData) => {
     updateActivity: updateActivityMutation.mutate,
     updateActivityAsync: updateActivityMutation.mutateAsync,
     isUpdating: updateActivityMutation.isLoading,
-    optimisticUpdateContact, // Экспортируем для ручного использования
+    optimisticUpdateActivity, // Экспортируем для ручного использования
     error
   };
 };

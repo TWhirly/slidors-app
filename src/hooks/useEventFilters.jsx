@@ -1,16 +1,22 @@
 // useEventFilters.js
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
+import { DataContext } from '../DataContext.jsx';
 
 export const useEventFilters = (events) => {
+  const { email } = useContext(DataContext);
    console.log('events', events)
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState(localStorage.getItem('eventFilters') ? JSON.parse(localStorage.getItem('eventFilters')) : {
     searchText: '',
     purpose: [],
     status: [],
     tags: [],
+    manager: [],
     region: [],
+    type: [],
     dateRange: { from: '', to: '' }
   });
+
+  
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
@@ -31,25 +37,36 @@ export const useEventFilters = (events) => {
         return false;
       }
     
-      if (filters.status.length > 0 && 
+      if (filters.status?.length > 0 && 
           !filters.status.includes(event.status)) {
         return false;
       }
-      if (filters.purpose.length > 0 && 
+      if (filters.purpose?.length > 0 && 
           !filters.purpose.includes(event.purpose)) {
         return false;
       }
 
-       if (filters.region.length > 0 && 
+       if (filters.region?.length > 0 && 
           !filters.region.includes(event.region)) {
+        return false;
+      }
+
+      if (filters.type?.length > 0 && 
+          !filters.type.includes(event.type)) {
+        return false;
+      }
+
+      if (filters.manager?.length > 0 && 
+          !filters.manager.includes(event.manager) && 
+          !filters.manager.includes(event.responsible)) {
         return false;
       }
    
       // Фильтр по дате
-      if (filters.dateRange.from && formatDate(event.endDatetime) < filters.dateRange.from) {
+      if (filters.dateRange?.from && formatDate(event.endDatetime) < filters.dateRange.from) {
         return false;
       }
-      if (filters.dateRange.to && formatDate(event.endDatetime) > filters.dateRange.to) {
+      if (filters.dateRange?.to && formatDate(event.endDatetime) > filters.dateRange.to) {
         return false;
       }
 
@@ -73,17 +90,27 @@ export const useEventFilters = (events) => {
       // }
 
       // Фильтр по статусу (точное совпадение)
-      if (filters.status.length > 0 && 
+      if (filters.status?.length > 0 && 
           !filters.status.includes(event.status)) {
         return false;
       }
-      if (filters.purpose.length > 0 && 
+      if (filters.purpose?.length > 0 && 
           !filters.purpose.includes(event.purpose)) {
         return false;
       }
 
-       if (filters.region.length > 0 && 
+       if (filters.type?.length > 0 && 
+          !filters.type.includes(event.type)) {
+        return false;
+      }
+
+       if (filters.region?.length > 0 && 
           !filters.region.includes(event.region)) {
+        return false;
+      }
+
+      if (filters.manager?.length > 0 && 
+          !filters.manager.includes(event.manager)) {
         return false;
       }
 
@@ -94,10 +121,10 @@ export const useEventFilters = (events) => {
     //   }
 
       // Фильтр по дате
-      if (filters.dateRange.from && formatDate(event.endDatetime) < filters.dateRange.from) {
+      if (filters.dateRange?.from && formatDate(event.endDatetime) < filters.dateRange.from) {
         return false;
       }
-      if (filters.dateRange.to && formatDate(event.endDatetime) > filters.dateRange.to) {
+      if (filters.dateRange?.to && formatDate(event.endDatetime) > filters.dateRange.to) {
         return false;
       }
 
@@ -108,7 +135,7 @@ export const useEventFilters = (events) => {
   
 
 
-  const availableStatuses = useMemo(() =>{
+  const avialableStatuses = useMemo(() =>{
     
     const plannedSet = new Set(events.planned?.map(event => event.status));
 
@@ -118,7 +145,7 @@ export const useEventFilters = (events) => {
     [events]
 );
 
-  const availablePurposes = useMemo(() => {
+  const avialablePurposes = useMemo(() => {
     const plannedSet = new Set(events.planned?.map(event => event.purpose));
     const otherSet = new Set(events.other?.map(event => event.purpose));
     return Array.from(new Set([...plannedSet, ...otherSet]));
@@ -129,11 +156,31 @@ export const useEventFilters = (events) => {
   const avialableRegions = useMemo(() => {
     const plannedSet = new Set(events.planned?.map(event => event.region));
     const otherSet = new Set(events.other?.map(event => event.region));
+    return Array.from(new Set([...plannedSet, ...otherSet])).sort();
+  }
+    , 
+    [events]
+  );
+
+  const avialableManagers = useMemo(() => {
+    const plannedSet = new Set(events.planned?.map(event => event.manager));
+    const otherSet = new Set(events.other?.map(event => event.manager));
+    return Array.from(new Set([email, ...plannedSet, ...otherSet])).filter(manager => manager !== '');
+  }
+    , 
+    [email, events]
+  );
+
+   const avialableTypes = useMemo(() => {
+    const plannedSet = new Set(events.planned?.map(event => event.type));
+    const otherSet = new Set(events.other?.map(event => event.type));
     return Array.from(new Set([...plannedSet, ...otherSet]));
   }
     , 
     [events]
   );
+
+  
 
   return {
     filters,
@@ -142,8 +189,10 @@ export const useEventFilters = (events) => {
     filteredOtherEvents,
     isFilterModalOpen,
     setIsFilterModalOpen,
-    availableStatuses,
-    availablePurposes,
-    avialableRegions
+    avialableStatuses,
+    avialablePurposes,
+    avialableRegions,
+    avialableManagers,
+    avialableTypes
   };
 };

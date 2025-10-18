@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext, act } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { v4 as uuidv4 } from 'uuid';
 import styles from '../Companies/CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import axios from 'axios';
@@ -17,7 +16,9 @@ import { useActivity } from '../../hooks/useActivity.js';
 import {getContactIcons} from '../Companies/CompanyDetails.jsx';
 import {handleSelectContact} from '../Companies/CompanyDetails.jsx';
 
-function ActivityDetails() {
+
+
+const ActivityDetails = () => {
 
   
   const navigate = useNavigate();
@@ -37,6 +38,8 @@ function ActivityDetails() {
   const { activity: activities, isLoading } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
   const { email } = useContext(DataContext)
+  // const getEmptyActivity = require('./ActivityDetails.jsx')
+
   tg.BackButton.isVisible = true
     useEffect(() => {
     if (activities) {
@@ -84,16 +87,13 @@ function ActivityDetails() {
   }, [navigate, path, tg]);
 
   // console.log('company', company);
-
+   
   const handleMenuSelection = (selectedOption) => {
-    // if (selectedOption === 'Редактировать') {
-    //   navigate(`/companies/${activity.id}/edit`, { state: { ...activity, new: false } });
-    // }
+    if (selectedOption === 'Редактировать') {
+      navigate(`/activities/${activity.id}/edit`, { state: { ...activity, new: false } });
+    }
     // if (selectedOption === 'Добавить контакт') {
-    //   const getEmptyActivity = () => ({
-    //           id: uuidv4(), // Generates UUID v4
-    //           new: true
-    //       });
+      
     //       const emptyActivity = getEmptyActivity();
       
     //   navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/activities/${id}`, prevComponent : activity, activityId: id} });
@@ -268,9 +268,6 @@ function ActivityDetails() {
 
         )}
 
-       
 
-   
-  
 
 export default ActivityDetails;

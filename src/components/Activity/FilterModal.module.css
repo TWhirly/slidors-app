@@ -1,55 +1,43 @@
 /* FilterModal.module.css */
 .mainContainer {
-  position: absolute;
-  /* inset: 0; */
-  background-color:  black;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
   display: flex;
-  /* align-items: flex-end; */
   justify-content: center;
-  padding: 0px 0px;
-  /* top: 0; */
-  margin-top: 40px;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 500px;
-  margin-bottom: 1rem;
-  height: 100%;
-  overflow-y: scroll;
-  /* max-height: 100%; */
+  align-items: flex-start;
+  padding-top: 60px;
+  animation: slideDown 0.3s ease-out;
 }
 
 .modalContent {
-  background: black;;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
+  background: #2d3748;
+  border-radius: 16px;
   color: white;
-  width: 100%;
+  width: 90%;
   max-width: 500px;
-  max-height: 85vh;
+  max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
 }
 
-
-
 .modalHeader {
-  position: sticky;
-  z-index: 200;
-  /* top: 3.5rem; */
-  background: black;
-  
-  /* border-bottom: 1px solid #f3f4f6; */
-  padding: 0 20px 0px;
+  background: #2d3748;
+  padding: 20px 20px 0;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
 .modalTitle {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
 }
 
 .title {
@@ -63,30 +51,30 @@
   background: none;
   border: none;
   font-size: 20px;
-  color: #6b7280;
+  color: #cbd5e0;
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
   transition: background-color 0.2s;
 }
 
-.closeButton:active {
-  background-color: #f3f4f6;
+.closeButton:hover {
+  background-color: #4a5568;
 }
 
 .filtersContent {
-    margin-top: 4rem;
-  padding: 0 20px 40px;
+  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .filterSection {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .filterLabel {
@@ -97,26 +85,25 @@
 }
 
 .textInput {
-    display: flex;
-    color: white;
-  width: 90%;
-  padding: 8px 16px;
-  margin-top: 0px;
-  border: 1px solid #d1d5db;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #4a5568;
   border-radius: 12px;
   font-size: 16px;
-  background: rgb(3, 0, 0);
+  background: #1a202c;
+  color: white;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .textInput:focus {
   outline: none;
-  /* border-color: #3b82f6; */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #4299e1;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
 }
 
 .textInput::placeholder {
-  color: #9ca3af;
+  color: #a0aec0;
   font-size: 12px;
 }
 
@@ -126,40 +113,43 @@
   gap: 2px;
   max-height: 160px;
   overflow-y: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #4a5568;
   border-radius: 12px;
   padding: 8px;
+  background: #1a202c;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .checkboxItem {
   display: flex;
   align-items: center;
-  padding: 1px 1px 8px 1px;
+  padding: 8px;
   border-radius: 8px;
   transition: background-color 0.2s;
   cursor: pointer;
 }
 
-.checkboxItem:active {
-  background-color: #f9fafb;
+.checkboxItem:hover {
+  background-color: #2d3748;
 }
 
 .checkboxInput {
-  color: white;
   appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid #d1d5db;
+  border: 2px solid #718096;
   border-radius: 4px;
   margin-right: 12px;
   position: relative;
   cursor: pointer;
   transition: all 0.2s;
+  background: #1a202c;
 }
 
 .checkboxInput:checked {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: #4299e1;
+  border-color: #4299e1;
 }
 
 .checkboxInput:checked::after {
@@ -179,132 +169,58 @@
   flex: 1;
 }
 
-.selectedTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-  min-height: 32px;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  background-color: #eff6ff;
-  color: #1e40af;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.removeTagButton {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  margin-left: 6px;
-  padding: 2px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.removeTagButton:active {
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.noTags {
-  color: #9ca3af;
-  font-size: 14px;
-  font-style: italic;
-}
-
-.multiSelect {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  font-size: 16px;
-  background: white;
-  transition: border-color 0.2s;
-}
-
-.multiSelect:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
-.selectHint {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 4px;
-  line-height: 1.4;
-}
-
 .dateGrid {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  flex-wrap: wrap;
-  margin-right: 10px;
-  color-scheme: dark;
-  color: white;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.dateBox{
- width: 40%;
- color-scheme: dark;
+.dateBox {
+  flex: 1;
+  min-width: 0; /* Важно для предотвращения переполнения */
 }
 
 .dateInput {
-  /* width: calc(90% - 0px); */
+  width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #4a5568;
   border-radius: 12px;
   color: white;
-  /* color: black; */
-  font-size: 12px;
-  background: rgb(3, 0, 0);
-   color-scheme: dark;
-  /* background: white; */
+  font-size: 16px;
+  background: #1a202c;
   transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.dateInput:before {
+  content: attr(placeholder);
+  color: #a0aec0;
+  margin-right: 0.5em;
 }
 
 .dateInput:focus {
   outline: none;
-  /* border-color: #3b82f6; */
-}
-
-.dateInput::placeholder {
-  color: red;
-  font-size: 12px;
+  border-color: #4299e1;
 }
 
 .dateInput::-webkit-calendar-picker-indicator {
-  /* filter: invert(1); */
-  /* background: url(https://cdn3.iconfinder.com/data/icons/linecons-free-vector-icons-pack/32/calendar-16.png) center/80% no-repeat;; */
-  /* color: white; */
-           
+  filter: invert(1);
+  cursor: pointer;
 }
 
 .actions {
-  position: sticky;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: 10px;
-  margin-top: 30px;
-  margin-left: 20px;
-  margin-right: 18px;
-  margin-bottom: 30px;
-  bottom: 0;
+  padding: 0 20px 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .actionButton {
   flex: 1;
-  padding: 10px 8px;
+  padding: 12px 16px;
   border: none;
   border-radius: 12px;
   font-size: 16px;
@@ -312,101 +228,88 @@
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
+  box-sizing: border-box;
+  min-width: 0; /* Важно для предотвращения переполнения */
 }
 
 .resetButton {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: #e2e8f0;
+  color: #2d3748;
+  border: 1px solid #cbd5e0;
 }
 
-.resetButton:active {
-  background-color: #f9fafb;
-  transform: scale(0.98);
+.resetButton:hover {
+  background-color: #cbd5e0;
 }
 
 .applyButton {
-  background-color: #3b82f6;
+  background-color: #4299e1;
   color: white;
-  border: 1px solid #3b82f6;
+  border: 1px solid #4299e1;
 }
 
-.applyButton:active {
-  background-color: #2563eb;
-  transform: scale(0.98);
+.applyButton:hover {
+  background-color: #3182ce;
 }
 
-/* Анимации */
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
+/* Анимация появления сверху вниз */
 @keyframes slideDown {
   from {
-    transform: translateY(0);
+    opacity: 0;
+    transform: translateY(-50px);
   }
   to {
-    transform: translateY(100%);
+    opacity: 1;
+    transform: translateY(0);
   }
-}
-
-.modalEnter {
-  animation: slideUp 0.3s ease-out;
-}
-
-.modalExit {
-  animation: slideDown 0.3s ease-in;
 }
 
 /* Скроллбар */
 .checkboxList::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .checkboxList::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
+  background: #2d3748;
+  border-radius: 3px;
 }
 
 .checkboxList::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
+  background: #4a5568;
+  border-radius: 3px;
 }
 
 .checkboxList::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #718096;
 }
 
 /* Адаптивность */
-@media (max-height: 600px) {
+@media (max-width: 480px) {
+  .mainContainer {
+    padding-top: 40px;
+  }
+  
   .modalContent {
-    max-height: 90vh;
+    width: 95%;
+    max-height: 85vh;
   }
   
   .filtersContent {
+    padding: 16px;
     gap: 16px;
   }
   
-  .filterSection {
-    gap: 6px;
-  }
-}
-
-@media (max-width: 340px) {
-  .filtersContent {
+  .actions {
     padding: 0 16px 16px;
   }
   
-  .actions {
-    padding: 12px 16px;
+  .dateInput {
+    font-size: 14px;
+    padding: 10px 12px;
   }
   
   .actionButton {
-    padding: 12px 16px;
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }
