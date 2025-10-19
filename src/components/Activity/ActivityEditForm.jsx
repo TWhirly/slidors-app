@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { TextField } from '@mui/material';
+import InputLabel from '@mui/material/InputLabel';
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,6 +12,8 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEmail } from '../../hooks/useEmail.js';
+import { set } from 'lodash';
+import { answers } from './activity.js';
 const ActivityEditForm = () => {
     const { state: activity } = useLocation();
     const navigate = useNavigate();
@@ -20,10 +24,13 @@ const ActivityEditForm = () => {
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
         activityTypes,
-        activityPurporses, chat_id } = useContext(DataContext);
+        activityPurposes, chat_id, namesEmails } = useContext(DataContext);
         const [regions, setRegions] = useState([]);
     const { regionsWithCompanies } = useRegions(chat_id);
     const [cities, setCities] = useState([]);
+    const [companies, setCompanies] = useState([]);
+    const [isElobaration, setIsElobaration] = useState(false);
+    const [isPlanned, setIsPlanned] = useState(false);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
@@ -31,7 +38,7 @@ const ActivityEditForm = () => {
     const tg = tgRef.current;
     const id = activity.id;
 
-    console.log('activities', activities);
+    console.log('regionsWithCompanies', regionsWithCompanies);
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
@@ -67,7 +74,7 @@ const ActivityEditForm = () => {
     }, [formData, activity]);
 
     useEffect(() => {
-        if (formData?.type.trim() !== '' && formData?.purpose.trim() !== '') {
+        if (formData?.type.trim() !== '' && formData?.purpose.trim() !== '' && formData?.companyId.trim() !== '') {
             formDataRef.current = formData;
             setAllowSave(true);
             tg.MainButton.setText('Сохранить');
@@ -101,7 +108,37 @@ const ActivityEditForm = () => {
         } else {
             setCities([]);
         }
+       
     }, [formData.region, regionsWithCompanies]);
+
+    useEffect(() => {
+         if(formData.region && formData.region.length > 0) {
+            const names = regionsWithCompanies.find(item => item.region === formData.region).companies.reduce((acc, company) => {
+                if (!acc.includes(company.name) && company.name.length > 0 && !formData.city) {
+                    acc.push({name: company.name, id: company.id});
+                }
+                if (!acc.includes(company.name) && company.name.length > 0 && formData.city?.length > 0 && company.city === formData.city) {
+                    acc.push({name: company.name, id: company.id});
+                }
+
+                return acc;
+            }, []);
+           
+            setCompanies(names);
+        }
+        else {
+            setCompanies([]);
+        }
+        
+    },[cities, formData.city, formData.region, regionsWithCompanies])
+
+    useEffect(() => {
+        setIsElobaration(formData.purpose === 'Проработка');
+    }, [formData.purpose]);
+
+    useEffect(() => {
+        setIsPlanned(formData.plan.length > 0);
+    }, [formData.plan]);
 
 
     const handleSave = useCallback(async () => {
@@ -120,7 +157,7 @@ const ActivityEditForm = () => {
             updateActivity(currentFormData, {
                 onSuccess: () => {
                     // showNotification(`Данные сохранены успешно!`, true);
-                    queryClient.invalidateQueries({ queryKey: ['emails', id, null] });
+                    queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
                 },
                 onError: (error) => {
                     console.error('Company update failed:', error);
@@ -163,7 +200,8 @@ const ActivityEditForm = () => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('activity', activity)
+    console.log('companies', companies);
+    console.log('formData', formData);
 
     return (
         <div className={styles.container}>
@@ -181,7 +219,7 @@ const ActivityEditForm = () => {
                     list={regions}
                     name="region"
                     value={formData.region || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, region: value }))}
+                    onChange={(value) => setFormData(prev => ({ ...prev, region: value, companyName: '', companyId: '' }))}
                     label="Регион"
                 />
 
@@ -194,6 +232,120 @@ const ActivityEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
                     label="Город"
                 />
+
+                 <BasicSelect
+                    className={styles.formGroup}
+                    searchable
+                    list={companies.map(item => item.name)}
+                    name="companyName"
+                    value={formData.companyName || []}
+                    onChange={(value) => setFormData(prev => ({ ...prev, companyName: value, companyId: companies?.find(item => item.name === value)?.id || ''}))}
+                    label="Компания"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    list={activityTypes}
+                    name="type"
+                    value={formData.type || []}
+                    onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
+                    label="Тип"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    list={activityPurposes}
+                    name="purpose"
+                    value={formData.purpose || []}
+                    onChange={(value) => setFormData(prev => ({ ...prev, purpose: value }))}
+                    label="Цель"
+                />
+
+                 {isElobaration && <>
+                  <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="status"
+                    list={answers.status}
+                    value={formData.status || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                    label="Работают ли с системой Слайдорс?"
+                /> 
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="haveAdv?"
+                    list={answers['haveAdv?']}
+                    value={formData['haveAdv?'] || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, 'haveAdv?': value }))}
+                    label="Есть ли реклама?"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="haveSample?"
+                    list={answers['haveSample?']}
+                    value={formData['haveSample?'] || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, 'haveSample?': value }))}
+                    label="Есть ли образец?"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="haveTrainig?"
+                    list={answers['haveTrainig?']}
+                    value={formData['haveTrainig?'] || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, 'haveTrainig?': value }))}
+                    label="Проведено ли обучение?"
+                />
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="subscribed?"
+                    list={answers['subscribed?']}
+                    value={formData['subscribed?'] || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, 'subscribed?': value }))}
+                    label="Подписаны ли на группу?"
+                />
+                </>
+                }
+
+                <BasicSelect
+                    className={styles.formGroup}
+                    type="date"
+                    noPlaceholder
+                    name="date"
+                    value={formData.plan || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, plan: value }))}
+                    label="Запланировать"
+                />
+
+                {isPlanned && <BasicSelect
+                    className={styles.formGroup}
+                    type="time"
+                    noPlaceholder
+                    name="planTime"
+                    value={formData.planTime || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, planTime: value }))}
+                    label="Московское время"
+                />}
+
+                {isPlanned &&<BasicSelect
+                    className={styles.formGroup}
+                    type="text"
+                    name="responsible?"
+                    list={namesEmails}
+                    value={formData.responsible || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, responsible: value }))}
+                    label="Назначить ответственного"
+                />}
+
+              
+
 
                 <BasicSelect
                     className={styles.formGroup}
@@ -214,6 +366,7 @@ const ActivityEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, manager: value }))}
                     label="Менеджер"
                 />
+        
 
             </div>
         </div>

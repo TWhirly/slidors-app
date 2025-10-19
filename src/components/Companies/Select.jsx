@@ -1,11 +1,13 @@
-import { useState, useMemo, useRef, useEffect, useCallback, use } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback, } from 'react';
 import debounce from 'lodash/debounce';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Select from '@mui/material/Select';
+import { TextField } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -48,7 +50,7 @@ const BasicSelect = (props) => {
     const filteredList = useMemo(() => {
         if (!props.searchable) return localList;
         if (!debouncedSearchTerm) return localList;
-        if(props.useObjects) return localList.filter(item => item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+        if (props.useObjects) return localList.filter(item => item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
 
         return localList.filter(item =>
             item.toString().toLowerCase().includes(debouncedSearchTerm.toLowerCase())
@@ -72,7 +74,7 @@ const BasicSelect = (props) => {
     };
 
     const handleChange = (event) => {
-         
+
         // console.log('event', event)
         const { target: { value } } = event;
         if (value !== undefined && !props.useObjects) {
@@ -89,9 +91,9 @@ const BasicSelect = (props) => {
     };
 
     const handleItemClick = (id, name) => {
-         
+
         // console.log('handleItemClick', name, id)
-        
+
         if (name !== undefined && props.useObjects) {
             setSearch('');
             let newValue;
@@ -138,29 +140,42 @@ const BasicSelect = (props) => {
         };
     }, [debouncedSearch]);
 
-    // console.log('filteredList', filteredList)
+
 
     return (
+
         <FormControl fullWidth
         // autocomplete = "off"
         >
+
             <InputLabel
                 id={`${props.name}-label`}
                 shrink={!!props.value || isFocused}
                 sx={{
                     position: 'absolute',
                     left: '1rem',
-                    top: !!props.value || isFocused ? '0.1rem' : '0.7rem',
-                    transform: !!props.value || isFocused ? 'translateY(-50%) scale(0.9)' : 'none',
+                    top: props.noPlaceholder ? '0.1rem' : (!!props.value || isFocused ? '0.1rem' : '0.7rem'),
+                    transform: props.noPlaceholder ? 'translateY(-50%) scale(0.9)' : (!!props.value || isFocused ? 'translateY(-50%) scale(0.9)' : 'none'),
                     color: 'white',
-                    fontSize: !!props.value || isFocused ? '0.9rem' : '1rem',
+                    fontSize: props.noPlaceholder ? '0.9rem' : (!!props.value || isFocused ? '0.9rem' : '1rem'),
                     transition: 'all 0.2s ease',
                     '&.Mui-focused': {
                         color: '#729fcf',
                     },
-                    backgroundColor: !!props.value || isFocused ? 'rgba(20, 20, 20, 0.8)' : 'transparent',
-                    padding: !!props.value || isFocused ? '0 0.3rem' : '0',
+                    backgroundColor: props.noPlaceholder ? 'rgba(20, 20, 20, 0.8)' : (!!props.value || isFocused ? 'rgba(20, 20, 20, 0.8)' : 'transparent'),
+                    padding: props.noPlaceholder ? '0 0.3rem' : (!!props.value || isFocused ? '0 0.3rem' : '0'),
                     zIndex: 1,
+
+                    '&:focus': {
+                        outline: 'none',
+                    },
+                    '&:invalid': {
+                        outline: 'none',
+                    },
+                    '&:disabled': {
+                        pointerEvents: 'none',
+                    },
+
                 }}
             >
                 {props.label}
@@ -168,7 +183,7 @@ const BasicSelect = (props) => {
 
             {props.list ? (
                 <Select
-                disabled={props.disabled}
+                    disabled={props.disabled}
                     labelId={`${props.name}-label`}
                     id={props.name}
                     multiple={props.multiple}
@@ -178,6 +193,7 @@ const BasicSelect = (props) => {
                     onBlur={handleBlur}
                     input={<OutlinedInput />}
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
+                    IconComponent={props.value?.length > 0 ? null : ArrowDropDownIcon }
                     // renderValue={() => 'fff'}
                     MenuProps={{
                         ...MenuProps,
@@ -202,6 +218,7 @@ const BasicSelect = (props) => {
                         },
                         '& .MuiSelect-icon': {
                             color: 'white',
+                            marginRight: '5px',
                         },
                         '& .MuiSelect-select': {
                             color: 'white',
@@ -209,55 +226,63 @@ const BasicSelect = (props) => {
                         },
                         '&.Mui-disabled .MuiSelect-select': {
                             opacity: 0.7,
-                        }
+                        },
+                        '& .MuiSvgIcon-root': {
+                        //  display: props.value?.length > 0 ? 'none' : 'true',
+                         },
                     }}
                     endAdornment={
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-    {props.showAddButton && (
-      <IconButton
-        disabled={props.disabled}
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          props.onAdd && props.onAdd();
-        }}
-        sx={{
-          color: 'white',
-          padding: '4px',
-          marginRight: '10px',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
-        }}
-      >
-        {/* <AddIcon fontSize="small" /> */}
-        +
-      </IconButton>
-    )}
-    {props.multiple && props.value?.length > 0 && (
-      <IconButton
-        disabled={props.disabled}
-        size="small"
-        onClick={handleClearAll}
-        sx={{
-          color: 'white',
-          padding: '4px',
-          marginRight: '10px',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
-        }}
-      >
-        <ClearIcon fontSize="small" />
-      </IconButton>
-    )}
-  </div>
+                            {props.showAddButton && (
+                                <IconButton
+                                    disabled={props.disabled}
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        props.onAdd && props.onAdd();
+                                    }}
+                                    sx={{
+                                        color: 'white',
+                                        padding: '4px',
+                                        marginRight: '10px',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        },
+                                        
+                                    }}
+                                >
+                                    {/* <AddIcon fontSize="small" /> */}
+                                    +
+                                </IconButton>
+                            )
+                            
+                            }
+                            {/* {props.multiple && props.value?.length > 0 && ( */}
+                            {props.value?.length > 0 && (
+                                <IconButton
+                                    disabled={props.disabled}
+                                    size="small"
+                                    onClick={handleClearAll}
+                                    sx={{
+                                        color: 'white',
+                                        padding: '4px 0px 4px 4px',
+                                        marginRight: '0px',
+                                        zIndex: 1,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        }
+                                    }}
+                                >
+                                    <ClearIcon fontSize="small" />
+                                </IconButton>
+                            )}
+                        </div>
                     }
                 >
                     <button
                         disabled={props.disabled}
                         onClick={(e) => {
-                            
+
                             e.stopPropagation();
                             setSearch('');
                             setDebouncedSearchTerm('');
@@ -282,22 +307,22 @@ const BasicSelect = (props) => {
 
                     {props.searchable && (
                         <div
-                        disabled={props.disabled}
-                        onClose={handleBlur}
-                        style={{
-                            padding: '8px',
-                            position: 'sticky',
-                            top: 0,
-                            background: 'white',
-                            zIndex: 1,
-                            borderBottom: '1px solid #444',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '8px'
-                        }}>
+                            disabled={props.disabled}
+                            onClose={handleBlur}
+                            style={{
+                                padding: '8px',
+                                position: 'sticky',
+                                top: 0,
+                                background: 'white',
+                                zIndex: 1,
+                                borderBottom: '1px solid #444',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px'
+                            }}>
 
                             <OutlinedInput
-                            disabled={props.disabled}
+                                disabled={props.disabled}
                                 inputRef={searchInputRef}
                                 fullWidth
                                 placeholder="Поиск..."
@@ -306,7 +331,7 @@ const BasicSelect = (props) => {
                                 endAdornment={
                                     search && (
                                         <button
-                                        disabled={props.disabled}
+                                            disabled={props.disabled}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setSearch('');
@@ -345,7 +370,7 @@ const BasicSelect = (props) => {
                                 size="small"
                                 onKeyDown={(e) => e.stopPropagation()}
                                 onClick={(e) => e.stopPropagation()}
-                                
+
                             />
                             {search && props.allowAdds && !filteredList.includes(search) && (
                                 <button
@@ -376,11 +401,11 @@ const BasicSelect = (props) => {
                                 value={!props.useObjects ? name : name.name}
                                 onClick={() => handleItemClick(!props.useObjects ? name : name.id, typeof name === 'string' ? name : name.name)}
                                 autoFocus={false}
-                                
+
                             >
                                 {props.multiple && <Checkbox checked={props.value?.includes(name) || false} />}
                                 <ListItemText primary={!props.useObjects ? name : name.name}
-                                renderValue={() => 'rr'} 
+                                    renderValue={() => 'rr'}
                                 />
                             </MenuItem>
                         ))
@@ -407,13 +432,16 @@ const BasicSelect = (props) => {
                         height: props.rows ? 'auto' : '3rem',
                         '& .MuiOutlinedInput-notchedOutline': {
                             borderColor: 'white',
+
                         },
                         '&:hover .MuiOutlinedInput-notchedOutline': {
                             borderColor: '#729fcf',
+
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                             borderColor: '#729fcf',
                             borderWidth: '2px',
+
                         },
                         '&.Mui-disabled': {
                             color: 'white !important',
@@ -426,33 +454,71 @@ const BasicSelect = (props) => {
                                 color: 'white !important',
                                 '-webkit-text-fill-color': 'white !important',
                                 opacity: 0.7,
+
                             },
+                        },
+                        '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                            filter: 'invert(1)',
+                            opacity: 0.7,
+                        },
+                        '& input[type="time"]::-webkit-calendar-picker-indicator': {
+                            filter: 'invert(1)',
+                            opacity: 0.7,
+                        },
+                        '& input[type="date"]::-webkit-datetime-edit': {
+                            color: 'white',
+                        },
+                        '& input[type="date"]::-webkit-datetime-edit-fields-wrapper': {
+                            color: 'white',
                         },
                     }}
                     endAdornment={
                         <div style={{ display: 'flex', alignItems: 'center', padding: '0', margin: '0' }}>
-    {props.showAddButton && (
-      <IconButton
-        disabled={props.disabled}
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          props.onAdd && props.onAdd();
-        }}
-        sx={{
-          color: 'white',
-          padding: '0px',
-          marginRight: '0px',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          }
-        }}
-      >
-        {/* <AddIcon fontSize="small" /> */}
-        +
-        
-      </IconButton>
-    )}</div>}
+                            {props.showAddButton && (
+                                <IconButton
+                                    disabled={props.disabled}
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        props.onAdd && props.onAdd();
+                                    }}
+                                    sx={{
+                                        color: 'white',
+                                        padding: '0px',
+                                        marginRight: '0px',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        }
+                                    }}
+                                >
+                                    {/* <AddIcon fontSize="small" /> */}
+                                    +
+
+                                </IconButton>
+                            )
+                                 
+                            
+                            }
+                            {props.value?.length > 0 && (
+                                <IconButton
+                                    disabled={props.disabled}
+                                    size="small"
+                                    onClick={handleClearAll}
+                                    sx={{
+                                        color: 'white',
+                                        padding: '4px 0px 4px 4px',
+                                        marginRight: '0px',
+                                        zIndex: 1,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        }
+                                    }}
+                                >
+                                    <ClearIcon fontSize="small" />
+                                </IconButton>
+                            )}
+
+                            </div>}
                 />
             )}
         </FormControl>

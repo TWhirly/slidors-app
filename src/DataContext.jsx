@@ -13,7 +13,8 @@ export const DataProvider = ({ children }) => {
     const [statuses, setStatuses] = useState([]);
     const [titles, setTitles] = useState([]);
     const [activityTypes, setActivityTypes] = useState([]);
-    const [activityPurporses, setActivityPurporses] = useState([]);
+    const [activityPurposes, setActivityPurposes] = useState([]);
+    const [namesEmails, setNamesEmails] = useState([]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
@@ -40,10 +41,11 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-            console.log('response', response.data);
+            console.log('response Name', response.data);
             setName(response.data || '');
             setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
+            setNamesEmails(response.data.userNamesMails || []);
             
         } catch (error) {
             console.error('Error fetching regions:', error);
@@ -60,12 +62,13 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-            console.log('response', response.data);
+            console.log('TS response', response.data);
             setTypes(response.data.types || []);
             setStatuses(response.data.statuses || []);
             setTitles(response.data.titles || []);
-            setActivityPurporses(response.data.activityPurporses || []);
+            setActivityPurposes(response.data.activityPurposes || []);
             setActivityTypes(response.data.activityTypes || []);
+            
         } catch (error) {
             console.error('Error fetching types and statuses:', error);
         }
@@ -83,7 +86,7 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-
+    console.log(activityPurposes, 'activityPurposes')
     return (
         <DataContext.Provider value={{
             loading,
@@ -95,7 +98,8 @@ export const DataProvider = ({ children }) => {
             titles,
             statuses,
             activityTypes,
-            activityPurporses,
+            activityPurposes,
+            namesEmails
             
         }}>
             {children}

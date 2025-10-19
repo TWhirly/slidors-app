@@ -7,6 +7,7 @@ export const getEmptyActivity = (email) => {
               id: uuidv4(), // Generates UUID v4
               new: true,
               companyName: '',
+              companyId: '',
               contactId: '',
               contactEmail: '',
               dateOfSale: '',
@@ -18,7 +19,7 @@ export const getEmptyActivity = (email) => {
               manager: email || '',
               plan: '',
               planTime: '',
-              purpose: '',
+              purpose: 'Проработка',
               region: '',
               responsible: '',
               sale: 0,
@@ -28,3 +29,14 @@ export const getEmptyActivity = (email) => {
               'subscribed?': '',
               type: ''
           })};
+
+export const getCompanyNames = (company) => company.map((item) => item.name);
+
+const statusAnswers = ['Да', 'Работали раньше', 'Нет, но хотят', 'Нет, и не хотят']
+const advAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, не хотят', 'Да, хотят еще']
+const sampleAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, не хотят', 'Да, хотят еще']
+const eduAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, не хотят', 'Да, хотят еще']
+const subscribeAnswers = ['Нет, не хотят', 'Подписать', 'Подписаны', 'Удалить компанию', 'Нет мобильного']
+
+export const answers = {status: statusAnswers, 'haveAdv?': advAnswers, 'haveSample?': sampleAnswers, 'haveTrainig?': eduAnswers, 'subscribed?': subscribeAnswers}
+

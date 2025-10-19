@@ -37,7 +37,7 @@ const ActivityDetails = () => {
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const { activity: activities, isLoading } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
-  const { email } = useContext(DataContext)
+  const { namesEmails } = useContext(DataContext)
   // const getEmptyActivity = require('./ActivityDetails.jsx')
 
   tg.BackButton.isVisible = true
@@ -259,7 +259,7 @@ const ActivityDetails = () => {
             </div>
         )}
 
-        {activity.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div><div className={styles.companyDescriptionRowVal}>{activity.description}</div></div>)}
+        {activity.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Описание:</div></div><div className={styles.companyDescriptionRowVal}>{activity.description}</div></div>)}
         {activity.responsible && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Ответственный:</div><div className={styles.companyRowVal}>{activity.responsible}</div></div>)}
         {activity.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{activity.manager}</div></div>)}
             </div>
