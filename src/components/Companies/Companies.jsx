@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Companies.module.css';
@@ -11,16 +11,22 @@ import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
+import { useScrollMemory } from '../../hooks/useScrollMemory.js';
 import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 
 const Companies = () => {
+    
+    console.log('scrollMemory', sessionStorage.getItem(`scroll-companies`));
+
     const queryClient = useQueryClient();
     const { regions: contextRegions } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
+    const containerRef = useRef(null)
+    const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-
+   const scrollContainerRef = useScrollMemory('companies');
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
@@ -37,8 +43,15 @@ const Companies = () => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
+            
         }
     }, []);
+
+     useEffect(() => {
+    if (containerRef.current && location.state?.scrollPosition) {
+      containerRef.current.scrollTop = location.state.scrollPosition;
+    }
+  }, [location.state]);
 
     const handleRegionClick = async (regionId) => {
         if (selectedRegion === regionId) {
@@ -50,6 +63,8 @@ const Companies = () => {
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId);
     };
+
+    
 
     const getStatusColor = (status) => {
         if (status.toLowerCase().includes('уточнить'))
@@ -113,7 +128,8 @@ const Companies = () => {
 
     const handleSelectCompany = (company) => {
         navigate(`/companies/${company.id}`, {
-            state: {companyId: company.id, path: '/companies'}, replace: true
+            state: {companyId: company.id, path: '/companies'}
+            //, replace: true
         });
     };
 
@@ -166,6 +182,7 @@ const Companies = () => {
     
     console.log('regionsWithCompanies', regionsWithCompanies);
     // queryClient.invalidateQueries({ queryKey: ['regions'] })
+    // const containerRef = useScrollMemory('companies');
 
     if (isLoading) {
         return (
@@ -186,7 +203,8 @@ const Companies = () => {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+        >
             <div
                 className={styles.naviPanel}
                 onClick={collapseRegion}
@@ -221,9 +239,11 @@ const Companies = () => {
                     )) : ''}
                 </AvatarGroup>
             </div>
-            <div className={styles.allRegions}>
+            <div 
+            // ref={scrollContainerRef}
+            className={styles.allRegions}>
                 {regionsWithCompanies?.map((region) => (
-                    <div key={region.region} className={styles.regionContainer}>
+                    <div key={region.region} className={styles.regionContainer}  >
                         <button
                             onClick={() => handleRegionClick(region.region)}
                             className={styles.regionButton}
@@ -238,7 +258,7 @@ const Companies = () => {
                             </span>
                         </button>
                         {selectedRegion === region.region && (
-                            <div className={styles.dataGridContainer}>
+                            <div  className={styles.dataGridContainer}>
                                 {region.companies?.map((company) => (
                                     <div key={company.id} className={styles.companyItem}>
                                         <div className={styles.companyInfo}>

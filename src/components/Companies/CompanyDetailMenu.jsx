@@ -7,7 +7,8 @@ import styles from './CompanyDetails.module.css';
 
 const options = [
   'Редактировать',
-  'Добавить контакт'
+  'Добавить контакт',
+  'Добавить событие',
 ];
 
 const ITEM_HEIGHT = 48;

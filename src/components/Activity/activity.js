@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export const getEmptyActivity = (email) => {
+export const getEmptyActivity = (email, companyId = '', companyName = '', region = '', city = '') => {
     return(
     {
     
               id: uuidv4(), // Generates UUID v4
               new: true,
-              companyName: '',
-              companyId: '',
+              companyName: companyName,
+              companyId: companyId,
               contactId: '',
               contactEmail: '',
               dateOfSale: '',
@@ -18,9 +18,10 @@ export const getEmptyActivity = (email) => {
               'haveTrainig?': '',
               manager: email || '',
               plan: '',
+              city: city,
               planTime: '',
               purpose: 'Проработка',
-              region: '',
+              region: region,
               responsible: '',
               sale: 0,
               saleDescription: '',

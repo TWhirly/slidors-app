@@ -17,7 +17,7 @@ function ContactDetails() {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: {contactId: id ,  path , activityId } } = useLocation();
+  const { state: {contactId: id ,  path = '/contacts' , activityId } } = useLocation();
   const [contact, setContact] = useState({});
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -90,7 +90,7 @@ function ContactDetails() {
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
      tg.BackButton.onClick(() => navigate(path || '/contacts/', 
-        {state: {companyId : contact.companyId, contactId: contact.id, activityId}},  { replace: true }));
+        {state: {companyId : contact.companyId, contactId: contact.id, activityId}}));
     };
 
     initializeBackButton();
@@ -98,7 +98,7 @@ function ContactDetails() {
     return () => {
       tg.BackButton.offClick();
     };
-  }, [activityId, contact.companyId, contact.id, contact.path, contact.prevComponent, navigate, path, tg]);
+  }, [activityId, contact.companyId, contact.id, navigate, path, tg]);
 
   // console.log('company', company);
 
@@ -107,7 +107,7 @@ function ContactDetails() {
       navigate(`/contacts/${contact.id}/edit`, {
             state: {...contact,
             path: `/contacts/${id}`, prevComponent : contact, new: false, contactId: contact.id},
-            replace: true
+            
         });
     }
   };

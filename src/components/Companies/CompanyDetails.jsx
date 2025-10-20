@@ -13,12 +13,13 @@ import { useNotification } from '../../components/notifications/NotificationCont
 import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
+import { getEmptyActivity } from '../Activity/activity.js';
 
 const CompanyDetails = () => {
 
   
   const navigate = useNavigate();
-  const { state: { companyId: id , path} } = useLocation();
+  const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
@@ -38,8 +39,8 @@ const CompanyDetails = () => {
   const { regionsWithCompanies, contactsLoadingError } = useRegions(chat_id)
   const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
   const { email } = useContext(DataContext)
-  tg.BackButton.isVisible = true
-  console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
+  // tg.BackButton.isVisible = true
+  // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
     useEffect(() => {
     if (regionsWithCompanies) {
      const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -93,22 +94,26 @@ const CompanyDetails = () => {
   
 
   useEffect(() => {
-    const initializeBackButton = () => {
-      if (!tg) return;
-      console.log('back button init', path)
-      tg.ready(); // Ensure Telegram WebApp is fully initialized
-      tg.BackButton.isVisible = true;
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(path || '/companies/', 
-         { replace: true }));
-    };
+        const initBackButton = () => {
+            if (!tg) return;
 
-    initializeBackButton();
+            tg.ready();
+            tg.BackButton.isVisible = true;
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                // ✅ Используем returnPath из location.state
+                navigate('/companies');
+            });
+        };
 
-    return () => {
-      tg.BackButton.offClick();
-    };
-  }, [navigate, path, tg]);
+        initBackButton();
+        
+        return () => {
+            if (tg) {
+                tg.BackButton.offClick();
+            }
+        };
+    }, [navigate, returnPath, tg]);
 
   // console.log('company', company);
 
@@ -141,6 +146,10 @@ const CompanyDetails = () => {
       navigate(`/contacts/new/edit`, { state: {...emptyContact, path: `/companies/${id}`, prevComponent : company, companyId: id} });
              
     }
+
+    if (selectedOption === 'Добавить событие') {
+      navigate(`/activities/new/edit`, { state: getEmptyActivity(email, id, company.name, company.region, company.city), path: `/companies/${id}`, prevComponent : company} );
+    }
   };
 
    const handleSelectContact = (contact) => {
@@ -148,7 +157,7 @@ const CompanyDetails = () => {
          navigate(`/contacts/${contact.id}`, {
             state: {contactId: contact.id, companyId: id,
             path: `/companies/${id}`, prevComponent : company}
-        },  { replace:  true});
+        });
             };
 
   const formatNumber = (number) => {
