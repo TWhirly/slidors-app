@@ -26,7 +26,7 @@
     max-width: 100%;
     margin-top: 2.9rem;
     padding: 5px 8px 2px 25px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 .allRegions2 {

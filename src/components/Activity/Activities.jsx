@@ -268,7 +268,7 @@ const Activities = () => {
              <div className={styles.filterCountPanel}
              onClick={() =>activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
              >
-                    {activeFiltersCount === 0 ? "Все" : `✕`}
+                    {activeFiltersCount === 0 ? "ㅤ" : `✕`}
                 </div>
             
           </div>

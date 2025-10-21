@@ -102,7 +102,7 @@ const CompanyDetails = () => {
             tg.BackButton.show();
             tg.BackButton.onClick(() => {
                 // ✅ Используем returnPath из location.state
-                navigate('/companies');
+                navigate('/companies',  { state: {companyId: id} });
             });
         };
 
@@ -148,7 +148,8 @@ const CompanyDetails = () => {
     }
 
     if (selectedOption === 'Добавить событие') {
-      navigate(`/activities/new/edit`, { state: getEmptyActivity(email, id, company.name, company.region, company.city), path: `/companies/${id}`, prevComponent : company} );
+      const emptyActivity = getEmptyActivity(email, id, company.name, company.region, company.city)
+      navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/companies/${id}`, prevComponent : company}} );
     }
   };
 

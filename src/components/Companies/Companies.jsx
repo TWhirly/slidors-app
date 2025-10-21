@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
+import { Element } from 'react-scroll';
+import { scroller } from 'react-scroll';
 import styles from './Companies.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
 import Avatar from '@mui/material/Avatar';
@@ -11,30 +12,47 @@ import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
-import { useScrollMemory } from '../../hooks/useScrollMemory.js';
+// import { useScrollMemory } from '../../hooks/useScrollMemory.js';
 import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
+import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 
 const Companies = () => {
-    
-    console.log('scrollMemory', sessionStorage.getItem(`scroll-companies`));
 
+    const { email } = useContext(DataContext);
     const queryClient = useQueryClient();
     const { regions: contextRegions } = useContext(DataContext);
-    const { email } = useContext(DataContext);
     const navigate = useNavigate();
     const containerRef = useRef(null)
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-   const scrollContainerRef = useScrollMemory('companies');
+    // const scrollContainerRef = useScrollMemory('companies');
     const tg = window.Telegram.WebApp;
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
     const chat_id = user.id;
-    
+
+    const id = location.state?.companyId || null
+
     tg.BackButton.show();
-    console.log(email, 'email');
-    
+
+    const scrollToSection = (sectionId, offset) => {
+        const element = document.getElementById(sectionId);
+        if (!element) {
+            console.error(`Элемент с id=${sectionId} не найден`);
+            return;
+        }
+
+        const elementPosition = element.getBoundingClientRect().top;
+        const scrollTop = window.pageYOffset || window.scrollY;
+        const offsetPosition = elementPosition + scrollTop - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            // behavior: 'smooth'
+        });
+    };
+
     // Используем хук useRegions
     const { regionsWithCompanies, isLoading, error } = useRegions(chat_id);
 
@@ -43,15 +61,9 @@ const Companies = () => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
-            
+
         }
     }, []);
-
-     useEffect(() => {
-    if (containerRef.current && location.state?.scrollPosition) {
-      containerRef.current.scrollTop = location.state.scrollPosition;
-    }
-  }, [location.state]);
 
     const handleRegionClick = async (regionId) => {
         if (selectedRegion === regionId) {
@@ -59,76 +71,14 @@ const Companies = () => {
             sessionStorage.removeItem('selectedRegion');
             return;
         }
-      
+        console.log('regionId', regionId);
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId);
     };
 
-    
-
-    const getStatusColor = (status) => {
-        if (status.toLowerCase().includes('уточнить'))
-            return 'orange';
-        switch (status?.toLowerCase()) {
-            case 'работает':
-                return 'lightgreen';
-            case 'не работает':
-                return 'var(--hintColor, #888)';
-            case 'уточнить тел.':
-                return 'orange';
-            default:
-                return 'var(--hintColor, #888)';
-        }
-    };
-
-    const getCompanyTypeIcon = (type) => {
-        switch (type?.toLowerCase()) {
-            case 'переработчик':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
-                        alt="переработчик"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дистрибьютор':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
-                        alt="дистрибьютор"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'дилер':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
-                        alt="Дилер"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'смешанный':
-                return (
-                    <img
-                        src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
-                        alt="Смешанный"
-                        fill="#008ad1"
-                        className={styles.factoryIcon}
-                    />
-                );
-            case 'избранный':
-                return <YellowStarIcon className={styles.factoryIcon} />;
-            default:
-                return <></>;
-        }
-    };
-
     const handleSelectCompany = (company) => {
         navigate(`/companies/${company.id}`, {
-            state: {companyId: company.id, path: '/companies'}
+            state: { companyId: company.id, path: '/companies' }
             //, replace: true
         });
     };
@@ -138,32 +88,8 @@ const Companies = () => {
         sessionStorage.removeItem('selectedRegion');
     };
 
-    const getEmptyCompany = (selectedRegion = '') => ({
-        id: uuidv4(),
-        name: '',
-        type: '',
-        status: '',
-        city: '',
-        address: '',
-        region: selectedRegion,
-        description: '',
-        phone1: '',
-        phone2: '',
-        manager: email,
-        whatsapp: '',
-        telegram: '',
-        recyclers: [],
-        tt: '',
-        dealers: '',
-        url: '',
-        logo: '',
-        firm: '',
-        emails: [{id: uuidv4(), mail: ''}],
-        new: true
-    });
-
     const handleAddCompany = () => {
-        const emptyCompany = getEmptyCompany(selectedRegion || '');
+        const emptyCompany = getEmptyCompany(selectedRegion || '', email);
         navigate(`/companies/new/edit`, { state: emptyCompany });
     };
 
@@ -171,18 +97,22 @@ const Companies = () => {
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-
-        // tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
-
         return () => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
-    
+
     console.log('regionsWithCompanies', regionsWithCompanies);
-    // queryClient.invalidateQueries({ queryKey: ['regions'] })
     // const containerRef = useScrollMemory('companies');
+    useEffect(() => {
+        // if (!id) return;
+        // const encodedId = `region-${encodeURIComponent(targetRegion)}`;
+        const timer = setTimeout(() => {
+            scrollToSection(id, 35);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [id, regionsWithCompanies]);
 
     if (isLoading) {
         return (
@@ -226,10 +156,10 @@ const Companies = () => {
                 >
                     <AddIcon />
                 </IconButton>
-                <AvatarGroup 
-                    max={5} 
-                    direction="row" 
-                    spacing={10} 
+                <AvatarGroup
+                    max={5}
+                    direction="row"
+                    spacing={10}
                     sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
                 >
                     {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
@@ -239,11 +169,16 @@ const Companies = () => {
                     )) : ''}
                 </AvatarGroup>
             </div>
-            <div 
-            // ref={scrollContainerRef}
-            className={styles.allRegions}>
+            <div
+                id='regionsWithCompanies'
+                className={styles.allRegions}>
                 {regionsWithCompanies?.map((region) => (
-                    <div key={region.region} className={styles.regionContainer}  >
+                    <Element
+                        key={region.region}
+                        className={styles.regionContainer}
+                        name={region.region}
+                        id={`region-${encodeURIComponent(region.region)}`}
+                    >
                         <button
                             onClick={() => handleRegionClick(region.region)}
                             className={styles.regionButton}
@@ -258,9 +193,14 @@ const Companies = () => {
                             </span>
                         </button>
                         {selectedRegion === region.region && (
-                            <div  className={styles.dataGridContainer}>
+                            <div className={styles.dataGridContainer}>
                                 {region.companies?.map((company) => (
-                                    <div key={company.id} className={styles.companyItem}>
+                                    <Element
+                                        key={company.id}
+                                        className={styles.companyItem}
+                                        name={company.id}
+                                        id={company.id}
+                                    >
                                         <div className={styles.companyInfo}>
                                             <div className={styles.nameAndIcon}>
                                                 <div
@@ -276,7 +216,7 @@ const Companies = () => {
                                             <div className={styles.checksContainer}>
                                                 <div>
                                                     {company.handled !== 0 && <img
-                                                        src={require('../../icons/checkedRed.png')}
+                                                        src={checkIcons.red}
                                                         alt="переработчик"
                                                         fill="#008ad1"
                                                         className={styles.checkIcon}
@@ -284,7 +224,7 @@ const Companies = () => {
                                                 </div>
                                                 <div>
                                                     {company.wa !== 0 && <img
-                                                        src={require('../../icons/checkedGreen.png')}
+                                                        src={checkIcons.green}
                                                         alt="переработчик"
                                                         fill="#008ad1"
                                                         className={styles.checkIcon}
@@ -292,7 +232,7 @@ const Companies = () => {
                                                 </div>
                                                 <div>
                                                     {company.tg !== 0 && <img
-                                                        src={require('../../icons/checkedBlue.png')}
+                                                        src={checkIcons.blue}
                                                         alt="переработчик"
                                                         fill="#008ad1"
                                                         className={styles.checkIcon}
@@ -309,11 +249,11 @@ const Companies = () => {
                                         >
                                             {company.status || 'Неизвестно'}
                                         </div>
-                                    </div>
+                                    </Element>
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </Element>
                 ))}
             </div>
         </div>

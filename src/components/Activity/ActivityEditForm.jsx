@@ -15,7 +15,8 @@ import { useEmail } from '../../hooks/useEmail.js';
 import { set } from 'lodash';
 import { answers } from './activity.js';
 const ActivityEditForm = () => {
-    const { state: activity } = useLocation();
+    const { state: activity, path } = useLocation();
+    // const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity });
@@ -38,7 +39,8 @@ const ActivityEditForm = () => {
     const tg = tgRef.current;
     const id = activity.id;
 
-    console.log('regionsWithCompanies', regionsWithCompanies);
+    console.log('path', activity.path);
+    console.log('activity', activity);
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
@@ -48,11 +50,9 @@ const ActivityEditForm = () => {
             tg.BackButton.show();
             tg.BackButton.onClick(() => {
                 // Return to list if company.new === true (new company) or to details if editing
-                if (activity?.new) {
-                    navigate('/activities');
-                } else {
-                    navigate(activity.path || `/activity/${activity.id}`, { state: { activityId: id } });
-                }
+               
+                    navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
+                
             });
         };
 

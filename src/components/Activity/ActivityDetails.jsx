@@ -90,7 +90,7 @@ const ActivityDetails = () => {
    
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/activities/${activity.id}/edit`, { state: { ...activity, new: false } });
+      navigate(`/activities/${activity.id}/edit`, { state: { ...activity, path: `/activities/${activity.id}`,new: false } });
     }
     // if (selectedOption === 'Добавить контакт') {
       
@@ -207,7 +207,7 @@ const ActivityDetails = () => {
            navigate(`/contacts/${contact.id}`, {
               state: {contactId: contact.id, companyId: activity.companyId, activityId: id,
               path: `/activities/${id}`, prevComponent : activity}
-          },  { replace:  true});
+          });
               };
 
   console.log('activity', activity)
