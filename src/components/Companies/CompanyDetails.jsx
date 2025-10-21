@@ -14,6 +14,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
 import { getEmptyActivity } from '../Activity/activity.js';
+import { getContactIcons , formatNumber} from './Companies-helpers.js'
 
 const CompanyDetails = () => {
 
@@ -161,16 +162,7 @@ const CompanyDetails = () => {
         });
             };
 
-  const formatNumber = (number) => {
-    const cleanNumber = number.replace(/\D/g, '');
-    if (cleanNumber.startsWith('8')) {
-      return '7' + cleanNumber.slice(1);
-    }
-    if (cleanNumber.startsWith('7')) {
-      return cleanNumber;
-    }
-    return '7' + cleanNumber;
-  };
+  
 
 
   const formatUrl = (url) => {
@@ -187,61 +179,7 @@ const CompanyDetails = () => {
     return formattedUrl;
   };
 
-  const getContactIcons = (contact) => {
-    const icons = [];
-    if (contact.phone1) {
-      icons.push(
-        <img
-          key="phone1"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone1}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.phone2) {
-      icons.push(
-        <img
-          key="phone2"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone2}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.whatsapp) {
-      icons.push(
-        <img
-          key="whatsapp"
-          src={whatsappIcon}
-          className={styles.contactPhone}
-          alt="WhatsApp icon"
-          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-
-    if (contact.telegram) {
-      icons.push(
-        <img
-          key="telegram"
-          src={telegramIcon}
-          className={styles.contactPhone}
-          alt="Telegram icon"
-          onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
-          style={{ cursor: 'pointer' }}
-        />
-      );
-    }
-    return icons;
-  }
+ 
 
 
   const getCompanyTypeIcon = (type) => {

@@ -6,14 +6,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
+import Skeleton from '@mui/material/Skeleton';
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
+import { useContacts } from '../../hooks/useContacts.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEmail } from '../../hooks/useEmail.js';
 import { set } from 'lodash';
 import { answers } from './activity.js';
+import { getContactIcons } from '../Companies/Companies-helpers.js'
 const ActivityEditForm = () => {
     const { state: activity, path } = useLocation();
     // const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
@@ -32,12 +35,14 @@ const ActivityEditForm = () => {
     const [companies, setCompanies] = useState([]);
     const [isElobaration, setIsElobaration] = useState(false);
     const [isPlanned, setIsPlanned] = useState(false);
+    const [contacts, setContacts] = useState([])
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = activity.id;
+    const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
 
     console.log('path', activity.path);
     console.log('activity', activity);
@@ -66,6 +71,20 @@ const ActivityEditForm = () => {
 
         };
     }, [activity, id, navigate, tg]);
+
+    useEffect(() => {
+        if (regionsWithContacts) {
+          const contacts = regionsWithContacts.reduce((acc, region) => {
+            region.contacts.forEach((contact) => {
+              if (contact.companyId === formData.companyId) {
+                acc.push(contact);
+              }
+            });
+            return acc;
+          }, [])
+          setContacts(contacts)
+        }
+      }, [formData.companyId, id, regionsWithContacts]);
 
     useEffect(() => {
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
@@ -242,6 +261,25 @@ const ActivityEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, companyName: value, companyId: companies?.find(item => item.name === value)?.id || ''}))}
                     label="Компания"
                 />
+
+                 {isContactsLoading ? (
+          <>
+            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+            
+          </>
+        ) : (
+          <div className={styles.contactsContainer}>
+           
+            {contacts?.length > 0 ? (contacts?.map((contact, index) => (
+              <div key={index} className={styles.contactPerson} >
+                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
+                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
+                <div className={styles.contactEmail}>{contact.email}</div>
+              </div>
+            ))) : 'нет'}
+          </div>
+        )
+        }
 
                 <BasicSelect
                     className={styles.formGroup}

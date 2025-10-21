@@ -2,6 +2,12 @@ import styles from './Companies.module.css'
 import { YellowStarIcon } from '../../icons/SVG';
 import { v4 as uuidv4 } from 'uuid';
 
+const tg = window.Telegram.WebApp;
+const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
+  const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
+  const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
+  const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
+
 export const checkIcons = {
     red: require('../../icons/checkedRed.png'),
     green: require('../../icons/checkedGreen.png'),
@@ -91,3 +97,70 @@ export const getEmptyCompany = (selectedRegion = '', email) => ({
         emails: [{id: uuidv4(), mail: ''}],
         new: true
     });
+
+export  const getContactIcons = (contact) => {
+    const icons = [];
+    if (contact.phone1) {
+      icons.push(
+        <img
+          key="phone1"
+          src={phoneIcon}
+          className={styles.contactPhone}
+          alt="Phone icon"
+          onClick={() => window.location.href = `tel:${contact.phone1}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+
+    if (contact.phone2) {
+      icons.push(
+        <img
+          key="phone2"
+          src={phoneIcon}
+          className={styles.contactPhone}
+          alt="Phone icon"
+          onClick={() => window.location.href = `tel:${contact.phone2}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+
+    if (contact.whatsapp) {
+      icons.push(
+        <img
+          key="whatsapp"
+          src={whatsappIcon}
+          className={styles.contactPhone}
+          alt="WhatsApp icon"
+          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+
+    if (contact.telegram) {
+      icons.push(
+        <img
+          key="telegram"
+          src={telegramIcon}
+          className={styles.contactPhone}
+          alt="Telegram icon"
+          onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
+          style={{ cursor: 'pointer' }}
+        />
+      );
+    }
+    return icons;
+  }
+
+  export const formatNumber = (number) => {
+    const cleanNumber = number.replace(/\D/g, '');
+    if (cleanNumber.startsWith('8')) {
+      return '7' + cleanNumber.slice(1);
+    }
+    if (cleanNumber.startsWith('7')) {
+      return cleanNumber;
+    }
+    return '7' + cleanNumber;
+  };
