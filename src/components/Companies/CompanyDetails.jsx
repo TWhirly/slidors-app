@@ -114,7 +114,7 @@ const CompanyDetails = () => {
                 tg.BackButton.offClick();
             }
         };
-    }, [navigate, returnPath, tg]);
+    }, [id, navigate, returnPath, tg]);
 
   // console.log('company', company);
 
