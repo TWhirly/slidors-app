@@ -262,5 +262,12 @@
      gap: 1rem;
 }
 
+.companyContactsActivity{
+    display: flex;
+   flex-direction: column;
+    gap: 0rem;
+    padding: 0;
+}
+
 /* Пример ховера для масштабирования */
 

@@ -17,6 +17,9 @@ import { useEmail } from '../../hooks/useEmail.js';
 import { set } from 'lodash';
 import { answers } from './activity.js';
 import { getContactIcons } from '../Companies/Companies-helpers.js'
+import CompanyContacts from '../Companies/CompanyContacts.jsx'
+import CompanyMainContacts from '../Companies/CompanyMainContacts.jsx';
+
 const ActivityEditForm = () => {
     const { state: activity, path } = useLocation();
     // const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
@@ -35,6 +38,7 @@ const ActivityEditForm = () => {
     const [companies, setCompanies] = useState([]);
     const [isElobaration, setIsElobaration] = useState(false);
     const [isPlanned, setIsPlanned] = useState(false);
+    const [company, setCompany] = useState({id: null})
     const [contacts, setContacts] = useState([])
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
@@ -44,7 +48,7 @@ const ActivityEditForm = () => {
     const id = activity.id;
     const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
 
-    console.log('path', activity.path);
+    console.log('regionsWithCompanies', regionsWithCompanies);
     console.log('activity', activity);
     useEffect(() => {
         const initBackButton = () => {
@@ -152,6 +156,19 @@ const ActivityEditForm = () => {
     },[cities, formData.city, formData.region, regionsWithCompanies])
 
     useEffect(() => {
+        const currentFormData = formData;
+        if (currentFormData.region && currentFormData && currentFormData.companyId) {
+            const company = regionsWithCompanies.find(item => item.region === formData.region)
+            .companies?.find(item => item.id === formData.companyId)
+            setCompany(company)
+           
+        }
+        else {
+            setCompany({id: null})
+        }
+    },[formData, formData.companyId, formData.region, regionsWithCompanies])
+
+    useEffect(() => {
         setIsElobaration(formData.purpose === 'Проработка');
     }, [formData.purpose]);
 
@@ -219,7 +236,7 @@ const ActivityEditForm = () => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('companies', companies);
+    console.log('company', company);
     console.log('formData', formData);
 
     return (
@@ -261,25 +278,20 @@ const ActivityEditForm = () => {
                     onChange={(value) => setFormData(prev => ({ ...prev, companyName: value, companyId: companies?.find(item => item.name === value)?.id || ''}))}
                     label="Компания"
                 />
+                <CompanyMainContacts
+                company={company}
+                >
 
-                 {isContactsLoading ? (
-          <>
-            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-            
-          </>
-        ) : (
-          <div className={styles.contactsContainer}>
-           
-            {contacts?.length > 0 ? (contacts?.map((contact, index) => (
-              <div key={index} className={styles.contactPerson} >
-                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
-                <div className={styles.contactEmail}>{contact.email}</div>
-              </div>
-            ))) : 'нет'}
-          </div>
-        )
-        }
+                </CompanyMainContacts>
+
+                <CompanyContacts
+                activity
+                className={styles.companyContactsActivity}
+                id={company.id || ''}
+                chat_id={chat_id}
+                >
+
+                </CompanyContacts>
 
                 <BasicSelect
                     className={styles.formGroup}

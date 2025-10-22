@@ -14,6 +14,8 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
 import { getEmptyActivity } from '../Activity/activity.js';
+import  CompanyСontacts  from './CompanyContacts.jsx'
+import CompanyMainContacts from './CompanyMainContacts.jsx'
 import { getContactIcons , formatNumber} from './Companies-helpers.js'
 
 const CompanyDetails = () => {
@@ -29,9 +31,7 @@ const CompanyDetails = () => {
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
-  const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
-  const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
-  const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
+  
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
@@ -50,19 +50,7 @@ const CompanyDetails = () => {
     }
   }, [regionsWithCompanies, id]);
 
-  useEffect(() => {
-    if (regionsWithContacts) {
-      const contacts = regionsWithContacts.reduce((acc, region) => {
-        region.contacts.forEach((contact) => {
-          if (contact.companyId === id) {
-            acc.push(contact);
-          }
-        });
-        return acc;
-      }, [])
-      setContacts(contacts)
-    }
-  }, [id, regionsWithContacts]);
+  
 
   const fetchActivity = async () => {
     console.log('fecthActivity')
@@ -253,86 +241,20 @@ const CompanyDetails = () => {
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
-        {company.phone1 && (
-          <div
-            className={styles.companyMainContacts}
-            onClick={() => window.location.href = `tel:${company.phone1}`}
-            style={{ cursor: 'pointer' }}
-          >
-            <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-            <div className={styles.companyRowVal}>{company.phone1}</div>
-          </div>
-        )}
-        {company.phone2 && (<div className={styles.companyMainContacts}
-          onClick={() => window.location.href = `tel:${company.phone2}`}
-          style={{ cursor: 'pointer' }}
-        > <img src={phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-          <div className={styles.companyRowVal}>{company.phone2}</div></div>)}
-        {company.whatsapp && (
 
-          <div
-            className={styles.companyMainContacts}
-            // onClick={() => window.location.href = `https://wa.me/+79216146100`}
-            // onClick={() => window.location.href = `whatsapp://send?phone=+79216146100`}
-            onClick={() => tg.openLink(`https://wa.me/${formatNumber(company.whatsapp)}`)}
-            style={{ cursor: 'pointer' }}
+          <CompanyMainContacts
+          company={company}
           >
-            <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
-            <div className={styles.companyRowVal}>{company.whatsapp}</div>
-            <div>
-              {company.wa !== 0 && (
-                <img
-                  src={require('../../icons/checkedRed.png')}
-                  alt="переработчик"
-                  fill="#008ad1"
-                  className={styles.checkIcon}
-                />
-              )}
-            </div>
-          </div>
+          </CompanyMainContacts>
 
-
-        )}
-        {company.telegram && (
-          <div className={styles.companyMainContacts}
-            onClick={() => window.location.href = `https://t.me/${formatNumber(company.telegram)}`}
-            style={{ cursor: 'pointer' }}
+          <CompanyСontacts
+          chat_id={chat_id}
+          id={id}
+          onClick={(contact) => {handleSelectContact(contact)}}
           >
-            <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" />
-            <div className={styles.companyRowVal}>{company.telegram}</div>
-            <div>
-              {company.tg !== 0 && (
-                <img
-                  src={require('../../icons/checkedRed.png')}
-                  alt="переработчик"
-                  fill="#008ad1"
-                  className={styles.checkIcon}
-                />
-              )}
-            </div>
-          </div>)}
-         <div className={styles.companyRowInfo}>
-            <div className={styles.companyRowHeader}>
-              Контакты</div>{contacts && contacts?.length > 0 && <div className={styles.companyRowHeader}>{contacts?.length > 0 ? `\u00A0(${contacts?.length}):` : ':'}</div>}
-            </div>
-        {isContactsLoading ? (
-          <>
-            <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-            
-          </>
-        ) : (
-          <div className={styles.contactsContainer}>
-           
-            {contacts?.length > 0 ? (contacts?.map((contact, index) => (
-              <div key={index} className={styles.contactPerson} onClick={() => handleSelectContact(contact)}>
-                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
-                <div className={styles.contactEmail}>{contact.email}</div>
-              </div>
-            ))) : 'нет'}
-          </div>
-        )
-        }
+
+          </CompanyСontacts>
+       
 
         <div className={styles.contactsMails}><div className={styles.companyRowHeader}><div className={styles.companyRowInfo}>
           Адреса электронной почты
