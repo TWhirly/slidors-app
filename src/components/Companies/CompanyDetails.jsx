@@ -14,13 +14,13 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { replace } from 'lodash';
 import { getEmptyActivity } from '../Activity/activity.js';
-import  CompanyСontacts  from './CompanyContacts.jsx'
+import CompanyСontacts from './CompanyContacts.jsx'
 import CompanyMainContacts from './CompanyMainContacts.jsx'
-import { getContactIcons , formatNumber} from './Companies-helpers.js'
+import { getContactIcons, formatNumber } from './Companies-helpers.js'
 
 const CompanyDetails = () => {
 
-  
+
   const navigate = useNavigate();
   const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
@@ -31,7 +31,7 @@ const CompanyDetails = () => {
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
-  
+
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
@@ -42,15 +42,15 @@ const CompanyDetails = () => {
   const { email } = useContext(DataContext)
   // tg.BackButton.isVisible = true
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-    useEffect(() => {
+  useEffect(() => {
     if (regionsWithCompanies) {
-     const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
-     setCompany(company)
-     
+      const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
+      setCompany(company)
+
     }
   }, [regionsWithCompanies, id]);
 
-  
+
 
   const fetchActivity = async () => {
     console.log('fecthActivity')
@@ -71,38 +71,38 @@ const CompanyDetails = () => {
     return fetchedActivity;
   };
 
-  
 
-   const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
+
+  const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
     queryKey: ['activity' + id],
     queryFn: fetchActivity,
     staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
     refetchInterval: 600000, // Refetch data every 600 seconds in the background
   });
 
-  
+
 
   useEffect(() => {
-        const initBackButton = () => {
-            if (!tg) return;
+    const initBackButton = () => {
+      if (!tg) return;
 
-            tg.ready();
-            tg.BackButton.isVisible = true;
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                // ✅ Используем returnPath из location.state
-                navigate('/companies',  { state: {companyId: id} });
-            });
-        };
+      tg.ready();
+      tg.BackButton.isVisible = true;
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+        // ✅ Используем returnPath из location.state
+        navigate('/companies', { state: { companyId: id } });
+      });
+    };
 
-        initBackButton();
-        
-        return () => {
-            if (tg) {
-                tg.BackButton.offClick();
-            }
-        };
-    }, [id, navigate, returnPath, tg]);
+    initBackButton();
+
+    return () => {
+      if (tg) {
+        tg.BackButton.offClick();
+      }
+    };
+  }, [id, navigate, returnPath, tg]);
 
   // console.log('company', company);
 
@@ -112,45 +112,47 @@ const CompanyDetails = () => {
     }
     if (selectedOption === 'Добавить контакт') {
       const getEmptyContact = (selectedRegion = '') => ({
-              id: uuidv4(), // Generates UUID v4
-              firstName: '',
-              lastName: '',
-              surname: '',
-              companyId: id,
-              companyName: company.name,
-              title: '',
-              region: selectedRegion,
-              phone1: '',
-              phone2: '',
-              manager: email.mail || '',
-              whatsapp: '',
-              telegram: '',
-              note: '',
-              emails: [{id: uuidv4(), mail: ''}],
-              new: true
-              
-          });
-          const emptyContact = getEmptyContact(company.region);
-      
-      navigate(`/contacts/new/edit`, { state: {...emptyContact, path: `/companies/${id}`, prevComponent : company, companyId: id} });
-             
+        id: uuidv4(), // Generates UUID v4
+        firstName: '',
+        lastName: '',
+        surname: '',
+        companyId: id,
+        companyName: company.name,
+        title: '',
+        region: selectedRegion,
+        phone1: '',
+        phone2: '',
+        manager: email.mail || '',
+        whatsapp: '',
+        telegram: '',
+        note: '',
+        emails: [{ id: uuidv4(), mail: '' }],
+        new: true
+
+      });
+      const emptyContact = getEmptyContact(company.region);
+
+      navigate(`/contacts/new/edit`, { state: { ...emptyContact, path: `/companies/${id}`, prevComponent: company, companyId: id } });
+
     }
 
     if (selectedOption === 'Добавить событие') {
       const emptyActivity = getEmptyActivity(email, id, company.name, company.region, company.city)
-      navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/companies/${id}`, prevComponent : company}} );
+      navigate(`/activities/new/edit`, { state: { ...emptyActivity, path: `/companies/${id}`, prevComponent: company } });
     }
   };
 
-   const handleSelectContact = (contact) => {
-        console.log('handleSelectCompany', contact);
-         navigate(`/contacts/${contact.id}`, {
-            state: {contactId: contact.id, companyId: id,
-            path: `/companies/${id}`, prevComponent : company}
-        });
-            };
+  const handleSelectContact = (contact) => {
+    console.log('handleSelectCompany', contact);
+    navigate(`/contacts/${contact.id}`, {
+      state: {
+        contactId: contact.id, companyId: id,
+        path: `/companies/${id}`, prevComponent: company
+      }
+    });
+  };
 
-  
+
 
 
   const formatUrl = (url) => {
@@ -167,7 +169,7 @@ const CompanyDetails = () => {
     return formattedUrl;
   };
 
- 
+
 
 
   const getCompanyTypeIcon = (type) => {
@@ -233,6 +235,11 @@ const CompanyDetails = () => {
         </span>
         <LongMenu
           onSelect={handleMenuSelection}
+          options={[
+            'Редактировать',
+            'Добавить контакт',
+            'Добавить событие',
+          ]}
         />
       </div>
       <div className={styles.CompanyDetails}>
@@ -242,39 +249,39 @@ const CompanyDetails = () => {
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
 
-          <CompanyMainContacts
+        <CompanyMainContacts
           company={company}
-          >
-          </CompanyMainContacts>
+        >
+        </CompanyMainContacts>
 
-          <CompanyСontacts
+        <CompanyСontacts
           chat_id={chat_id}
           id={id}
-          onClick={(contact) => {handleSelectContact(contact)}}
-          >
+          onClick={(contact) => { handleSelectContact(contact) }}
+        >
 
-          </CompanyСontacts>
-       
+        </CompanyСontacts>
+
 
         <div className={styles.contactsMails}><div className={styles.companyRowHeader}><div className={styles.companyRowInfo}>
           Адреса электронной почты
-          </div>
-           </div>
+        </div>
+        </div>
           {
 
             !isContactsMailsLoading ? (
-             
-               
-                <div >
-              {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
-                <div key={index} className={styles.companyMainContacts}>
-                  <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                  <div className={styles.companyRowVal}>{mail.mail}</div>
-                   
-                </div>
-              ))) : 'нет'}
-            </div>
-            
+
+
+              <div >
+                {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
+                  <div key={index} className={styles.companyMainContacts}>
+                    <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
+                    <div className={styles.companyRowVal}>{mail.mail}</div>
+
+                  </div>
+                ))) : 'нет'}
+              </div>
+
             ) : (
               <>
                 <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
@@ -283,27 +290,27 @@ const CompanyDetails = () => {
           }
         </div>
         <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>События </div>
-        { activity?.length > 0 && !isActivityLoading ?
-        (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
-          {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
-        </div></div>) : 
-        ''}
+          {activity?.length > 0 && !isActivityLoading ?
+            (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
+              {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+            </div></div>) :
+            ''}
         </div>
         {
           !isActivityLoading ? (
             activity?.length > 0 ? (
-            <div className={styles.contactItem}>
-              {activity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
-                <div key={index} className={styles.contactItem}>
-                  <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
-                    {activity.purpose}</div>
-                </div>
-              ))}
-            </div>) : 'нет'
+              <div className={styles.contactItem}>
+                {activity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
+                  <div key={index} className={styles.contactItem}>
+                    <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
+                      {activity.purpose}</div>
+                  </div>
+                ))}
+              </div>) : 'нет'
           ) : (
             <>
               <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
-              
+
             </>
           )
         }
@@ -323,4 +330,4 @@ const CompanyDetails = () => {
   );
 }
 
-export  default CompanyDetails;
+export default CompanyDetails;

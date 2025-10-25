@@ -22,9 +22,10 @@ const CompanyСontacts = (props) =>  {
             setContacts(contacts)
           }
         }, [props.id, regionsWithContacts]);
+        console.log('main contacts', contacts)
 
       return (
-            <div style={ props.activity ? {marginTop: '-10px'} : {} } >
+            <div style={ props.activity ? {marginTop: '-10px', marginLeft: '20px'} : {} } >
           <div className={styles.companyRowInfo}>
             <div className={styles.companyRowHeader}>
               Контакты</div>{contacts && contacts?.length > 0 && <div className={styles.companyRowHeader}>{contacts?.length > 0 ? `\u00A0(${contacts?.length}):` : ':'}</div>}
@@ -38,9 +39,9 @@ const CompanyСontacts = (props) =>  {
           <div className={styles.contactsContainer}>
            
             {contacts?.length > 0 ? (contacts?.map((contact, index) => (
-              <div key={index} className={styles.contactPerson} onClick={ props.activity ? () => {return} : () => props.onClick(contact)}>
-                <div className={styles.contactName}>{`${contact.firstName} ${contact.lastName} ${contact.surname}`}</div>
-                <div className={styles.contactIcons}>{getContactIcons(contact)}</div>
+              <div key={index} className={!props.activity ? styles.contactPerson : styles.activityContactPerson} onClick={ props.activity ? () => {return} : () => props.onClick(contact)}>
+                <div className={styles.contactName}>{`${contact.fullName || getContactFullNmae(contact)}`}</div>
+                <div className={!props.activity ? styles.contactIcons : styles.contactActivityIcons}>{getContactIcons(contact, props.activity)}</div>
                 <div className={styles.contactEmail}>{contact.email}</div>
               </div>
             ))) : 'нет'}
@@ -51,5 +52,15 @@ const CompanyСontacts = (props) =>  {
       )
 
 }
+
+ const getContactFullNmae = (contact) => {
+    const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
+                (contact.firstName ? contact.firstName + ' ' : '') + 
+                (contact.surname ? contact.surname + ' ' : '')
+    if (fullName === '') {
+      return contact.companyName
+    }
+    return fullName
+  };
 
 export default CompanyСontacts;

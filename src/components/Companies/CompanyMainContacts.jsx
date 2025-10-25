@@ -16,14 +16,18 @@ const CompanyMainContacts = (props) => {
                     style={{ cursor: 'pointer' }}
                   >
                     <img src={mainContactsIcons.phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-                    <div className={styles.companyRowVal}>{company.phone1}</div>
+                    <div className={styles.companyRowVal}>{company.phone1}
+                    {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
+                    </div>
                   </div>
                 )}
                 {company.phone2 && (<div className={styles.companyMainContacts}
                   onClick={() => window.location.href = `tel:${company.phone2}`}
                   style={{ cursor: 'pointer' }}
                 > <img src={mainContactsIcons.phoneIcon} className={styles.contactPhone} alt="Phone icon" />
-                  <div className={styles.companyRowVal}>{company.phone2}</div></div>)}
+                  <div className={styles.companyRowVal}>{company.phone2}
+                       {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
+                    </div></div>)}
                 {company.whatsapp && (
         
                   <div
@@ -32,7 +36,9 @@ const CompanyMainContacts = (props) => {
                     style={{ cursor: 'pointer' }}
                   >
                     <img src={mainContactsIcons.whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
-                    <div className={styles.companyRowVal}>{company.whatsapp}</div>
+                    <div className={styles.companyRowVal}>{company.whatsapp}
+                           {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
+                    </div>
                     <div>
                       {company.wa !== 0 && (
                         <img
@@ -49,11 +55,13 @@ const CompanyMainContacts = (props) => {
                 )}
                 {company.telegram && (
                   <div className={styles.companyMainContacts}
-                    onClick={() => window.location.href = `https://t.me/${formatNumber(company.telegram)}`}
+                    onClick={() => tg.openLink(`https://t.me/${formatNumber(company.telegram)}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <img src={mainContactsIcons.telegramIcon} className={styles.contactPhone} alt="Phone icon" />
-                    <div className={styles.companyRowVal}>{company.telegram}</div>
+                    <div className={styles.companyRowVal}>{company.telegram}
+                        {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
+                    </div>
                     <div>
                       {company.tg !== 0 && (
                         <img

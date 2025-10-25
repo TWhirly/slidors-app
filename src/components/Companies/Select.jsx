@@ -178,7 +178,7 @@ const BasicSelect = (props) => {
 
                 }}
             >
-                {props.label}
+                {props.label}{props.require && ' *'}
             </InputLabel>
 
             {props.list ? (

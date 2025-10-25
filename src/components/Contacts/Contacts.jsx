@@ -186,7 +186,7 @@ const Contacts = () => {
                     </AvatarGroup>
                 </div>
                 <div className={styles.allRegions}>
-                    {regionsWithContacts?.map((region) => (
+                    {regionsWithContacts?.filter(region => region.region !== 'noRegion').map((region) => (
                         <div key={region.id} className={styles.regionContainer}>
                             <button
                                 onClick={() => handleRegionClick(region.region)}

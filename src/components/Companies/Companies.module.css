@@ -417,3 +417,11 @@
     flex-shrink: 0;
     margin-left: 0;
 }
+
+.companyRowVal{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0 ;
+}

@@ -5,15 +5,11 @@ import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import styles from './CompanyDetails.module.css';
 
-const options = [
-  'Редактировать',
-  'Добавить контакт',
-  'Добавить событие',
-];
+
 
 const ITEM_HEIGHT = 48;
 
-const LongMenu = ({ onSelect }) => {
+const LongMenu = ({ onSelect, options }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   

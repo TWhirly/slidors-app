@@ -36,7 +36,7 @@ const ContactEditForm = () => {
     const [localEmailInputs, setLocalEmailInputs] = useState([]);
     tg.BackButton.isVisible = true;
     
-    // console.log('contact.relative', contact.prevComponent);
+    console.log('contact.relative', contact.prevActivityData);
     // console.log('regionsWithCompanies', regionsWithCompanies);
      console.log('contact', contact)
     
@@ -95,7 +95,7 @@ const ContactEditForm = () => {
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
              tg.BackButton.onClick(() => navigate(contact.path || '/contacts/', 
-        {state: {contactId: contact.id, companyId: contact.companyId}}, { replace: true }));
+        {state: contact.prevActivityData ? contact.prevActivityData : {contactId: contact.id, companyId: contact.companyId}}));
         };
 
         initBackButton();
@@ -168,7 +168,7 @@ const ContactEditForm = () => {
    
     // 2. Затем навигация (немедленно)
     navigate(contact.path || '/contacts/', 
-        {state: {contactId: contact.id, companyId: contact.companyId}}, { replace: true })
+        {state: contact.prevActivityData ? contact.prevActivityData : {contactId: contact.id, companyId: contact.companyId}}, { replace: true })
     
     // 3. Фоновая отправка на сервер
     updateContact(currentFormData, {
@@ -188,7 +188,7 @@ const ContactEditForm = () => {
     showNotification(`Ошибка при сохранении: ${error.message}`, false);
     queryClient.invalidateQueries({ queryKey: ['contacts'] });
   }
-}, [allowSave, contact.companyId, contact.id, contact.path, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
+}, [allowSave, contact.companyId, contact.id, contact.path, contact.prevActivityData, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
 
 
     useEffect(() => {
@@ -222,7 +222,7 @@ const ContactEditForm = () => {
     }
     // console.log('formData', formData)
     // console.log('companiesList', companiesList.length)
-    console.log('contact', contact)
+    console.log('contact formData', formData)
     // console.log('formData', formData)
     // console.log('hasChanged', hasChanged)
     // console.log('emailInputs', emailInputs)

@@ -98,57 +98,66 @@ export const getEmptyCompany = (selectedRegion = '', email) => ({
         new: true
     });
 
-export  const getContactIcons = (contact) => {
+export  const getContactIcons = (contact, isActivity) => {
     const icons = [];
     if (contact.phone1) {
       icons.push(
-        <img
-          key="phone1"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone1}`}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className={styles.companyRowVal}><img
+              key="phone1"
+              src={phoneIcon}
+              className={styles.contactPhone}
+              alt="Phone icon"
+              onClick={() => window.location.href = `tel:${contact.phone1}`}
+              style={{ cursor: 'pointer' }} />
+              {isActivity && <div >{contact.phone1}
+                                               </div>}
+              </div>
+            
       );
     }
 
     if (contact.phone2) {
       icons.push(
-        <img
-          key="phone2"
-          src={phoneIcon}
-          className={styles.contactPhone}
-          alt="Phone icon"
-          onClick={() => window.location.href = `tel:${contact.phone2}`}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className={styles.companyRowVal}><img
+              key="phone2"
+              src={phoneIcon}
+              className={styles.contactPhone}
+              alt="Phone icon"
+              onClick={() => window.location.href = `tel:${contact.phone2}`}
+              style={{ cursor: 'pointer' }} />
+             {isActivity && <div >{contact.phone2}
+                                               </div>}
+              </div>
       );
     }
 
     if (contact.whatsapp) {
       icons.push(
-        <img
-          key="whatsapp"
-          src={whatsappIcon}
-          className={styles.contactPhone}
-          alt="WhatsApp icon"
-          onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className={styles.companyRowVal}><img
+              key="whatsapp"
+              src={whatsappIcon}
+              className={styles.contactPhone}
+              alt="WhatsApp icon"
+              onClick={() => tg.openLink(`https://wa.me/${formatNumber(contact.whatsapp)}`)}
+              style={{ cursor: 'pointer' }} />
+              {isActivity && <div >{contact.whatsapp}
+                                               </div>}
+              </div>
       );
     }
 
     if (contact.telegram) {
       icons.push(
-        <img
-          key="telegram"
-          src={telegramIcon}
-          className={styles.contactPhone}
-          alt="Telegram icon"
-          onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className={styles.companyRowVal}><img
+              key="telegram"
+              src={telegramIcon}
+              className={styles.contactPhone}
+              alt="Telegram icon"
+              onClick={() => window.location.href = `https://t.me/${contact.telegram}`}
+              style={{ cursor: 'pointer' }} />
+              {isActivity && <div >{contact.telegram}
+                                               </div>}
+              </div>
       );
     }
     return icons;
