@@ -295,3 +295,18 @@
 
 /* Пример ховера для масштабирования */
 
+.checkboxInput {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #718096;
+  border-radius: 4px;
+  align-self: right;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #1a202c;
+}

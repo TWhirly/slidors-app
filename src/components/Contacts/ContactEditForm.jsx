@@ -136,6 +136,7 @@ const ContactEditForm = () => {
         if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
             formDataRef.current = formData;
             setAllowSave(true);
+            tg.MainButton.setText('Сохранить')
         }
         else {
             setAllowSave(false);
@@ -192,23 +193,16 @@ const ContactEditForm = () => {
 
 
     useEffect(() => {
-        if (!contact) {
-            navigate('/companies');
-            return;
-        }
-        tg.setBottomBarColor("#131313")
-        allowSave ? tg.MainButton.setText('Сохранить')
-            : tg.MainButton.setText('Для сохранения заполните поля');;
-
+        console.log('effect 4 - Telegram init')
+        tg.setBottomBarColor("#131313");
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
-        // console.log(tg.MainButton)
-
+    
         return () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [allowSave, contact, handleSave, navigate, tg]);
+    }, [tg, handleSave]); 
 
     // Update ref whenever formData changes
     useEffect(() => {

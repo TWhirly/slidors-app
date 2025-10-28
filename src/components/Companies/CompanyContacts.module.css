@@ -1,0 +1,182 @@
+.companyRowInfo{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    width: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
+    margin-bottom: 0;
+}
+
+.companyRowHeader{
+    text-wrap: nowrap;
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    color:  #729fcf;
+}
+
+.contactsContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: left;
+    width: 100%;
+    height: auto;
+    padding: 0 0 0 0 ;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contactPerson{
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    align-items: center;
+    width: 100%;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
+    margin: 0;
+}
+
+.activityContactPerson{
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    align-items: left;
+    width: 100%;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 0rem;
+    padding-right: 0.5rem;
+    margin: 0;
+}
+
+.contactIcons{
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    margin-right: 16px;
+    width: 40%;
+    padding-left: 0.1rem;
+    gap: 5px; 
+}
+
+.checkboxItem {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.checkboxItem:hover {
+  background-color: #2d3748;
+}
+
+.checkboxInput {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #718096;
+  border-radius: 4px;
+  margin-right: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #1a202c;
+}
+
+.checkboxInput:checked {
+  background-color: #4299e1;
+  border-color: #4299e1;
+}
+
+.checkboxInput:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkboxLabel {
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  flex: 1;
+}
+
+.contactActivityIcons{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: left;
+    width: 100%;
+    gap: 12px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+
+.checkboxInput {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #718096;
+  border-radius: 4px;
+  align-self: right;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.contactCheckbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid white;
+  border-radius: 4px;
+  margin-top: auto;
+  margin-bottom: auto;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  float: right;
+  vertical-align: middle;
+  margin-right: 15px;
+}
+
+.contactCheckbox:hover {
+  border-color: white;
+  /* box-shadow: 0 0 0 1px #4299e1; */
+}
+
+.contactCheckbox:checked {
+  background: transparent;
+  border-color: white;
+}
+
+.contactCheckbox:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

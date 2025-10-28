@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TextField } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback , useMemo} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from '../Companies/CompanyEditForm.module.css';
@@ -48,37 +48,61 @@ const ActivityEditForm = () => {
     const tg = tgRef.current;
     const id = activity.id;
     const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
+    const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');
+    const [header, setHeader] = useState('');
 
     console.log('regionsWithContacts', regionsWithContacts);
-    // console.log('activity', activity);
+     console.log('activityEdit', activity);
     useEffect(() => {
-        const initBackButton = () => {
-            if (!tg) return;
-
-            tg.ready();
-            tg.BackButton.isVisible = true;
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                // Return to list if company.new === true (new company) or to details if editing
-
-                navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
-
-            });
-        };
-
-        initBackButton();
-
-        return () => {
-            if (tg) {
-                tg.BackButton.offClick();
-                // tg.BackButton.hide();
+        console.log('effect 1')
+       const handleBackButton = () => {
+        updateActivity({...activity, delete: activity.new}, {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
+            },
+            onError: (error) => {
+                console.error('Company update failed:', error);
+                showNotification(`Ошибка при сохранении: ${error.message}`, false);
             }
+        });
+        navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
+    };
 
-        };
-    }, [activity, id, navigate, tg]);
+     const initBackButton = () => {
+        if (!tg) return;
+        tg.ready();
+        tg.BackButton.isVisible = true;
+        tg.BackButton.show();
+        tg.BackButton.onClick(handleBackButton); // ✅ Используем именованную функцию
+    };
+    
+    initBackButton();
+    
+    return () => {
+        if (tg) {
+            tg.BackButton.offClick(handleBackButton); // ✅ Очищаем конкретный обработчик
+        }
+    };
+
+
+    }, [activity, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
-        if (regionsWithContacts) {
+    setFormData(prev => ({ ...prev, contactId: selectedContactId }));
+}, [selectedContactId]);
+
+    useEffect(() => {
+        if (activity.new)
+            setHeader('Новое событие')
+        if(!activity.new && activity.finalize)
+            setHeader('Завершить событие')
+        if(!activity.new && !activity.finalize)
+            setHeader('Редактирование')
+    },[activity.finalize, activity.new] )
+
+    useEffect(() => {
+        console.log('effect 2')
+        if (regionsWithContacts.length > 0) {
             const contacts = regionsWithContacts.reduce((acc, region) => {
                 region.contacts.forEach((contact) => {
                     if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
@@ -90,34 +114,27 @@ const ActivityEditForm = () => {
             }, [])
             setContacts(contacts)
         }
-    }, [formData.companyId, id, regionsWithContacts]);
+    }, [formData.companyId, regionsWithContacts]);
 
     useEffect(() => {
+        // console.log('effect 3')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
         setHasChanged(hasChanged);
-        console.log('hasChanged', hasChanged);
     }, [formData, activity]);
 
-    useEffect(() => {
-        if (checkIfRequireFieldsFilled(formData)) {
-            formDataRef.current = formData;
-            setAllowSave(true);
-            tg.MainButton.setText('Сохранить');
-        }
-        else {
-            setAllowSave(false);
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
-    }, [formData, tg.MainButton]);
+    
 
     useEffect(() => {
+        // console.log('effect 5')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
     }, [contextRegions]);
 
     useEffect(() => {
-        if (formData.region && regionsWithCompanies) {
+        console.log('effect 6')
+        const currentFormDataRegion = formData.region;
+        if (currentFormDataRegion && regionsWithCompanies.length > 0) {
             const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
             if (selectedRegion) {
                 const cities = selectedRegion.companies.reduce((acc, company) => {
@@ -130,15 +147,21 @@ const ActivityEditForm = () => {
             } else {
                 setCities([]);
             }
-        } else {
-            setCities([]);
-        }
+        } 
+        // else {
+        //     setCities([]);
+        // }
 
     }, [formData.region, regionsWithCompanies]);
 
     useEffect(() => {
-        if (formData.region && formData.region.length > 0 && regionsWithCompanies) {
-            const names = regionsWithCompanies?.find(item => item.region === formData.region).companies?.reduce((acc, company) => {
+        console.log('effect 7')
+        const currentFormDataRegion = formData.region;
+        if (currentFormDataRegion && currentFormDataRegion.length > 0 && regionsWithCompanies.length > 0) {
+            const regionNames = regionsWithCompanies?.find(item => item.region === formData.region)
+            let names = []
+            if(regionNames)
+            {names = regionNames.companies?.reduce((acc, company) => {
                 if (!acc.includes(company.name) && company.name.length > 0 && !formData.city) {
                     acc.push({ name: company.name, id: company.id });
                 }
@@ -147,28 +170,29 @@ const ActivityEditForm = () => {
                 }
 
                 return acc;
-            }, []);
+            }, [])};
+           
 
             setCompanies(names);
         }
-        else {
-            setCompanies([]);
-        }
-
-    }, [cities, formData.city, formData.region, regionsWithCompanies])
-
-    useEffect(() => {
-        const currentFormData = formData;
-        if (currentFormData.region && currentFormData && currentFormData.companyId) {
+        // else {
+        //     setCompanies([]);
+        // }
+        // experimental merge with effect 8
+         if (currentFormDataRegion && currentFormDataRegion.length > 0 && formData.companyId !== '' && regionsWithCompanies.length > 0) {
             const company = regionsWithCompanies.find(item => item.region === formData.region)
                 .companies?.find(item => item.id === formData.companyId)
             setCompany(company)
 
         }
-        else {
-            setCompany({ id: null })
-        }
-    }, [formData, formData.companyId, formData.region, regionsWithCompanies])
+        // else {
+        //     setCompany({ id: null })
+        // }
+        // exp
+
+    }, [formData.city, formData.companyId, formData.region, regionsWithCompanies])
+
+    
 
     useEffect(() => {
         setIsElobaration(formData.purpose === 'Проработка');
@@ -211,17 +235,22 @@ const ActivityEditForm = () => {
 
     const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current;
-        console.log('Current form data:', formData);
+        delete currentFormData.new;
+        delete activity.new
+        console.log('Current form data:', activity.path);
         if (!allowSave) return
-        if (!hasChanged) {
-            navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: activity.id } });
-            showNotification(`Данные не изменились`, true);
-            return
-        }
+        // if (!hasChanged) {
+        //     navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: activity.id } });
+        //     showNotification(`Данные не изменились`, true);
+        //     return
+        // }
         try {
             console.log('Current form data:', currentFormData);
             optimisticUpdateActivity(currentFormData, isNewActivity)
-            navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: id } })
+            if (tg) {
+                tg.BackButton.offClick();
+            }
+            navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: id, companyId: formData.companyId } })
             updateActivity(currentFormData, {
                 onSuccess: () => {
                     // showNotification(`Данные сохранены успешно!`, true);
@@ -236,26 +265,48 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [activity.id, activity.path, allowSave, formData, hasChanged, id, isNewActivity, navigate, optimisticUpdateActivity, queryClient, showNotification, updateActivity]);
-
-
-
+    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, isNewActivity, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
-        if (!activity) {
-            navigate('/activities');
-            return;
-        }
+    console.log('effect 4 - Telegram init')
+    tg.setBottomBarColor("#131313");
+    tg.MainButton.show();
+    tg.MainButton.onClick(handleSave);
 
-        tg.setBottomBarColor("#131313");
-        tg.MainButton.show();
-        tg.MainButton.onClick(handleSave);
+    return () => {
+        tg.MainButton.offClick(handleSave);
+        tg.MainButton.hide();
+    };
+}, [tg, handleSave]); // Только tg и handleSave
 
-        return () => {
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.hide();
-        };
-    }, [activity, handleSave, navigate, tg]);
+// Отдельный эффект для обновления текста кнопки
+useEffect(() => {
+    console.log('effect 4b - Button text update')
+    if (checkIfRequireFieldsFilled(formData)) {
+        formDataRef.current = formData;
+        setAllowSave(true);
+        tg.MainButton.setText('Сохранить');
+        tg.MainButton.enable(); // Включить кнопку
+    } else {
+        setAllowSave(false);
+        tg.MainButton.setText('Для сохранения заполните поля');
+        tg.MainButton.disable(); // Отключить кнопку
+    }
+}, [formData, tg.MainButton]); // formData и tg.MainButton
+
+const handleCheck = (id) => {
+    console.log('Selected contact ID:', id);
+    
+    // Если кликаем на уже выбранный контакт - снимаем выбор
+    if (selectedContactId === id) {
+        setSelectedContactId('');
+        setFormData(prev => ({ ...prev, contactId: '' }));
+    } else {
+        // Иначе выбираем новый контакт (автоматически снимается с предыдущего)
+        setSelectedContactId(id);
+        setFormData(prev => ({ ...prev, contactId: id }));
+    }
+};
 
 
     // Update ref whenever formData changes
@@ -268,14 +319,14 @@ const ActivityEditForm = () => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('contacts', contacts);
+    console.log('activityTypes', activityTypes);
     console.log('formData', formData);
 
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
-                    {activity.new === true ? "Новое событие" : "Редактирование"}
+                    {header}
                 </span>
                 {formData.companyId && <LongMenu
                     onSelect={handleMenuSelection}
@@ -331,9 +382,12 @@ const ActivityEditForm = () => {
                 {contacts.length > 0 && <CompanyContacts
                     activity
                     className={styles.companyContactsActivity}
-
+                    onChange={handleCheck}
+                    // onChange={console.log('check')}
                     id={company.id || ''}
                     chat_id={chat_id}
+                    selectedContactId={selectedContactId} 
+                    // checked={selectedContactId === formData.contactId}
                 >
 
                 </CompanyContacts>}

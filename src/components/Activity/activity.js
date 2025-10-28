@@ -2,11 +2,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { formatNumber } from '../Companies/Companies-helpers';
 
 export const getEmptyActivity = (email, companyId = '', companyName = '', region = '', city = '') => {
-    return (
-        {
+    const newActivity = {
 
             id: uuidv4(), // Generates UUID v4
-            new: true,
             companyName: companyName,
             companyId: companyId,
             contactId: '',
@@ -29,9 +27,11 @@ export const getEmptyActivity = (email, companyId = '', companyName = '', region
             startDatetime: '',
             status: '',
             'subscribed?': '',
-            type: '',
+            type: 'Звонок',
             description: ''
-        })
+        }
+    return (newActivity
+        )
 };
 
 export const checkIfInArray = (array, value = {}) => {
@@ -41,8 +41,8 @@ export const checkIfInArray = (array, value = {}) => {
     }, []
     )
     const formmatedValue = `${formatNumber(value.phone1)}-${formatNumber(value.phone2)}-${formatNumber(value.whatsapp)}-${formatNumber(value.telegram)}`
-    console.log('formattedNumbersArray', formattedNumbersArray)
-    console.log('formmatedValue', formmatedValue)
+    // console.log('formattedNumbersArray', formattedNumbersArray)
+    // console.log('formmatedValue', formmatedValue)
     return (formattedNumbersArray.includes(formmatedValue))
 }
 

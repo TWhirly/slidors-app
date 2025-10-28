@@ -19,7 +19,7 @@ export const useActivity = (chat_id) => {
       formData,
     );
     const sortedActivity = transformActivitySort(response.data);
-    console.log('sortedActivity', sortedActivity);
+    // console.log('sortedActivity', sortedActivity);
     return (sortedActivity);
   };
   
@@ -33,7 +33,7 @@ export const useActivity = (chat_id) => {
   };
 
   const transformActivitySort = (activities) => {
-    console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
+    // console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
    if (!Array.isArray(activities)) {
     return { planned: [], other: [] };
   }
@@ -62,8 +62,6 @@ export const useActivity = (chat_id) => {
   other.sort((a, b) => {
     const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
     const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
-    if (a.id === 'Import23122600392')
-      console.log('aEnd', aEnd, 'bEnd', bEnd)
     return bEnd - aEnd;
   });
 
@@ -140,7 +138,7 @@ function createDateTime(dateStr, timeStr) {
 
   const updateActivityMutation = useMutation({
     mutationFn: async (activityData) => {
-      console.log('mutationFn, contact', activityData);
+      // console.log('mutationFn, contact', activityData);
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,
@@ -170,7 +168,7 @@ onMutate: async (activityData) => {
     },
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
-       showNotification(`Данные сохранены успешно!`, true);
+       !activityData.new && showNotification(`Данные сохранены успешно!`, true);
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
@@ -179,6 +177,8 @@ onMutate: async (activityData) => {
     }
   });
 
+  const test = [1, 2]
+
   return {
     activity: activity || [],
     isLoading,
@@ -186,6 +186,7 @@ onMutate: async (activityData) => {
     updateActivityAsync: updateActivityMutation.mutateAsync,
     isUpdating: updateActivityMutation.isLoading,
     optimisticUpdateActivity, // Экспортируем для ручного использования
+    test,
     error
   };
 };

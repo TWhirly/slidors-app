@@ -12,6 +12,7 @@ import { useEmail } from '../../hooks/useEmail';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
+import { useActivity } from '../../hooks/useActivity.js';
 import { replace } from 'lodash';
 import { getEmptyActivity } from '../Activity/activity.js';
 import CompanyСontacts from './CompanyContacts.jsx'
@@ -25,9 +26,12 @@ const CompanyDetails = () => {
   const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const [plannedExpanded, setPlannedExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [company, setCompany] = useState({});
+  const [companyActivity, setCompanyActivity] = useState([])
+  const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
@@ -39,9 +43,11 @@ const CompanyDetails = () => {
   const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
   const { regionsWithCompanies, contactsLoadingError } = useRegions(chat_id)
   const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
+  const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
   const { email } = useContext(DataContext)
   // tg.BackButton.isVisible = true
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
+  console.log('activity', activity, test)
   useEffect(() => {
     if (regionsWithCompanies) {
       const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -49,38 +55,6 @@ const CompanyDetails = () => {
 
     }
   }, [regionsWithCompanies, id]);
-
-
-
-  const fetchActivity = async () => {
-    console.log('fecthActivity')
-    const params = {
-      name: 'Ваше имя',
-      companyId: id,
-      api: 'getActivities'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    let fetchedActivity = response.data;
-    if (fetchedActivity) {
-      console.log('Activity', fetchedActivity);
-    }
-    return fetchedActivity;
-  };
-
-
-
-  const { data: activity, isLoading: isActivityLoading, activityFetchError } = useQuery({
-    queryKey: ['activity' + id],
-    queryFn: fetchActivity,
-    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
-    refetchInterval: 600000, // Refetch data every 600 seconds in the background
-  });
-
-
 
   useEffect(() => {
     const initBackButton = () => {
@@ -103,6 +77,26 @@ const CompanyDetails = () => {
       }
     };
   }, [id, navigate, returnPath, tg]);
+
+  useEffect(() => {
+    if (activity.planned && activity.planned.length > 0){
+      setCompanyPlannedActivity(activity.planned.reduce((acc, activity) => {
+        if (activity.plan !== '' && activity.companyId === id)
+          acc.push(activity)
+        return acc
+      }, []))
+    }
+  }, [activity.planned, id])
+
+  useEffect(() => {
+    if (activity.other && activity.other.length > 0){
+      setCompanyActivity(activity.other.reduce((acc, activity) => {
+        if (activity.plan === '' && activity.companyId === id)
+          acc.push(activity)
+        return acc
+      }, []))
+    }
+  }, [activity.other, id])
 
   // console.log('company', company);
 
@@ -138,7 +132,8 @@ const CompanyDetails = () => {
 
     if (selectedOption === 'Добавить событие') {
       const emptyActivity = getEmptyActivity(email, id, company.name, company.region, company.city)
-      navigate(`/activities/new/edit`, { state: { ...emptyActivity, path: `/companies/${id}`, prevComponent: company } });
+      updateActivity({...emptyActivity, new: true})
+      navigate(`/activities/new/edit`, { state: { ...emptyActivity, path: `/companies/${id}`, prevComponent: company, new: true } });
     }
   };
 
@@ -289,8 +284,34 @@ const CompanyDetails = () => {
             )
           }
         </div>
-        <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>События </div>
-          {activity?.length > 0 && !isActivityLoading ?
+        <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>Запланированные события </div>
+          {companyPlannedActivity?.length > 0 && !isActivityLoading ?
+            (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
+              {companyPlannedActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setPlannedExpanded(!plannedExpanded)}>{expanded ? '▲' : '▼'}</div>}
+            </div></div>) :
+            ''}
+        </div>
+        {
+          !isActivityLoading ? (
+            companyPlannedActivity?.length > 0 ? (
+              <div className={styles.contactItem}>
+                {companyPlannedActivity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
+                  <div key={index} className={styles.contactItem}>
+                    <div className={styles.activityRowVal}>{activity.plan ? new Date(activity.plan).toLocaleDateString() + ' ' : ''}
+                      {activity.purpose} </div>
+                  </div>
+                ))}
+              </div>) : 'нет'
+          ) : (
+            <>
+              <Skeleton variant="text" animation="pulse" width={'10rem'} height={'0.8rem'} sx={{ bgcolor: 'grey.500', fontSize: '1rem' }} />
+
+            </>
+          )
+        }
+
+        <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>Завершенные события </div>
+          {companyActivity?.length > 0 && !isActivityLoading ?
             (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
               {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
             </div></div>) :
@@ -298,11 +319,11 @@ const CompanyDetails = () => {
         </div>
         {
           !isActivityLoading ? (
-            activity?.length > 0 ? (
+            companyActivity?.length > 0 ? (
               <div className={styles.contactItem}>
-                {activity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
+                {companyActivity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
                   <div key={index} className={styles.contactItem}>
-                    <div className={styles.activityRowVal}>{activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
+                    <div className={styles.activityRowVal}>{activity.endDatetime ? new Date(activity.endDatetime).toLocaleDateString() + ' ' : ''}
                       {activity.purpose}</div>
                   </div>
                 ))}

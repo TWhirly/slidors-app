@@ -32,7 +32,7 @@ export const useContacts = (chat_id) => {
   };
 
   const transformToRegionsWithContacts = (regionRows) => {
-    console.log('Contacts select function executed - TRANSFORMATION', regionRows);
+    // console.log('Contacts select function executed - TRANSFORMATION', regionRows);
     if (!regionRows) return [];
 
     const contactsByRegion = {};
@@ -42,7 +42,7 @@ export const useContacts = (chat_id) => {
       }
       contactsByRegion[contact.region].push({...contact, fullName: getContactFullNmae(contact)});
     });
-    console.log('contactsByRegion', contactsByRegion);
+    // console.log('contactsByRegion', contactsByRegion);
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
       const sortedCompanies = contacts.sort((a, b) =>
         a.fullName.localeCompare(b.fullName)
@@ -109,7 +109,7 @@ export const useContacts = (chat_id) => {
 
   const updateContactMutation = useMutation({
     mutationFn: async (contactData) => {
-      console.log('mutationFn, contact', contactData);
+      // console.log('mutationFn, contact', contactData);
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,

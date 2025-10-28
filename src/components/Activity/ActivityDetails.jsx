@@ -1,20 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext, act } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import styles from '../Companies/CompanyDetails.module.css';
-import Skeleton from '@mui/material/Skeleton';
-import axios from 'axios';
-import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from '../Companies/CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
-import { useEmail } from '../../hooks/useEmail.js';
-import { useNotification } from '../notifications/NotificationContext.jsx';
-import { useRegions } from '../../hooks/useRegions.js';
 import { useContacts } from '../../hooks/useContacts.js';
-import { replace } from 'lodash';
 import { useActivity } from '../../hooks/useActivity.js';
-import {getContactIcons} from '../Companies/CompanyDetails.jsx';
-import {handleSelectContact} from '../Companies/CompanyDetails.jsx';
+import { getEmptyActivity } from './activity.js';
 
 
 
@@ -23,7 +14,6 @@ const ActivityDetails = () => {
   
   const navigate = useNavigate();
   const { state: { activityId: id , path} } = useLocation();
-  const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
@@ -34,20 +24,20 @@ const ActivityDetails = () => {
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
-  const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  const { activity: activities, isLoading } = useActivity(chat_id)
+  const { activity: activities, isLoading, updateActivity } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
-  const { namesEmails } = useContext(DataContext)
+  const [options, setOptions] = useState([])
+  const {name, email} = useContext(DataContext)
   // const getEmptyActivity = require('./ActivityDetails.jsx')
-
+  console.log(name)
   tg.BackButton.isVisible = true
     useEffect(() => {
     if (activities) {
       let activity = []
-      activity = activities.planned.filter((activity) => activity.id === id);
+      activity = activities.planned?.filter((activity) => activity.id === id);
       console.log('activity in useEffect', activity, id, activities) // Find the activity with the matching ID and set it as the state variable)
       if (activity.length === 0) {
-        activity = activities.other.filter((activity) => activity.id === id);
+        activity = activities.other?.filter((activity) => activity.id === id);
       }
      setActivity(activity[0])
      
@@ -92,6 +82,12 @@ const ActivityDetails = () => {
     if (selectedOption === 'Редактировать') {
       navigate(`/activities/${activity.id}/edit`, { state: { ...activity, path: `/activities/${activity.id}`,new: false } });
     }
+    if (selectedOption === 'Завершить') {
+      const emptyActivity = getEmptyActivity(email, activity.companyId, activity.companyName,
+        activity.region, activity.city)
+        updateActivity({...emptyActivity, new: true})
+      navigate(`/activities/${activity.id}/edit`, { state: {...emptyActivity, path: `/activities/${activity.id}`, finalize: activity.id, new: true  } });
+    }
     // if (selectedOption === 'Добавить контакт') {
       
     //       const emptyActivity = getEmptyActivity();
@@ -120,20 +116,17 @@ const ActivityDetails = () => {
     return '7' + cleanNumber;
   };
 
-
-  const formatUrl = (url) => {
-    if (!url) return '';
-
-    // Убираем пробелы
-    let formattedUrl = url.trim();
-
-    // Проверяем наличие протокола
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-      formattedUrl = 'https://' + formattedUrl;
-    }
-
-    return formattedUrl;
-  };
+ useEffect(() => {
+  if (!activity)
+    return
+    let options = [];
+    console.log('options check', activity.responsible, `${name.name} (${email})`)
+    if(activity.plan && activity.responsible === `${name.name} (${email})`)
+      options.push('Завершить')
+    if(name.role === 'Админ')
+      options.push('Редактировать')
+    setOptions(options)
+  },[activity, email, name.name, name.role])
 
   const getContactIcons = (contact) => {
     const icons = [];
@@ -211,7 +204,7 @@ const ActivityDetails = () => {
               };
 
   console.log('activity', activity)
-  console.log('contact', contact)
+  console.log('tg.BackButton.onClick', tg.BackButton.onClick())
 
   if (!activity) {
     return <div>Activity not found</div>;
@@ -227,6 +220,7 @@ const ActivityDetails = () => {
           </div>
         </span>
         <LongMenu
+          options={options}
           onSelect={handleMenuSelection}
         />
       </div>

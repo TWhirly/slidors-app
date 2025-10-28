@@ -43,7 +43,7 @@ const Activities = () => {
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
     const chat_id = user.id;
-    const { activity, isLoading, error } = useActivity(chat_id);
+    const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
    
@@ -198,7 +198,7 @@ const Activities = () => {
     const handleSelectActivity = (activity) => {
         console.log('click')
         navigate(`/activities/${activity.id}`, {
-            state: {activityId: activity.id, path: '/activities'}, replace: true
+            state: {activityId: activity.id, path: '/activities'}
         });
     };
 
@@ -206,7 +206,8 @@ const Activities = () => {
 
     const handleAddActivity = () => {
         const emptyActivity = getEmptyActivity(email);
-        navigate(`/activities/new/edit`, { state: emptyActivity });
+        updateActivity({...emptyActivity, new: true});
+        navigate(`/activities/new/edit`, { state: {...emptyActivity, new: true} });
     };
 
     useEffect(() => {
