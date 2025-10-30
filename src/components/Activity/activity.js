@@ -47,13 +47,13 @@ export const checkIfInArray = (array, value = {}) => {
 }
 
 export const checkIfRequireFieldsFilled = (data) => {
-    if(
-        !data.type ||
-        !data.purpose ||
-        !data.companyId ||
-        !data.description
-    )
-    return false
+    // if(
+    //     !data.type ||
+    //     !data.purpose ||
+    //     !data.companyId ||
+    //     !data.description
+    // )
+    // return false
     if (data.type.trim() === '')
         return false
     if (data.purpose.trim() === '')
@@ -70,10 +70,12 @@ export const checkIfRequireFieldsFilled = (data) => {
         if (data['subscribed?'].trim() === '')
             return false
     }
-    else {
-        if (data['description'].trim() === '')
+        if (data['description'].trim() === '' && data.purpose !== 'Проработка'){
+            console.log('false here')
+            return false}
+        if (data['subscribed?'].trim() === 'Подписать' && data.companyWhatsapp === '' && data.companyTelegram === '')
             return false
-    }
+    
     return true
 }
 

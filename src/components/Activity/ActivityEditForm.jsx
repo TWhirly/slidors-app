@@ -26,7 +26,7 @@ const ActivityEditForm = () => {
     // const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [formData, setFormData] = useState({ ...activity });
+    const [formData, setFormData] = useState({ ...activity, companyWhatsapp: '', companyTelegram: '' });
     
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
@@ -50,6 +50,7 @@ const ActivityEditForm = () => {
     const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
     const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');
     const [header, setHeader] = useState('');
+    const [toSubscribe, setToSubscribe] = useState(false)
 
     console.log('regionsWithContacts', regionsWithContacts);
      console.log('activityEdit', activity);
@@ -183,7 +184,7 @@ const ActivityEditForm = () => {
             const company = regionsWithCompanies.find(item => item.region === formData.region)
                 .companies?.find(item => item.id === formData.companyId)
             setCompany(company)
-
+          
         }
         // else {
         //     setCompany({ id: null })
@@ -192,11 +193,30 @@ const ActivityEditForm = () => {
 
     }, [formData.city, formData.companyId, formData.region, regionsWithCompanies])
 
+    useEffect(() => {
+        if (formData.companyId === ''){
+            setFormData(prev => ({...prev,
+                companyWhatsapp : '',
+                companyTelegram: ''
+                
+            }))
+            return
+        } 
+         setFormData(prev => ({...prev,
+                companyWhatsapp : company.whatsapp || '',
+                companyTelegram: company.telegram || ''
+                
+            }))
+    },[company, formData.companyId])
     
 
     useEffect(() => {
         setIsElobaration(formData.purpose === 'Проработка');
     }, [formData.purpose]);
+
+    useEffect(() => {
+            setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
+    }, [formData])
 
     useEffect(() => {
         setIsPlanned(formData.plan?.length > 0);
@@ -324,8 +344,9 @@ const handleCheck = (id) => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('activityTypes', activityTypes);
+    console.log('toSubscribe', toSubscribe);
     console.log('formData', formData);
+    console.log('company', company)
 
     return (
         <div className={styles.container}>
@@ -344,6 +365,7 @@ const handleCheck = (id) => {
             <div className={styles.formContainer} autoComplete="off">
 
                 <BasicSelect
+                    require
                     className={styles.formGroup}
                     searchable
                     list={regions}
@@ -472,8 +494,32 @@ const handleCheck = (id) => {
                         onChange={(value) => setFormData(prev => ({ ...prev, 'subscribed?': value }))}
                         label="Подписаны ли на группу?"
                     />
+              
+                </>}
+                        {toSubscribe && <> 
+                   <BasicSelect
+                    require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
+                    className={styles.formGroup}
+                    type="tel"
+                    name="whatsapp"
+                    value={formData.companyWhatsapp || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, companyWhatsapp: value }))}
+                    label="WhatsApp"
+                />
+
+                <BasicSelect
+                    require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
+                    className={styles.formGroup}
+                    type="tel"
+                    name="telegram"
+                    value={formData.companyTelegram || ''}
+                    onChange={(value) => setFormData(prev => ({ ...prev, companyTelegram: value }))}
+                    label="Telegram"
+                />
                 </>
-                }
+                }                
+                
+            
 
                 <BasicSelect
                     className={styles.formGroup}

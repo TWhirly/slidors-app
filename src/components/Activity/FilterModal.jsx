@@ -200,32 +200,7 @@ export const FilterModal = ({
         </div>
 
         {/* Кнопки действий */}
-        <div className={styles.actions}>
-          <button
-            onClick={() => {
-              localStorage.removeItem('eventFilters');
-              onFiltersChange({
-                searchText: '',
-                purpose: [],
-                status: [],
-                tags: [],
-                region: [],
-                manager: [],
-                type: [],
-                dateRange: { from: '', to: '' }
-              });
-            }}
-            className={`${styles.actionButton} ${styles.resetButton}`}
-          >
-            Сбросить
-          </button>
-          <button
-            onClick={onClose}
-            className={`${styles.actionButton} ${styles.applyButton}`}
-          >
-            Применить
-          </button>
-        </div>
+       
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ function App() {
     const { tg } = useTelegram();
     // window.Telegram.WebApp.expand();
     window.Telegram.WebApp.disableVerticalSwipes()
-
+    console.log('init param ', window.Telegram.WebApp )
     tg.MainButton.hide()
     tg.MainButton.setParams({
         text: `Отправить`
@@ -70,6 +70,7 @@ function App() {
     if (window.Telegram?.WebApp?.initData) {
       const urlParams = new URLSearchParams(window.location.hash.substring(1));
       const path = urlParams.get('tgWebAppStartParam') || '/';
+      console.log('tg params', path)
       
       // Перенаправляем на корректный путь
       navigate(path);

@@ -98,26 +98,16 @@ function createDateTime(dateStr, timeStr) {
     const finalize = !!activityData.finalize
     queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
       const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
-      console.log('oldActivitites', unitedActivities)
       if (isNewActivity) {
-        console.log('is new')
           unitedActivities.push(activityData)
       } else {
-        console.log('is not new')
         if (finalize){
-          console.log('finalize')
         const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
         unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
         }
         const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
-          console.log(activtyIndex)
-          // console.log('unitedActivities[prevActivityIndex]', unitedActivities[prevActivityIndex])
-          // console.log('activityData', activityData)
           unitedActivities[activtyIndex] = activityData
-          
-
       }
-      
       return(transformActivitySort(unitedActivities)) 
     });
   };
