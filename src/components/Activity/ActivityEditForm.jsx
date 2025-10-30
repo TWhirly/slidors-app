@@ -27,7 +27,7 @@ const ActivityEditForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity });
-    const isNewActivity = activity?.new === true;
+    
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
@@ -199,7 +199,7 @@ const ActivityEditForm = () => {
     }, [formData.purpose]);
 
     useEffect(() => {
-        setIsPlanned(formData.plan.length > 0);
+        setIsPlanned(formData.plan?.length > 0);
     }, [formData.plan]);
 
     const handleMenuSelection = (selectedOption) => {
@@ -235,10 +235,15 @@ const ActivityEditForm = () => {
 
     const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current;
+        const isNewActivity = activity?.new === true;
         delete currentFormData.new;
         delete activity.new
+        if(currentFormData.toFinish)
+            currentFormData.plan = ''
         console.log('Current form data:', activity.path);
-        if (!allowSave) return
+        if (!allowSave) {
+            console.log('allowSave', allowSave)
+            return}
         // if (!hasChanged) {
         //     navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: activity.id } });
         //     showNotification(`Данные не изменились`, true);
@@ -246,7 +251,7 @@ const ActivityEditForm = () => {
         // }
         try {
             console.log('Current form data:', currentFormData);
-            optimisticUpdateActivity(currentFormData, isNewActivity)
+            optimisticUpdateActivity(currentFormData, isNewActivity, true)
             if (tg) {
                 tg.BackButton.offClick();
             }
@@ -257,7 +262,7 @@ const ActivityEditForm = () => {
                     queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
                 },
                 onError: (error) => {
-                    console.error('Company update failed:', error);
+                    console.log('Company update failed:', error);
                     showNotification(`Ошибка при сохранении: ${error.message}`, false);
                     // Автоматический откат через onError в мутации
                 }
@@ -265,7 +270,7 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, isNewActivity, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
+    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
     console.log('effect 4 - Telegram init')

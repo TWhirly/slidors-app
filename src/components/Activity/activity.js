@@ -47,6 +47,13 @@ export const checkIfInArray = (array, value = {}) => {
 }
 
 export const checkIfRequireFieldsFilled = (data) => {
+    if(
+        !data.type ||
+        !data.purpose ||
+        !data.companyId ||
+        !data.description
+    )
+    return false
     if (data.type.trim() === '')
         return false
     if (data.purpose.trim() === '')

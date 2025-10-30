@@ -93,46 +93,32 @@ function createDateTime(dateStr, timeStr) {
     refetchIntervalInBackground: true
   });
 
-  // Функция для оптимистичного обновления контакта
-  const optimisticUpdateActivity = (contactData, isNewContact = false) => {
-    queryClient.setQueryData(['contacts'], (oldContacts = []) => {
-      if (isNewContact) {
-        // Для нового контакта - добавляем в соответствующий регион
-        const contactRegion = contactData.region || '?';
-        
-        return oldContacts.map(regionGroup => {
-          if (regionGroup.region === contactRegion) {
-            // Добавляем контакт в существующий регион
-            return {
-              ...regionGroup,
-              contacts: [...regionGroup.contacts, contactData],
-              contacts_count: regionGroup.contacts_count + 1
-            };
-          }
-          return regionGroup;
-        });
+  // Функция для оптимистичного обновления события
+  const optimisticUpdateActivity = (activityData, isNewActivity = false) => {
+    const finalize = !!activityData.finalize
+    queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
+      const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
+      console.log('oldActivitites', unitedActivities)
+      if (isNewActivity) {
+        console.log('is new')
+          unitedActivities.push(activityData)
       } else {
-        // Для существующего контакта - обновляем
-        // console.log('optimisticUpdateContact', oldContacts);
-        return oldContacts.map(regionGroup => {
-          // Ищем контакт в текущей группе региона
-          const contactIndex = regionGroup.contacts.findIndex(
-            contact => contact.id === contactData.id
-          );
+        console.log('is not new')
+        if (finalize){
+          console.log('finalize')
+        const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
+        unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
+        }
+        const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
+          console.log(activtyIndex)
+          // console.log('unitedActivities[prevActivityIndex]', unitedActivities[prevActivityIndex])
+          // console.log('activityData', activityData)
+          unitedActivities[activtyIndex] = activityData
           
-          if (contactIndex !== -1) {
-            // Если контакт найден в этой группе
-            const updatedContacts = [...regionGroup.contacts];
-            updatedContacts[contactIndex] = contactData;
-            
-            return {
-              ...regionGroup,
-              contacts: updatedContacts
-            };
-          }
-          return regionGroup;
-        });
+
       }
+      
+      return(transformActivitySort(unitedActivities)) 
     });
   };
 

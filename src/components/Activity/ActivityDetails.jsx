@@ -24,7 +24,7 @@ const ActivityDetails = () => {
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
-  const { activity: activities, isLoading, updateActivity } = useActivity(chat_id)
+  const { activity: activities, isLoading, updateActivity, optimisticUpdateActivity } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
   const [options, setOptions] = useState([])
   const {name, email} = useContext(DataContext)
@@ -85,7 +85,7 @@ const ActivityDetails = () => {
     if (selectedOption === 'Завершить') {
       const emptyActivity = getEmptyActivity(email, activity.companyId, activity.companyName,
         activity.region, activity.city)
-        updateActivity({...emptyActivity, new: true})
+        updateActivity({...emptyActivity, new: true, toFinish: true})
       navigate(`/activities/${activity.id}/edit`, { state: {...emptyActivity, path: `/activities/${activity.id}`, finalize: activity.id, new: true  } });
     }
     // if (selectedOption === 'Добавить контакт') {
