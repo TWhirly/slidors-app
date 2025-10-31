@@ -75,6 +75,8 @@ export const checkIfRequireFieldsFilled = (data) => {
             return false}
         if (data['subscribed?'].trim() === 'Подписать' && data.companyWhatsapp === '' && data.companyTelegram === '')
             return false
+        if(data.plan !== '' && data.responsible === '')
+            return false
     
     return true
 }

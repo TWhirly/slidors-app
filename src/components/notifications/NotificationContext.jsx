@@ -6,11 +6,12 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState({
     show: false,
-    message: ''
-  });
+    message: '',
+    style: {}
+    });
 
-  const showNotification = (message) => {
-    setNotification({ show: true, message });
+  const showNotification = (message, style) => {
+    setNotification({ show: true, message, style });
   };
 
   
@@ -24,7 +25,8 @@ export const NotificationProvider = ({ children }) => {
       {children}
       <NotificationPanel 
         show={notification.show} 
-        message={notification.message} 
+        message={notification.message}
+        style={notification.style}
         onHide={hideNotification} 
       />
     </NotificationContext.Provider>

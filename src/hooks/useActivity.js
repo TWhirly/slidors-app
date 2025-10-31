@@ -144,7 +144,7 @@ onMutate: async (activityData) => {
     },
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
-       !activityData.new && showNotification(`Данные сохранены успешно!`, true);
+       !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.5rem'});
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {

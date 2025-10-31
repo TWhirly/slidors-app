@@ -542,6 +542,7 @@ const handleCheck = (id) => {
                 />}
 
                 {isPlanned && <BasicSelect
+                    require
                     className={styles.formGroup}
                     type="text"
                     name="responsible?"
