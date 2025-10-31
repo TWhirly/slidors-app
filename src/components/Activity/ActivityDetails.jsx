@@ -248,7 +248,7 @@ const ActivityDetails = () => {
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Работают ли с системой Слайдорс?</div><div className={styles.companyRowVal}>{activity['status']}</div></div>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли реклама?</div><div className={styles.companyRowVal}>{activity['haveAdv?']}</div></div>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли образец?</div><div className={styles.companyRowVal}>{activity['haveSample?']}</div></div>
-            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Проведено ли обучение?</div><div className={styles.companyRowVal}>{activity['haveTraining?']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Проведено ли обучение?</div><div className={styles.companyRowVal}>{activity['haveTrainig?']}</div></div>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Подписан ли на группу?</div><div className={styles.companyRowVal}>{activity['subscribed?']}</div></div>
             </div>
         )}
