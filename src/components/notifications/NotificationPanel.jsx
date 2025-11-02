@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import styles from'./NotificationPanel.module.css';
 
-const NotificationPanel = ({ message, show, onHide }) => {
+const NotificationPanel = ({ message, show, onHide, style }) => {
   useEffect(() => {
     if (show) {
       const timer = setTimeout(() => {
@@ -15,7 +15,9 @@ const NotificationPanel = ({ message, show, onHide }) => {
   if (!show) return null;
 
   return (
-    <div className={styles.notificationРanel}>
+    <div 
+    style={style}
+    className={styles.notificationРanel}>
       {message}
     </div>
   );

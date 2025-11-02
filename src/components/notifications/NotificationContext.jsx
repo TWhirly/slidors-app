@@ -21,12 +21,13 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ showNotification, hideNotification }}>
+    <NotificationContext.Provider value={{ showNotification, hideNotification }}
+    >
       {children}
-      <NotificationPanel 
+      <NotificationPanel
+        style={notification.style} 
         show={notification.show} 
         message={notification.message}
-        style={notification.style}
         onHide={hideNotification} 
       />
     </NotificationContext.Provider>

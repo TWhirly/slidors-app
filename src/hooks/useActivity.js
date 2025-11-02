@@ -96,6 +96,7 @@ function createDateTime(dateStr, timeStr) {
   // Функция для оптимистичного обновления события
   const optimisticUpdateActivity = (activityData, isNewActivity = false) => {
     const finalize = !!activityData.finalize
+    console.log('isNewActivity', isNewActivity)
     queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
       const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
       if (isNewActivity) {
@@ -144,7 +145,7 @@ onMutate: async (activityData) => {
     },
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
-       !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.5rem'});
+       !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {

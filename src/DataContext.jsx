@@ -41,7 +41,7 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-            console.log('response Name', response.data);
+            // console.log('response Name', response.data);
             setName(response.data || '');
             setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
@@ -52,7 +52,7 @@ export const DataProvider = ({ children }) => {
         }
     };
     const fetchTypesAndStatuses = async () => {
-        console.log('fetchTypesAndStatuses');
+        // console.log('fetchTypesAndStatuses');
         const params = {
             chatID: chat_id,
             api: 'getTypesAndStatuses'
@@ -86,7 +86,6 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    console.log(activityPurposes, 'activityPurposes')
     return (
         <DataContext.Provider value={{
             loading,

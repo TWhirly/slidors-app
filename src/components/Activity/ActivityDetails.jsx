@@ -29,13 +29,13 @@ const ActivityDetails = () => {
   const [options, setOptions] = useState([])
   const {name, email} = useContext(DataContext)
   // const getEmptyActivity = require('./ActivityDetails.jsx')
-  console.log(name)
+  // console.log(name)
   tg.BackButton.isVisible = true
     useEffect(() => {
     if (activities) {
       let activity = []
       activity = activities.planned?.filter((activity) => activity.id === id);
-      console.log('activity in useEffect', activity, id, activities) // Find the activity with the matching ID and set it as the state variable)
+      // console.log('activity in useEffect', activity, id, activities) // Find the activity with the matching ID and set it as the state variable)
       if (activity.length === 0) {
         activity = activities.other?.filter((activity) => activity.id === id);
       }
@@ -61,7 +61,7 @@ const ActivityDetails = () => {
   useEffect(() => {
     const initializeBackButton = () => {
       if (!tg) return;
-      console.log('back button init', path)
+      // console.log('back button init', path)
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
@@ -120,7 +120,7 @@ const ActivityDetails = () => {
   if (!activity)
     return
     let options = [];
-    console.log('options check', activity.responsible, `${name.name} (${email})`)
+    // console.log('options check', activity.responsible, `${name.name} (${email})`)
     if(activity.plan && activity.responsible === `${name.name} (${email})`)
       options.push('Завершить')
     if(name.role === 'Админ')
@@ -196,15 +196,15 @@ const ActivityDetails = () => {
   
 
   const handleSelectContact = (contact) => {
-          console.log('handleSelectCompany', contact);
+          // console.log('handleSelectCompany', contact);
            navigate(`/contacts/${contact.id}`, {
               state: {contactId: contact.id, companyId: activity.companyId, activityId: id,
               path: `/activities/${id}`, prevComponent : activity}
           });
               };
 
-  console.log('activity', activity)
-  console.log('tg.BackButton.onClick', tg.BackButton.onClick())
+  // console.log('activity', activity)
+  // console.log('tg.BackButton.onClick', tg.BackButton.onClick())
 
   if (!activity) {
     return <div>Activity not found</div>;
