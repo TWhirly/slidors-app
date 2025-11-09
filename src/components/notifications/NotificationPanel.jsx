@@ -16,7 +16,7 @@ const NotificationPanel = ({ message, show, onHide, style }) => {
 
   return (
     <div 
-    style={style}
+    style={style || {}}
     className={styles.notificationРanel}>
       {message}
     </div>

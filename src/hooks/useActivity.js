@@ -134,7 +134,7 @@ onMutate: async (activityData) => {
       const previousActivity = queryClient.getQueryData(['activity']) || [];
       
       // Оптимистичное обновление через функцию
-      optimisticUpdateActivity(activityData, activityData.isNew);
+      // optimisticUpdateActivity(activityData, activityData.isNew);
       
       return { previousActivity };
     },

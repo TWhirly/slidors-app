@@ -128,7 +128,7 @@ const Contacts = () => {
         };
     }, [navigate, tg.BackButton]);
 
-    // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
+    console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
     if (isLoading) {
         return (
@@ -214,7 +214,7 @@ const Contacts = () => {
                                                     >
                                                         {contact.fullName}
                                                     </div>
-                                                  
+                                                    {contact.snv !== '' && <YellowStarIcon className={styles.factoryIcon} />}
                                                 </div>
                                                 <div className={styles.checksContainer}>
                                                     <div>

@@ -179,3 +179,57 @@
     margin-left: 10px;
 }
 
+.checkboxInput {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #718096;
+  border-radius: 4px;
+  align-self: right;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-right: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.contactCheckbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid white;
+  border-radius: 4px;
+  margin-top: auto;
+  margin-bottom: auto;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  float: right;
+  vertical-align: middle;
+  margin-right: 15px;
+}
+
+.contactCheckbox:hover {
+  border-color: white;
+  /* box-shadow: 0 0 0 1px #4299e1; */
+}
+
+.contactCheckbox:checked {
+  background: transparent;
+  border-color: white;
+}
+
+.contactCheckbox:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+

@@ -163,7 +163,7 @@ function ContactDetails() {
     <div className={styles.container}>
       <div className={styles.naviPanel}>
         <span className={styles.nameAndIcon}>
-          {getContactFullNmae(contact)}
+          {getContactFullNmae(contact)}{contact.snv !== '' && <YellowStarIcon className={styles.factoryIcon} />}
          
         </span>
         <LongMenu

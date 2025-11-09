@@ -11,13 +11,14 @@ import { useContacts } from '../../hooks/useContacts';
 import { v4 as uuidv4 } from 'uuid';
 import AddIcon from '@mui/icons-material/Add';
 import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
+import { fromPairs } from 'lodash';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
     const isNewContact = contact?.new === true; // Явный флаг
     // console.log('isNewContact', isNewContact);
     const navigate = useNavigate();
-    
+
 
     const queryClient = useQueryClient();
     const [companiesList, setCompaniesList] = useState([]);
@@ -35,15 +36,15 @@ const ContactEditForm = () => {
     const id = contact?.id;
     const [localEmailInputs, setLocalEmailInputs] = useState([]);
     tg.BackButton.isVisible = true;
-    
+
     console.log('contact.relative', contact.prevActivityData);
     // console.log('regionsWithCompanies', regionsWithCompanies);
-     console.log('contact', contact)
-    
-    const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
-    const { updateContact , optimisticUpdateContact} = useContacts(chat_id);
+    console.log('contact', contact)
 
-    
+    const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
+    const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
+
+
 
     useEffect(() => {
         if (contactMails.length > 0) {
@@ -52,24 +53,24 @@ const ContactEditForm = () => {
             setLocalEmailInputs([{ id: uuidv4(), mail: '' }]);
         }
     }, [contactMails]);
-   
+
     const addEmailInput = () => {
-        setLocalEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
+        setLocalEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
     };
 
     const handleEmailChange = (index, value) => {
         setLocalEmailInputs(prev => {
             const newEmails = [...prev];
             const id = newEmails[index].id;
-            newEmails[index] = {id: id, mail: value};
+            newEmails[index] = { id: id, mail: value };
             return newEmails;
         });
-         setHasChanged(true);
+        setHasChanged(true);
     };
 
-    
 
-    
+
+
 
 
     useEffect(() => {
@@ -90,18 +91,18 @@ const ContactEditForm = () => {
     useEffect(() => {
         const initBackButton = () => {
             if (!tg) return;
-            
+
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
-             tg.BackButton.onClick(() => navigate(contact.path || '/contacts/', 
-        {state: contact.prevActivityData ? contact.prevActivityData : {contactId: contact.id, companyId: contact.companyId}}));
+            tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
+                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));
         };
 
         initBackButton();
         return () => {
-      tg.BackButton.offClick();
-    };
+            tg.BackButton.offClick();
+        };
         // window.addEventListener('focus', initBackButton);
 
         // return () => {
@@ -144,52 +145,52 @@ const ContactEditForm = () => {
         }
     }, [formData, tg.MainButton]);
 
-     useEffect(() => {
+    useEffect(() => {
         const nonEmptyEmails = localEmailInputs.filter(email => email.mail.trim() !== '');
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
     }, [localEmailInputs]);
 
     //    console.log('regionList', regionList);
 
- const handleSave = useCallback(async () => {
-  if (!allowSave) return;
-  if (!hasChanged) {
-    navigate(contact.path || '/contacts/', 
-      { state: {id: id} }, { replace: true });
-    showNotification(`Данные не изменились`, true);
-    return;
-  }
+    const handleSave = useCallback(async () => {
+        if (!allowSave) return;
+        if (!hasChanged) {
+            navigate(contact.path || '/contacts/',
+                { state: { id: id } }, { replace: true });
+            showNotification(`Данные не изменились`, true);
+            return;
+        }
 
-  try {
-    const currentFormData = formDataRef.current;
-    
-    // 1. Сначала оптимистичное обновление
-    optimisticUpdateContact(currentFormData, isNewContact);
-    updateEmails(currentFormData.emails);
-   
-    // 2. Затем навигация (немедленно)
-    navigate(contact.path || '/contacts/', 
-        {state: contact.prevActivityData ? contact.prevActivityData : {contactId: contact.id, companyId: contact.companyId}}, { replace: true })
-    
-    // 3. Фоновая отправка на сервер
-    updateContact(currentFormData, {
-      onSuccess: () => {
-        showNotification(`Данные сохранены успешно!`, true);
-        queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id] });
-      },
-      onError: (error) => {
-        console.error('Contact update failed:', error);
-        showNotification(`Ошибка при сохранении: ${error.message}`, false);
-        // Автоматический откат через onError в мутации
-      }
-    });
+        try {
+            const currentFormData = formDataRef.current;
 
-  } catch (error) {
-    console.error('Save failed:', error);
-    showNotification(`Ошибка при сохранении: ${error.message}`, false);
-    queryClient.invalidateQueries({ queryKey: ['contacts'] });
-  }
-}, [allowSave, contact.companyId, contact.id, contact.path, contact.prevActivityData, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
+            // 1. Сначала оптимистичное обновление
+            optimisticUpdateContact(currentFormData, isNewContact);
+            updateEmails(currentFormData.emails);
+
+            // 2. Затем навигация (немедленно)
+            navigate(contact.path || '/contacts/',
+                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }, { replace: true })
+
+            // 3. Фоновая отправка на сервер
+            updateContact(currentFormData, {
+                onSuccess: () => {
+                    showNotification(`Данные сохранены успешно!`, true);
+                    queryClient.invalidateQueries({ queryKey: ['emails', null, contact.id] });
+                },
+                onError: (error) => {
+                    console.error('Contact update failed:', error);
+                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // Автоматический откат через onError в мутации
+                }
+            });
+
+        } catch (error) {
+            console.error('Save failed:', error);
+            showNotification(`Ошибка при сохранении: ${error.message}`, false);
+            queryClient.invalidateQueries({ queryKey: ['contacts'] });
+        }
+    }, [allowSave, contact.companyId, contact.id, contact.path, contact.prevActivityData, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
 
 
     useEffect(() => {
@@ -197,12 +198,12 @@ const ContactEditForm = () => {
         tg.setBottomBarColor("#131313");
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
-    
+
         return () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [tg, handleSave]); 
+    }, [tg, handleSave]);
 
     // Update ref whenever formData changes
     useEffect(() => {
@@ -230,6 +231,19 @@ const ContactEditForm = () => {
             </div>
 
             <div className={styles.formContainer}>
+
+                <div>
+                    Сфера нашего внимания
+                    <input
+                        id={contact.id}
+                        type="checkbox"
+                        checked={formData.snv !== ''}
+                        value={formData.snv !== ''}
+                        className={styles.contactCheckbox}
+                        onChange={(value) => setFormData(prev => ({ ...prev, snv: formData.snv === '' ? '1' : '' }))}
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
 
                 <BasicSelect
                     className={styles.formGroup}
@@ -290,6 +304,9 @@ const ContactEditForm = () => {
                     label="Должность"
                 />
 
+
+
+
                 <BasicSelect
                     className={styles.formGroup}
                     type="tel"
@@ -326,23 +343,23 @@ const ContactEditForm = () => {
                     label="Telegram"
                 />
 
-               
-                   
-                    {localEmailInputs?.map((email, index) => (
-                        <BasicSelect
-                            key={index}
-                            className={styles.formGroup}
-                            type="email"
-                            name={`email-${index}`}
-                            value={email.mail}
-                            onChange={(value) => handleEmailChange(index, value)}
-                            label={`Email ${index + 1}`}
-                            // Показываем кнопку добавления только в последнем инпуте
-                            showAddButton={index === localEmailInputs.length - 1 || localEmailInputs.length === 1}
-                            onAdd={addEmailInput}
-                        />
-                    ))}
-               
+
+
+                {localEmailInputs?.map((email, index) => (
+                    <BasicSelect
+                        key={index}
+                        className={styles.formGroup}
+                        type="email"
+                        name={`email-${index}`}
+                        value={email.mail}
+                        onChange={(value) => handleEmailChange(index, value)}
+                        label={`Email ${index + 1}`}
+                        // Показываем кнопку добавления только в последнем инпуте
+                        showAddButton={index === localEmailInputs.length - 1 || localEmailInputs.length === 1}
+                        onAdd={addEmailInput}
+                    />
+                ))}
+
 
                 <BasicSelect
                     className={styles.formGroup}

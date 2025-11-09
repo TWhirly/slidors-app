@@ -148,7 +148,7 @@ export const useRegions = (chat_id) => {
     },
     onSuccess: (data, companyData) => {
       // Дополнительные действия при успехе
-       showNotification(`Данные сохранены успешно!`, true);
+       showNotification(`Данные сохранены успешно!`);
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
