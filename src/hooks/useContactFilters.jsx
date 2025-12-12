@@ -17,7 +17,7 @@ export const useContactFilters = (contacts) => {
 
   const filteredContacts = useMemo(() => {
     if (!contacts) return [];
-    return contacts.planned.filter(contact => {
+    return contacts.filter(contact => {
       // Фильтр по тексту (частичное совпадение)
       if (filters.company &&
         !contact.company.toLowerCase().includes(filters.company.toLowerCase())) {
@@ -25,7 +25,7 @@ export const useContactFilters = (contacts) => {
       }
 
       if (filters.region &&
-        !contact.region.toLowerCase().includes(filters.region.toLowerCase())) {
+        !contact.region.includes(filters.region)) {
         return false;
       }
 

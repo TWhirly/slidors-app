@@ -15,6 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useContacts } from '../../hooks/useContacts';
 import { useContactFilters } from '../../hooks/useContactFilters.jsx';
+import { ContactsFilterModal } from './ContactsFilterModal.jsx'
 import { replace } from 'lodash';
 
 const Contacts = () => {
@@ -31,6 +32,8 @@ const Contacts = () => {
     const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
     const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
     const { regionsWithContacts, isLoading, error } = useContacts(chat_id);
+    const filterIcon = require('../../icons/filter.png')
+    const filterActiveIcon = require('../../icons/filterActive.png')
     const {
         filters,
         setFilters,
@@ -40,6 +43,33 @@ const Contacts = () => {
         avialablePositions,
         avialableRegions,
     } = useContactFilters(regionsWithContacts || []);
+
+    const removeFilter = () => {
+        localStorage.removeItem('eventFilters');
+        const emptyFilters = {
+            snv: false,
+            company: '',
+            name: '',
+            lastName: '',
+            firstName: '',
+            surname: '',
+            region: '',
+            position: []
+        };
+
+        setFilters(emptyFilters);
+    };
+
+     const activeFiltersCount = [
+    filters.snv ? 1 : 0,
+    filters.company ? 1 : 0,
+    filters.name ? 1 : 0,
+    filters.lastName ? 1 : 0,
+    filters.firstName ? 1 : 0,
+    filters.surname ? 1 : 0,
+    filters.region ? 1 : 0,
+    filters.position.length
+  ].reduce((sum, count) => sum + count, 0);
 
 
     const tg = window.Telegram.WebApp;
@@ -139,7 +169,7 @@ const Contacts = () => {
         };
     }, [navigate, tg.BackButton]);
 
-    console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
+    console.log('region rows', filteredContacts, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
     if (isLoading) {
         return (
@@ -171,6 +201,32 @@ const Contacts = () => {
                         .filter((item) => item !== "область")
                         .join(" ")}` : ""}
                 </div>
+                 <div className={styles.companyNamePanel}>
+                    События
+                </div>
+
+                <div
+            
+            className={styles.filterButton}
+          >
+            <div
+            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+            >
+            <img src={activeFiltersCount > 0 ? filterActiveIcon : filterIcon} 
+            alt="Filter icon" 
+            className={styles.filterIcon}
+            >
+                
+            </img>
+            </div>
+             <div className={styles.filterCountPanel}
+             onClick={() =>activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
+             >
+                    {activeFiltersCount === 0 ? "ㅤ" : `✕`}
+                </div>
+            
+          </div>
+              
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
@@ -215,7 +271,7 @@ const Contacts = () => {
                         {loadingRegion === region.region && <span className={styles.loadingdots}>Загрузка</span>}
                         {selectedRegion === region.region && (
                             <div className={styles.dataGridContainer}>
-                                {regionsWithContacts.find((r) => r.region === region.region)?.contacts?.map((contact) => (
+                                {filteredContacts.find((r) => r.region === region.region)?.contacts?.map((contact) => (
                                     <div key={contact.id} className={styles.companyItem}>
                                         <div className={styles.companyInfo}>
                                             <div className={styles.nameAndIcon}>
@@ -282,7 +338,17 @@ const Contacts = () => {
                     </div>
                 ))}
             </div>
-
+                 {isFilterModalOpen && <ContactsFilterModal 
+                            //  className={styles.allRegions}
+                        isOpen={isFilterModalOpen}
+                        onClose={() => setIsFilterModalOpen(false)}
+                        filters={filters}
+                        onFiltersChange={setFilters}
+                        avialablePositions={avialablePositions}
+                        avialableRegions={avialableRegions}
+                        
+                      />}
+                     
         </div>
     );
 };
