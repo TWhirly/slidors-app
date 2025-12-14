@@ -15,7 +15,7 @@ export const avatarGroup = () => {
     alignSelf: "right",
     height: "1.7rem",
     // alignItems: "center",
-    // width: "fit-content",
+    width: "fit-content",
     marginTop: "2px",
     marginRight: "3px"
     }

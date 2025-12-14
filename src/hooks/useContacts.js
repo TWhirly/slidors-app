@@ -18,7 +18,8 @@ export const useContacts = (chat_id) => {
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
     );
-    return transformToRegionsWithContacts(response.data);
+    console.log('contacts from server', response.data)
+    return (response.data);
   };
 
   const getContactFullNmae = (contact) => {
@@ -56,7 +57,7 @@ export const useContacts = (chat_id) => {
     });
   };
 
-  const { data: regionsWithContacts, isLoading, error } = useQuery({
+  const { data: contacts, isLoading, error } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
     staleTime: 1000 * 60 * 30,
@@ -150,11 +151,12 @@ export const useContacts = (chat_id) => {
   });
 
   return {
-    regionsWithContacts: regionsWithContacts || [],
+    contacts: contacts || [],
     isLoading,
     updateContact: updateContactMutation.mutate,
     updateContactAsync: updateContactMutation.mutateAsync,
     isUpdating: updateContactMutation.isLoading,
+    transformToRegionsWithContacts,
     optimisticUpdateContact, // Экспортируем для ручного использования
     error
   };

@@ -60,6 +60,16 @@
     line-height: 0.8; /* Устанавливаем межстрочный интервал */
 }
 
+.companyNamePanelExpanded {
+    display: flex;
+    padding-left: 5px;
+    flex-grow: 1;    
+    align-self: center;
+    margin-left: 5px;
+    line-height: 0.8; /* Устанавливаем межстрочный интервал */
+    cursor: pointer
+}
+
 
 
 .paper {
@@ -144,7 +154,6 @@
     width: 100%;
     font-size: 16px;
     background: none;
-    /* Прозрачный фон */
     padding: 1px 0;
     display: flex;
     flex-direction: column;
@@ -240,6 +249,35 @@
     height: 16px;
     position: relative;
     z-index: 1;
+}
+
+.filterCountPanel {
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+    width: 100%;
+    display: flex;
+    padding: 0;
+       
+    margin-left: 5px;
+}
+
+.filterButton{
+    display: flex;
+    flex-direction: row;
+    height: 16px;
+    width: 16px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    margin-right: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 1em;
+    margin-top: auto;
+    margin-bottom: auto;
+    /* margin-right: 10px; */
 }
 
 .inlineLoading {

@@ -12,9 +12,13 @@ import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
+import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 // import { useScrollMemory } from '../../hooks/useScrollMemory.js';
 import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
+import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
+const filterIcon = require('../../icons/filter.png')
+const filterActiveIcon = require('../../icons/filterActive.png')
 
 const Companies = () => {
 
@@ -31,6 +35,7 @@ const Companies = () => {
     const params = new URLSearchParams(window.Telegram.WebApp.initData);
     const user = JSON.parse(params.get('user'));
     const chat_id = user.id;
+    // const [regionsWithCompanies, setRegionsWithComapnies] = useState([])
 
     const id = location.state?.companyId || null
 
@@ -54,7 +59,49 @@ const Companies = () => {
     };
 
     // Используем хук useRegions
-    const { regionsWithCompanies, isLoading, error } = useRegions(chat_id);
+    const { companies, isLoading, error, transformToRegionsWithCompanies } = useRegions(chat_id);
+
+    const {
+        filters,
+        setFilters,
+        filteredCompanies,
+        isFilterModalOpen,
+        setIsFilterModalOpen,
+        avialableTypes,
+        avialableRegions,
+        avialableStatuses,
+        avialableManagers,
+        avialableCities,
+        avialableHandle
+    } = useCompanyFilters(companies || []);
+
+
+    const regionsWithCompanies = transformToRegionsWithCompanies(filteredCompanies)
+
+    const removeFilter = () => {
+        localStorage.removeItem('companyFilters');
+        const emptyFilters = {
+            name: '',
+            type: [],
+            status: [],
+            manager: [],
+            city: [],
+            region: [],
+            handled: false
+        };
+
+        setFilters(emptyFilters);
+    };
+
+    const activeFiltersCount = [
+        filters.handled ? 1 : 0,
+        filters.name ? 1 : 0,
+        filters.region.length,
+        filters.city.length,
+        filters.manager.length,
+        filters.status.length,
+        filters.type.length
+    ].reduce((sum, count) => sum + count, 0);
 
     useEffect(() => {
         // Load selectedRegion from sessionStorage on component mount
@@ -103,7 +150,8 @@ const Companies = () => {
         };
     }, [navigate]);
 
-    console.log('regionsWithCompanies', regionsWithCompanies);
+    console.log('local storage filters', localStorage.getItem('companyFilters'))
+    // console.log('regionsWithCompanies', regionsWithCompanies);
     // const containerRef = useScrollMemory('companies');
     useEffect(() => {
         // if (!id) return;
@@ -144,6 +192,29 @@ const Companies = () => {
                         .filter((item) => item !== "область")
                         .join(" ")}` : ""}
                 </div>
+
+                <div
+
+                    className={styles.filterButton}
+                >
+                    <div
+                        onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+                    >
+                        <img src={activeFiltersCount > 0 ? filterActiveIcon : filterIcon}
+                            alt="Filter icon"
+                            className={styles.filterIcon}
+                        >
+
+                        </img>
+                    </div>
+                    <div className={styles.filterCountPanel}
+                        onClick={() => activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
+                    >
+                        {activeFiltersCount === 0 ? "ㅤ" : `✕`}
+                    </div>
+
+                </div>
+
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
@@ -256,6 +327,17 @@ const Companies = () => {
                     </Element>
                 ))}
             </div>
+            {isFilterModalOpen && <CompaniesFilterModal
+                //  className={styles.allRegions}
+                isOpen={isFilterModalOpen}
+                onClose={() => setIsFilterModalOpen(false)}
+                filters={filters}
+                onFiltersChange={setFilters}
+                avialableTypes={avialableTypes}
+                avialableRegions={avialableRegions}
+                avialableHandle={avialableHandle}
+
+            />}
         </div>
     );
 };

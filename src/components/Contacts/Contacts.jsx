@@ -31,9 +31,10 @@ const Contacts = () => {
     const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
     const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
     const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-    const { regionsWithContacts, isLoading, error } = useContacts(chat_id);
+    const { contacts, transformToRegionsWithContacts, isLoading, error } = useContacts(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
+    console.log('contacts component', contacts)
     const {
         filters,
         setFilters,
@@ -42,10 +43,12 @@ const Contacts = () => {
         setIsFilterModalOpen,
         avialablePositions,
         avialableRegions,
-    } = useContactFilters(regionsWithContacts || []);
+    } = useContactFilters(contacts || []);
+
+    const regionsWithContacts = transformToRegionsWithContacts(filteredContacts) || []
 
     const removeFilter = () => {
-        localStorage.removeItem('eventFilters');
+        localStorage.removeItem('contactFilters');
         const emptyFilters = {
             snv: false,
             company: '',
@@ -82,6 +85,7 @@ const Contacts = () => {
 
 
     useEffect(() => {
+        console.log('savedSelectedRegion')
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
 
         if (savedSelectedRegion) {
@@ -89,9 +93,9 @@ const Contacts = () => {
         }
     }, []);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-    }, [selectedRegion]);
+    // }, [selectedRegion]);
 
     // Функция для получения регионов
 
@@ -194,18 +198,15 @@ const Contacts = () => {
 
             <div
                 className={styles.naviPanel}
-                onClick={collapseRegion}
+                
             >
-                <div className={styles.companyNamePanel}>
+                <div className={selectedRegion ? styles.companyNamePanelExpanded : styles.companyNamePanel}
+                onClick={collapseRegion}>
                     Контакты{selectedRegion ? ` — ${selectedRegion.split(" ")
                         .filter((item) => item !== "область")
                         .join(" ")}` : ""}
                 </div>
-                 <div className={styles.companyNamePanel}>
-                    События
-                </div>
-
-                <div
+                 <div
             
             className={styles.filterButton}
           >
@@ -271,7 +272,7 @@ const Contacts = () => {
                         {loadingRegion === region.region && <span className={styles.loadingdots}>Загрузка</span>}
                         {selectedRegion === region.region && (
                             <div className={styles.dataGridContainer}>
-                                {filteredContacts.find((r) => r.region === region.region)?.contacts?.map((contact) => (
+                                {regionsWithContacts.find((r) => r.region === region.region)?.contacts?.map((contact) => (
                                     <div key={contact.id} className={styles.companyItem}>
                                         <div className={styles.companyInfo}>
                                             <div className={styles.nameAndIcon}>

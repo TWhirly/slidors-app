@@ -35,18 +35,18 @@ function ContactDetails() {
   const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
   tg.BackButton.isVisible = true
   console.log('id', id);
-  const { regionsWithContacts } = useContacts(chat_id)
+  const { contacts } = useContacts(chat_id)
   console.log('ActivityID', activityId, path);
 
   useEffect(() => {
-    if(regionsWithContacts){
-      const contact = regionsWithContacts.map((region) => region.contacts).flat().find((contact) => contact.id === id);
+    if(contacts){
+      const contact = contacts.find((contact) => contact.id === id);
       console.log('contact', contact);
       if (contact) {
         setContact(contact);
       }
     }
-  }, [regionsWithContacts, id]);
+  }, [contacts, id]);
   
 
   // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))

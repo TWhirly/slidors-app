@@ -17,7 +17,7 @@ export const useRegions = (chat_id) => {
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       JSON.stringify(params),
     );
-    return transformToRegionsWithCompanies(response.data);
+    return (response.data);
   };
 
   // Выносим функцию преобразования с useCallback
@@ -157,7 +157,7 @@ export const useRegions = (chat_id) => {
     }
   });
 
-  const { data: regionsWithCompanies, isLoading, error } = useQuery({
+  const { data: companies, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
     // select: transformToRegionsWithCompanies, // ← Стабильная ссылка
@@ -167,11 +167,12 @@ export const useRegions = (chat_id) => {
   });
 
   return {
-    regionsWithCompanies: regionsWithCompanies || [],
+    companies: companies || [],
     isLoading,
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
-    optimisticUpdateCompany
+    optimisticUpdateCompany,
+    transformToRegionsWithCompanies
   };
 };
