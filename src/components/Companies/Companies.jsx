@@ -38,6 +38,7 @@ const Companies = () => {
     // const [regionsWithCompanies, setRegionsWithComapnies] = useState([])
 
     const id = location.state?.companyId || null
+    // localStorage.removeItem('companyFilters');
 
     tg.BackButton.show();
 
@@ -71,8 +72,8 @@ const Companies = () => {
         avialableRegions,
         avialableStatuses,
         avialableManagers,
-        avialableCities,
-        avialableHandle
+        avialableHandle,
+        regionCities
     } = useCompanyFilters(companies || []);
 
 
@@ -87,14 +88,14 @@ const Companies = () => {
             manager: [],
             city: [],
             region: [],
-            handled: false
+            handled: []
         };
 
         setFilters(emptyFilters);
     };
 
     const activeFiltersCount = [
-        filters.handled ? 1 : 0,
+        filters.handled.length,
         filters.name ? 1 : 0,
         filters.region.length,
         filters.city.length,
@@ -150,7 +151,7 @@ const Companies = () => {
         };
     }, [navigate]);
 
-    console.log('local storage filters', localStorage.getItem('companyFilters'))
+    // console.log('local storage filters', localStorage.getItem('companyFilters'))
     // console.log('regionsWithCompanies', regionsWithCompanies);
     // const containerRef = useScrollMemory('companies');
     useEffect(() => {
@@ -185,9 +186,11 @@ const Companies = () => {
         >
             <div
                 className={styles.naviPanel}
-                onClick={collapseRegion}
+                
             >
-                <div className={styles.companyNamePanel}>
+                <div className={selectedRegion ? styles.companyNamePanelExpanded : styles.companyNamePanel}
+                onClick={collapseRegion}>
+                    
                     Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
                         .filter((item) => item !== "область")
                         .join(" ")}` : ""}
@@ -336,6 +339,9 @@ const Companies = () => {
                 avialableTypes={avialableTypes}
                 avialableRegions={avialableRegions}
                 avialableHandle={avialableHandle}
+                avialableManagers={avialableManagers}
+                avialableStatuses={avialableStatuses}
+                regionCities={regionCities}
 
             />}
         </div>

@@ -1,5 +1,5 @@
 // FilterModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../Activity/FilterModal.module.css';
 
 export const CompaniesFilterModal = ({
@@ -11,17 +11,32 @@ export const CompaniesFilterModal = ({
   avialableRegions,
   avialableStatuses,
   avialableManagers,
-  avialableCities,
-  avialableHandle
+  avialableHandle,
+  regionCities
 }) => {
+
+  const [avialableCities, setAvialableCities] = useState([])
+
+  useEffect(() => {
+    let filteredCities = []
+    Object.entries(regionCities).map(([region, cities]) => {
+      if (filters.region.includes(region))
+        filteredCities.push(...cities)
+    })
+    setAvialableCities(filteredCities.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')))
+  }, [filters.region])
+
+  console.log('regionCities', regionCities)
+  console.log('avialableCities', avialableCities)
 
   if (!isOpen) return null;
 
   const updateFilter = (key, value) => {
-    console.log('filters', filters)
+
     console.log(value)
     const newFilters = { ...filters, [key]: value };
     onFiltersChange(newFilters);
+    console.log('filters', filters)
     localStorage.setItem('companyFilters', JSON.stringify(newFilters));
   };
 
@@ -49,10 +64,12 @@ export const CompaniesFilterModal = ({
                 <label key={handled} className={styles.checkboxItem}>
                   <input
                     type="checkbox"
-                    checked={index === 0 ? filters.handled : !filters.handled}
+                    checked={filters.handled.includes(handled)}
                     onChange={(e) => {
-                     
-                      updateFilter('handled', !!!handled);
+                      const newHandled = e.target.checked
+                        ? [...filters.handled, handled]
+                        : filters.handled.filter(c => c !== handled);
+                      updateFilter('handled', newHandled);
                     }}
                     className={styles.checkboxInput}
                   />
@@ -80,6 +97,54 @@ export const CompaniesFilterModal = ({
                     className={styles.checkboxInput}
                   />
                   <span className={styles.checkboxLabel}>{region}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Город */}
+          {filters.region.length > 0 &&
+            <div className={styles.filterSection}>
+              <label className={styles.filterLabel}>Города</label>
+              <div className={styles.checkboxList}>
+                {avialableCities.map(city => (
+                  <label key={city} className={styles.checkboxItem}>
+                    <input
+                      disabled={filters.region.length === 0}
+                      type="checkbox"
+                      checked={filters.city.includes(city)}
+                      onChange={(e) => {
+                        const newCities = e.target.checked
+                          ? [...filters.city, city]
+                          : filters.city.filter(c => c !== city);
+                        updateFilter('city', newCities);
+                      }}
+                      className={styles.checkboxInput}
+                    />
+                    <span className={styles.checkboxLabel}>{city}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          }
+          {/* Менеджер */}
+          <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>Менеджеры</label>
+            <div className={styles.checkboxList}>
+              {avialableManagers.map(manager => (
+                <label key={manager} className={styles.checkboxItem}>
+                  <input
+                    type="checkbox"
+                    checked={filters.manager.includes(manager)}
+                    onChange={(e) => {
+                      const newManagers = e.target.checked
+                        ? [...filters.manager, manager]
+                        : filters.manager.filter(c => c !== manager);
+                      updateFilter('manager', newManagers);
+                    }}
+                    className={styles.checkboxInput}
+                  />
+                  <span className={styles.checkboxLabel}>{manager}</span>
                 </label>
               ))}
             </div>
@@ -120,7 +185,30 @@ export const CompaniesFilterModal = ({
             </div>
           </div>
 
-         
+          {/* Статус */}
+          <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>Типы</label>
+            <div className={styles.checkboxList}>
+              {avialableStatuses.map(status => (
+                <label key={status} className={styles.checkboxItem}>
+                  <input
+                    type="checkbox"
+                    checked={filters.status.includes(status)}
+                    onChange={(e) => {
+                      const newStatuses = e.target.checked
+                        ? [...filters.status, status]
+                        : filters.status.filter(c => c !== status);
+                      updateFilter('status', newStatuses);
+                    }}
+                    className={styles.checkboxInput}
+                  />
+                  <span className={styles.checkboxLabel}>{status}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+
         </div>
       </div>
     </div>

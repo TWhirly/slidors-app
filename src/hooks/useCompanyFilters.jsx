@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 export const useCompanyFilters = (companies) => {
   console.log('local storage company filters', localStorage.getItem('companyFilters'))
@@ -9,7 +9,7 @@ export const useCompanyFilters = (companies) => {
     manager: [],
     city: [],
     region: [],
-    handled: false
+    handled: []
   });
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -42,7 +42,13 @@ export const useCompanyFilters = (companies) => {
         return false;
       }
 
-      if (filters.handled && !company.handled) {
+      if (filters.handled.includes('Проработан') && 
+        !company.handled ) {
+        return false
+      }
+
+      if (filters.handled.includes('Не проработан') && 
+        company.handled ) {
         return false
       }
 
@@ -96,11 +102,30 @@ export const useCompanyFilters = (companies) => {
   }, [companies]
   );
 
+  const regionCities = useMemo(() => {
+    const obj = companies.reduce((acc, company) => {
+      if(company.city === '')
+        return acc
+      if (!acc[company.region]) {
+        acc[company.region] = [company.city]
+      return acc
+    } 
+        if (!acc[company.region].includes(company.city)) {
+            acc[company.region].push(company.city)
+        }
+       return acc 
+    }, {})
+    return obj
+  })
+
   const avialableHandle = useMemo(() => {
     return ['Проработан', 'Не проработан']
   }, [])
 
-   
+  console.log('region cities in hook', regionCities)
+
+  
+  
   return {
     filters,
     setFilters,
@@ -111,7 +136,7 @@ export const useCompanyFilters = (companies) => {
     avialableRegions,
     avialableStatuses,
     avialableManagers,
-    avialableCities,
-    avialableHandle
+    avialableHandle,
+    regionCities
   };
 };
