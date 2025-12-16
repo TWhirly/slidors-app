@@ -18,8 +18,10 @@ const ITEM_PADDING_TOP = 8;
 const MenuProps = {
     PaperProps: {
         style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            // maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
             width: 250,
+            backgroundColor: "#131313",
+            color: "white"
         },
     },
 };
@@ -50,7 +52,8 @@ const BasicSelect = (props) => {
     const filteredList = useMemo(() => {
         if (!props.searchable) return localList;
         if (!debouncedSearchTerm) return localList;
-        if (props.useObjects) return localList.filter(item => item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+        if (props.useObjects) return localList.filter(item => item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+            ;
 
         return localList.filter(item =>
             item.toString().toLowerCase().includes(debouncedSearchTerm.toLowerCase())
@@ -193,7 +196,7 @@ const BasicSelect = (props) => {
                     onBlur={handleBlur}
                     input={<OutlinedInput />}
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
-                    IconComponent={props.value?.length > 0 ? null : ArrowDropDownIcon }
+                    IconComponent={props.value?.length > 0 ? null : ArrowDropDownIcon}
                     // renderValue={() => 'fff'}
                     MenuProps={{
                         ...MenuProps,
@@ -228,8 +231,8 @@ const BasicSelect = (props) => {
                             opacity: 0.7,
                         },
                         '& .MuiSvgIcon-root': {
-                        //  display: props.value?.length > 0 ? 'none' : 'true',
-                         },
+                            //  display: props.value?.length > 0 ? 'none' : 'true',
+                        },
                     }}
                     endAdornment={
                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -248,14 +251,14 @@ const BasicSelect = (props) => {
                                         '&:hover': {
                                             backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                         },
-                                        
+
                                     }}
                                 >
                                     {/* <AddIcon fontSize="small" /> */}
                                     +
                                 </IconButton>
                             )
-                            
+
                             }
                             {/* {props.multiple && props.value?.length > 0 && ( */}
                             {props.value?.length > 0 && (
@@ -313,7 +316,8 @@ const BasicSelect = (props) => {
                                 padding: '8px',
                                 position: 'sticky',
                                 top: 0,
-                                background: 'white',
+                                backgroundColor: "#131313",
+                                color: "white",
                                 zIndex: 1,
                                 borderBottom: '1px solid #444',
                                 display: 'flex',
@@ -341,9 +345,9 @@ const BasicSelect = (props) => {
                                                 }
                                             }}
                                             style={{
-                                                background: 'none',
+                                                backgroundColor: "#131313",
+                                                color: "white",
                                                 border: 'none',
-                                                color: '#444',
                                                 cursor: 'pointer',
                                                 padding: '4px 4px',
                                                 marginRight: '4px',
@@ -357,10 +361,11 @@ const BasicSelect = (props) => {
                                     )
                                 }
                                 sx={{
-                                    backgroundColor: 'white',
+                                    backgroundColor: '131313',
                                     borderRadius: '4px',
+                                    color: "white",
                                     '& .MuiOutlinedInput-input': {
-                                        color: 'black',
+                                        color: 'white',
                                         padding: '8px',
                                     },
                                     '& .MuiOutlinedInput-notchedOutline': {
@@ -496,8 +501,8 @@ const BasicSelect = (props) => {
 
                                 </IconButton>
                             )
-                                 
-                            
+
+
                             }
                             {props.value?.length > 0 && (
                                 <IconButton
@@ -518,7 +523,7 @@ const BasicSelect = (props) => {
                                 </IconButton>
                             )}
 
-                            </div>}
+                        </div>}
                 />
             )}
         </FormControl>

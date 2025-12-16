@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 export const useCompanyFilters = (companies) => {
   console.log('local storage company filters', localStorage.getItem('companyFilters'))
@@ -14,7 +14,7 @@ export const useCompanyFilters = (companies) => {
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const filteredCompanies = useMemo(() => {
-    if (!companies) return [];
+    if (!companies || !filters) return [];
     return companies.filter(company => {
      
       if (filters.region.length > 0 &&
@@ -23,36 +23,36 @@ export const useCompanyFilters = (companies) => {
       }
 
       if (filters.name &&
-        !company.name?.toLowerCase().includes(filters.name.toLowerCase())) {
+        !company.name?.toLowerCase().includes(filters.name?.toLowerCase())) {
         return false;
       }
 
       if (filters.type.length > 0 &&
-        !filters.type.includes(company.type)) {
+        !filters.type?.includes(company.type)) {
         return false;
       }
 
       if (filters.status.length > 0 &&
-        !filters.status.includes(company.status)) {
+        !filters.status?.includes(company.status)) {
         return false;
       }
 
       if (filters.manager.length > 0 &&
-        !filters.manager.includes(company.manager)) {
+        !filters.manager?.includes(company.manager)) {
         return false;
       }
 
-      if (filters.handled.includes('Проработан') && 
+      if (filters.handled?.includes('Проработан') && 
         !company.handled ) {
         return false
       }
 
-      if (filters.handled.includes('Не проработан') && 
+      if (filters.handled?.includes('Не проработан') && 
         company.handled ) {
         return false
       }
 
-      if (filters.city.length > 0 && filters.region.length > 0 &&
+      if (filters.city?.length > 0 && filters.region?.length > 0 &&
         !filters.city.includes(company.city)) {
         return false;
       }
@@ -116,11 +116,10 @@ export const useCompanyFilters = (companies) => {
        return acc 
     }, {})
     return obj
-  })
+  }, [companies])
 
-  const avialableHandle = useMemo(() => {
-    return ['Проработан', 'Не проработан']
-  }, [])
+  const avialableHandle =  ['Проработан', 'Не проработан']
+  
 
   console.log('region cities in hook', regionCities)
 

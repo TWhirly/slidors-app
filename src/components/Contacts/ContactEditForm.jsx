@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
@@ -30,7 +30,7 @@ const ContactEditForm = () => {
     const { titles, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { regionsWithCompanies } = useRegions(chat_id);
+    const { transformToRegionsWithCompanies, companies } = useRegions(chat_id);
     const isFetching = useIsFetching(['regions'])
     const [emailInputs, setEmailInputs] = useState([]);
     const id = contact?.id;
@@ -44,7 +44,8 @@ const ContactEditForm = () => {
     const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
 
-
+    const regionsWithCompanies = useMemo(() => { return(transformToRegionsWithCompanies(companies))
+      }, [companies, transformToRegionsWithCompanies])
 
     useEffect(() => {
         if (contactMails.length > 0) {
@@ -114,24 +115,29 @@ const ContactEditForm = () => {
         // };
     }, [contact, navigate, tg]);
 
-    useEffect(() => {
-        setRegionList(regionsWithCompanies.reduce((acc, region) => {
-            acc.push(region.region)
-            return acc;
-        }, []));
-    }, [regionsWithCompanies],);
+    // useEffect(() => {
+    //     setRegionList(regionsWithCompanies.reduce((acc, region) => {
+    //         acc.push(region.region)
+    //         return acc;
+    //     }, []));
+    // }, [],);
 
     useEffect(() => {
-        setCompaniesList(regionsWithCompanies.reduce((acc, region) => {
-            if (region.region === formData.region) {
-                region.companies.forEach(company => {
-                    acc.push(company)
-                })
-            }
-            return acc;
+         const regionSet = new Set(companies.map(company => {
+            return company.region
+         }))
+         const regions = Array.from(regionSet)
+       setRegionList(regions)
+    }, [companies])
 
-        }, []));
-    }, [formData.region, regionsWithCompanies],);
+    useEffect(() => {
+        setCompaniesList(companies.reduce((acc, company) => {
+            if(company.region === formData.region)
+                acc.push(company)
+            return acc;
+        }, [])
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name, 'ru')));
+    }, [companies, formData.region]);
 
     useEffect(() => {
         if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
@@ -203,7 +209,7 @@ const ContactEditForm = () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [tg, handleSave]);
+    }, []);
 
     // Update ref whenever formData changes
     useEffect(() => {

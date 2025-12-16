@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback, useMemo} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
@@ -25,15 +25,22 @@ const CompanyEditForm = () => {
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { regionsWithCompanies , optimisticUpdateCompany, updateCompany} = useRegions(chat_id);
+    const { transformToRegionsWithCompanies , companies , optimisticUpdateCompany, updateCompany} = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = company.id;
     const { contactMails , updateEmails } = useEmail(id, null, isNewComapny)
 
+    // const regionsWithCompanies = useMemo(() => {
+    //     return transformToRegionsWithCompanies(companies)
+    // }, [companies, transformToRegionsWithCompanies])
+
+    const regionsWithCompanies = transformToRegionsWithCompanies(companies)
+
     console.log('regionsWithCompanies', regionsWithCompanies);
     useEffect(() => {
+        console.log('effect 1')
         const initBackButton = () => {
             if (!tg) return;
 
@@ -49,19 +56,17 @@ const CompanyEditForm = () => {
                 }
             });
         };
-
         initBackButton();
-        
         return () => {
             if (tg) {
                 tg.BackButton.offClick();
                 // tg.BackButton.hide();
             }
-            
         };
     }, [company, id, navigate, tg]);
 
      useEffect(() => {
+        console.log('effect 2')
             if(contactMails.length > 0)
             setEmailInputs(contactMails);
         else{
@@ -82,6 +87,7 @@ const CompanyEditForm = () => {
         };
 
          useEffect(() => {
+            console.log('effect 3')
                 const nonEmptyEmails = emailInputs.reduce((acc, email) => {
                     if (email.mail.trim() !== '') {
                         acc.push(email);
@@ -93,12 +99,14 @@ const CompanyEditForm = () => {
             },[emailInputs]);
 
     useEffect(() => {
+        console.log('effect 4')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
         setHasChanged(hasChanged);
         console.log('hasChanged', hasChanged);
     }, [formData, company]);
 
     useEffect(() => {
+        console.log('effect 5')
         if (formData?.name.trim() !== '' && formData.region.length > 0) {
             formDataRef.current = formData;
             setAllowSave(true);
@@ -111,6 +119,7 @@ const CompanyEditForm = () => {
     }, [formData, tg.MainButton]);
 
     useEffect(() => {
+        console.log('effect 6')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
@@ -118,6 +127,7 @@ const CompanyEditForm = () => {
 
 
     const handleSave = useCallback(async () => {
+        console.log('effect 7')
         const currentFormData = formDataRef.current;
         console.log('Current form data:', formData);
         if (!allowSave) return
@@ -151,6 +161,7 @@ const CompanyEditForm = () => {
 
 
     useEffect(() => {
+        console.log('effect 8')
     if (!company) {
         navigate('/companies');
         return;
@@ -167,47 +178,36 @@ const CompanyEditForm = () => {
 }, [company, handleSave, navigate, tg]);
 
     useEffect(() => {
+        console.log('effect 9')
         formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
     }, [formData])
 
     useEffect(() => {
-        if (formData.region && regionsWithCompanies) {
-            const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
-            if (selectedRegion) {
-                const cities = selectedRegion.companies.reduce((acc, company) => {
-                    if (!acc.includes(company.city) && company.city.length > 0) {
-                        acc.push(company.city);
-                    }
-                    return acc;
-                }, []);
-                setCities(cities.sort());
-            } else {
-                setCities([]);
-            }
+        console.log('effect 10')
+        if (formData.region) {
+            const citiesSet =  new Set(companies.filter(company => company.region === formData.region && company.city !== '')
+            .map(company => {return company.city}))
+            const cities = Array.from(citiesSet)
+            setCities(cities.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')))
         } else {
             setCities([]);
         }
-    }, [formData.region, regionsWithCompanies]);
+    }, [companies, formData.region]);
 
     useEffect(() => {
-        if (formData.type === 'Дилер' && regionsWithCompanies) {
-            const recyclers = [];
-            regionsWithCompanies.forEach(region => {
-                region.companies.forEach(company => {
-                    if (company.type === 'Переработчик' && company.name.length > 0 && !recyclers.includes(company.name)) {
-                        recyclers.push(company.name);
-                    }
-                })
-            });
-
-            setRecyclers(recyclers.sort());
+        console.log('effect 11')
+        if (formData.type === 'Дилер') {
+            const recyclers = companies.filter(company => company.type === 'Переработчик')
+            .map(company => {return company.name})
+            setRecyclers(recyclers.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')));
         } else {
             setRecyclers([]);
         }
-    }, [formData.type, regionsWithCompanies]);
+    }, [companies, formData.type]);
 
     // Update ref whenever formData changes
     useEffect(() => {
+        console.log('effect 12')
         formDataRef.current = formData;
     }, [formData]);
 
