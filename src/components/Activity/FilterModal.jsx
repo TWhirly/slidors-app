@@ -40,6 +40,37 @@ export const FilterModal = ({
         {/* Содержимое фильтра */}
         <div className={styles.filtersContent}>
 
+             {/* Фильтр по дате */}
+          <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>Период</label>
+            <div className={styles.dateGrid}>
+              <div className={styles.dateBox}>
+                <input
+                  type="date"
+                  value={filters.dateRange.from}
+                  onChange={(e) => updateFilter('dateRange', {
+                    ...filters.dateRange,
+                    from: e.target.value
+                  })}
+                  className={styles.dateInput}
+                  placeholder="Дата начала"
+                />
+              </div>
+              <div className={styles.dateBox}>
+                <input
+                  type="date"
+                  value={filters.dateRange.to}
+                  onChange={(e) => updateFilter('dateRange', {
+                    ...filters.dateRange,
+                    to: e.target.value
+                  })}
+                  className={styles.dateInput}
+                  placeholder="Дата окончания"
+                />
+              </div>
+            </div>
+          </div>
+
         {/* Регион */}
         <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Регионы</label>
@@ -167,36 +198,7 @@ export const FilterModal = ({
             </div>
           </div>
           
-          {/* Фильтр по дате */}
-          <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Период</label>
-            <div className={styles.dateGrid}>
-              <div className={styles.dateBox}>
-                <input
-                  type="date"
-                  value={filters.dateRange.from}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    from: e.target.value
-                  })}
-                  className={styles.dateInput}
-                  placeholder="Дата начала"
-                />
-              </div>
-              <div className={styles.dateBox}>
-                <input
-                  type="date"
-                  value={filters.dateRange.to}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    to: e.target.value
-                  })}
-                  className={styles.dateInput}
-                  placeholder="Дата окончания"
-                />
-              </div>
-            </div>
-          </div>
+       
         </div>
 
         {/* Кнопки действий */}

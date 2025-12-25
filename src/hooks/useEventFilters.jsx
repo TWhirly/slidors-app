@@ -156,7 +156,9 @@ export const useEventFilters = (events) => {
   const avialableRegions = useMemo(() => {
     const plannedSet = new Set(events.planned?.map(event => event.region));
     const otherSet = new Set(events.other?.map(event => event.region));
-    return Array.from(new Set([...plannedSet, ...otherSet])).sort();
+    return Array.from(new Set([...plannedSet, ...otherSet]))
+    .filter(reg => reg !== '')
+    .sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'));
   }
     , 
     [events]

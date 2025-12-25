@@ -154,6 +154,7 @@ onMutate: async (activityData) => {
     }
   });
 
+  console.log('activity hook', activity)
   const test = [1, 2]
 
   return {

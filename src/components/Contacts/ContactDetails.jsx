@@ -11,6 +11,7 @@ import LongMenu from './CompanyDetailMenu';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { replace } from 'lodash';
 import { useContacts } from '../../hooks/useContacts';
+import { useActivity } from '../../hooks/useActivity.js';
 
 function ContactDetails() {
 
@@ -19,6 +20,7 @@ function ContactDetails() {
   const navigate = useNavigate();
   const { state: {contactId: id ,  path = '/contacts' , activityId } } = useLocation();
   const [contact, setContact] = useState({});
+  const [contactActivity, setContactActivity] = useState([])
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
@@ -33,6 +35,7 @@ function ContactDetails() {
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   
   const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
+  const {activity, isLoading: isActivityLoading} = useActivity(chat_id)
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { contacts } = useContacts(chat_id)
@@ -41,44 +44,26 @@ function ContactDetails() {
   useEffect(() => {
     if(contacts){
       const contact = contacts.find((contact) => contact.id === id);
-      console.log('contact', contact);
       if (contact) {
         setContact(contact);
       }
     }
   }, [contacts, id]);
+
+  useEffect(() => {
+    if(activity){
+      const contactActivity = activity.other.filter(a => a.contactId === id);
+    setContactActivity(contactActivity)
+    }
+  }, [activity, id])
   
 
   // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))
   // console.log('contactMails', contactMails);
 
-  const fetchContactActivity = async () => {
-    // console.log('fecthActivity')
-    const params = {
-      name: 'Ваше имя',
-      contactId: id,
-      api: 'getContactActivities'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    let fetchedActivity = response.data;
-    // console.log('fetchedActivity', fetchedActivity)
-    if (fetchedActivity) {
-      // console.log('Activity', fetchedActivity);
-      return fetchedActivity
-    }
-    return [];
-  };
+  
 
-  const { data: contactActivity, isLoading: isActivityLoading, activityFetchError } = useQuery({
-    queryKey: ['contactActivity' + contact.id],
-    queryFn: fetchContactActivity,
-    staleTime: 600000, // Data is considered fresh for 5 minutes (300,000 ms)
-    refetchInterval: 600000, // Refetch data every 600 seconds in the background
-  });
+  
 
   
 
@@ -153,7 +138,7 @@ function ContactDetails() {
 
  
 
-  console.log('contact', contact)
+  console.log('contactActivity', contactActivity)
 
   if (!contact) {
     return <div>contact not found</div>;
@@ -270,9 +255,12 @@ function ContactDetails() {
                   contactActivity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
                     <div key={index} className={styles.contactItem}>
                       <div className={styles.activityRowVal}>
-                        {activity.startDateTime ? new Date(activity.startDateTime).toLocaleDateString() + ' ' : ''}
+                        {activity.startDatetime ? new Date(activity.startDatetime).toLocaleDateString() + ' ' : ''}
                         {activity.purpose}
                       </div>
+                       <div>
+                           {activity.description}
+                        </div>
                     </div>
                   ))
                 ) : (

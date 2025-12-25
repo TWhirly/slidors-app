@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TextField } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
-import React, { useState, useEffect, useContext, useRef, useCallback , useMemo} from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from '../Companies/CompanyEditForm.module.css';
@@ -27,14 +27,14 @@ const ActivityEditForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity, companyWhatsapp: '', companyTelegram: '' });
-    
+
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
         activityTypes,
         activityPurposes, chat_id, namesEmails } = useContext(DataContext);
     const [regions, setRegions] = useState([]);
-    const { regionsWithCompanies } = useRegions(chat_id);
+    const { companies: allCompanies } = useRegions(chat_id);
     const [cities, setCities] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isElobaration, setIsElobaration] = useState(false);
@@ -47,75 +47,79 @@ const ActivityEditForm = () => {
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = activity.id;
-    const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
+    const { contacts: allContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
     const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');
     const [header, setHeader] = useState('');
     const [toSubscribe, setToSubscribe] = useState(false)
 
-    console.log('regionsWithContacts', regionsWithContacts);
-     console.log('activityEdit', activity);
+    console.log('activityEdit', activity);
     useEffect(() => {
         console.log('effect 1')
-       const handleBackButton = () => {
-        updateActivity({...activity, delete: activity.new}, {
-            onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
-            },
-            onError: (error) => {
-                console.error('Company update failed:', error);
-                showNotification(`Ошибка при сохранении: ${error.message}`, false);
-            }
-        });
-        navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
-    };
+        const handleBackButton = () => {
+            updateActivity({ ...activity, delete: activity.new }, {
+                onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
+                },
+                onError: (error) => {
+                    console.error('Company update failed:', error);
+                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                }
+            });
+            navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
+        };
 
-     const initBackButton = () => {
-        if (!tg) return;
-        tg.ready();
-        tg.BackButton.isVisible = true;
-        tg.BackButton.show();
-        tg.BackButton.onClick(handleBackButton); // ✅ Используем именованную функцию
-    };
-    
-    initBackButton();
-    
-    return () => {
-        if (tg) {
-            tg.BackButton.offClick(handleBackButton); // ✅ Очищаем конкретный обработчик
-        }
-    };
+        const initBackButton = () => {
+            if (!tg) return;
+            tg.ready();
+            tg.BackButton.isVisible = true;
+            tg.BackButton.show();
+            tg.BackButton.onClick(handleBackButton); // ✅ Используем именованную функцию
+        };
+
+        initBackButton();
+
+        return () => {
+            if (tg) {
+                tg.BackButton.offClick(handleBackButton); // ✅ Очищаем конкретный обработчик
+            }
+        };
 
 
     }, [activity, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
-    setFormData(prev => ({ ...prev, contactId: selectedContactId }));
-}, [selectedContactId]);
+        setFormData(prev => ({ ...prev, contactId: selectedContactId }));
+    }, [selectedContactId]);
 
     useEffect(() => {
         if (activity.new)
             setHeader('Новое событие')
-        if(!activity.new && activity.finalize)
+        if (!activity.new && activity.finalize)
             setHeader('Завершить событие')
-        if(!activity.new && !activity.finalize)
+        if (!activity.new && !activity.finalize)
             setHeader('Редактирование')
-    },[activity.finalize, activity.new] )
+    }, [activity.finalize, activity.new])
 
     useEffect(() => {
         console.log('effect 2')
-        if (regionsWithContacts.length > 0) {
-            const contacts = regionsWithContacts.reduce((acc, region) => {
-                region.contacts.forEach((contact) => {
-                    if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
+        if (allContacts) {
 
-                        acc.push(contact);
-                    }
-                });
+            // const companyContacts = allContacts.filter(contact => {
+            //    return(contact.companyId === formData.companyId && !checkIfInArray(acc, contact))
+            // })
+
+            const companyContacts = allContacts.reduce((acc, contact) => {
+
+                if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
+
+                    acc.push(contact);
+                }
                 return acc;
-            }, [])
-            setContacts(contacts)
+            }, []);
+
+            setContacts(companyContacts)
         }
-    }, [formData.companyId, regionsWithContacts]);
+    }, [allContacts, formData.companyId]);
 
     useEffect(() => {
         // console.log('effect 3')
@@ -123,7 +127,7 @@ const ActivityEditForm = () => {
         setHasChanged(hasChanged);
     }, [formData, activity]);
 
-    
+
 
     useEffect(() => {
         // console.log('effect 5')
@@ -135,87 +139,77 @@ const ActivityEditForm = () => {
     useEffect(() => {
         console.log('effect 6')
         const currentFormDataRegion = formData.region;
-        if (currentFormDataRegion && regionsWithCompanies.length > 0) {
-            const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
-            if (selectedRegion) {
-                const cities = selectedRegion.companies.reduce((acc, company) => {
-                    if (!acc.includes(company.city) && company.city.length > 0) {
-                        acc.push(company.city);
-                    }
-                    return acc;
-                }, []);
-                setCities(cities.sort());
-            } else {
-                setCities([]);
-            }
-        } 
+        if (currentFormDataRegion && allCompanies) {
+            const citiesSet = new Set(allCompanies.filter(company => company.region === currentFormDataRegion)
+                .map(company => company.city))
+            const cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
+            setCities(cities)
+            // const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
+            // if (selectedRegion) {
+            //     const cities = selectedRegion.companies.reduce((acc, company) => {
+            //         if (!acc.includes(company.city) && company.city.length > 0) {
+            //             acc.push(company.city);
+            //         }
+            //         return acc;
+            //     }, []);
+            //     setCities(cities.sort());
+            // } else {
+            //     setCities([]);
+            // }
+        }
         // else {
         //     setCities([]);
         // }
 
-    }, [formData.region, regionsWithCompanies]);
+    }, [allCompanies, formData.region]);
 
     useEffect(() => {
         console.log('effect 7')
         const currentFormDataRegion = formData.region;
-        if (currentFormDataRegion && currentFormDataRegion.length > 0 && regionsWithCompanies.length > 0) {
-            const regionNames = regionsWithCompanies?.find(item => item.region === formData.region)
+        if (currentFormDataRegion && currentFormDataRegion.length > 0 && allCompanies) {
             let names = []
-            if(regionNames)
-            {names = regionNames.companies?.reduce((acc, company) => {
+            names = allCompanies.reduce((acc, company) => {
                 if (!acc.includes(company.name) && company.name.length > 0 && !formData.city) {
                     acc.push({ name: company.name, id: company.id });
                 }
                 if (!acc.includes(company.name) && company.name.length > 0 && formData.city?.length > 0 && company.city === formData.city) {
                     acc.push({ name: company.name, id: company.id });
                 }
-
                 return acc;
-            }, [])};
-           
-
+            }, []);
             setCompanies(names);
         }
-        // else {
-        //     setCompanies([]);
-        // }
-        // experimental merge with effect 8
-         if (currentFormDataRegion && currentFormDataRegion.length > 0 && formData.companyId !== '' && regionsWithCompanies.length > 0) {
-            const company = regionsWithCompanies.find(item => item.region === formData.region)
-                .companies?.find(item => item.id === formData.companyId)
+        if (currentFormDataRegion && currentFormDataRegion.length > 0 && formData.companyId !== '' && allCompanies) {
+            const company = allCompanies.find(item => item.id === formData.companyId)
             setCompany(company)
-          
         }
-        // else {
-        //     setCompany({ id: null })
-        // }
-        // exp
-
-    }, [formData.city, formData.companyId, formData.region, regionsWithCompanies])
+    }, [allCompanies, formData.city, formData.companyId, formData.region])
 
     useEffect(() => {
-        if (formData.companyId === ''){
-            setFormData(prev => ({...prev,
-                companyWhatsapp : '',
+        if (formData.companyId === '') {
+            setFormData(prev => ({
+                ...prev,
+                companyWhatsapp: '',
                 companyTelegram: ''
-                
+
             }))
             return
-        } 
-         setFormData(prev => ({...prev,
-                companyWhatsapp : company.whatsapp || '',
-                companyTelegram: company.telegram || ''
-                
-            }))
-    },[company, formData.companyId])
-    
+        }
+        setFormData(prev => ({
+            ...prev,
+            companyWhatsapp: company.whatsapp || '',
+            companyTelegram: company.telegram || ''
+
+        }))
+    }, [company, formData.companyId])
+
 
     useEffect(() => {
         setIsElobaration(formData.purpose === 'Проработка');
     }, [formData.purpose]);
 
     useEffect(() => {
-            setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
+        setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
     }, [formData])
 
     useEffect(() => {
@@ -258,12 +252,13 @@ const ActivityEditForm = () => {
         const isNewActivity = activity?.new === true;
         delete currentFormData.new;
         delete activity.new
-        if(currentFormData.toFinish)
+        if (currentFormData.toFinish)
             currentFormData.plan = ''
         console.log('Current form data:', activity.path);
         if (!allowSave) {
             console.log('allowSave', allowSave)
-            return}
+            return
+        }
         // if (!hasChanged) {
         //     navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: activity.id } });
         //     showNotification(`Данные не изменились`, true);
@@ -293,45 +288,45 @@ const ActivityEditForm = () => {
     }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
-    console.log('effect 4 - Telegram init')
-    tg.setBottomBarColor("#131313");
-    tg.MainButton.show();
-    tg.MainButton.onClick(handleSave);
+        console.log('effect 4 - Telegram init')
+        tg.setBottomBarColor("#131313");
+        tg.MainButton.show();
+        tg.MainButton.onClick(handleSave);
 
-    return () => {
-        tg.MainButton.offClick(handleSave);
-        tg.MainButton.hide();
+        return () => {
+            tg.MainButton.offClick(handleSave);
+            tg.MainButton.hide();
+        };
+    }, [tg, handleSave]); // Только tg и handleSave
+
+    // Отдельный эффект для обновления текста кнопки
+    useEffect(() => {
+        console.log('effect 4b - Button text update')
+        if (checkIfRequireFieldsFilled(formData)) {
+            formDataRef.current = formData;
+            setAllowSave(true);
+            tg.MainButton.setText('Сохранить');
+            tg.MainButton.enable(); // Включить кнопку
+        } else {
+            setAllowSave(false);
+            tg.MainButton.setText('Для сохранения заполните поля');
+            tg.MainButton.disable(); // Отключить кнопку
+        }
+    }, [formData, tg.MainButton]); // formData и tg.MainButton
+
+    const handleCheck = (id) => {
+        console.log('Selected contact ID:', id);
+
+        // Если кликаем на уже выбранный контакт - снимаем выбор
+        if (selectedContactId === id) {
+            setSelectedContactId('');
+            setFormData(prev => ({ ...prev, contactId: '' }));
+        } else {
+            // Иначе выбираем новый контакт (автоматически снимается с предыдущего)
+            setSelectedContactId(id);
+            setFormData(prev => ({ ...prev, contactId: id }));
+        }
     };
-}, [tg, handleSave]); // Только tg и handleSave
-
-// Отдельный эффект для обновления текста кнопки
-useEffect(() => {
-    console.log('effect 4b - Button text update')
-    if (checkIfRequireFieldsFilled(formData)) {
-        formDataRef.current = formData;
-        setAllowSave(true);
-        tg.MainButton.setText('Сохранить');
-        tg.MainButton.enable(); // Включить кнопку
-    } else {
-        setAllowSave(false);
-        tg.MainButton.setText('Для сохранения заполните поля');
-        tg.MainButton.disable(); // Отключить кнопку
-    }
-}, [formData, tg.MainButton]); // formData и tg.MainButton
-
-const handleCheck = (id) => {
-    console.log('Selected contact ID:', id);
-    
-    // Если кликаем на уже выбранный контакт - снимаем выбор
-    if (selectedContactId === id) {
-        setSelectedContactId('');
-        setFormData(prev => ({ ...prev, contactId: '' }));
-    } else {
-        // Иначе выбираем новый контакт (автоматически снимается с предыдущего)
-        setSelectedContactId(id);
-        setFormData(prev => ({ ...prev, contactId: id }));
-    }
-};
 
 
     // Update ref whenever formData changes
@@ -413,8 +408,8 @@ const handleCheck = (id) => {
                     // onChange={console.log('check')}
                     id={company.id || ''}
                     chat_id={chat_id}
-                    selectedContactId={selectedContactId} 
-                    // checked={selectedContactId === formData.contactId}
+                    selectedContactId={selectedContactId}
+                // checked={selectedContactId === formData.contactId}
                 >
 
                 </CompanyContacts>}
@@ -494,32 +489,32 @@ const handleCheck = (id) => {
                         onChange={(value) => setFormData(prev => ({ ...prev, 'subscribed?': value }))}
                         label="Подписаны ли на группу?"
                     />
-              
-                </>}
-                        {toSubscribe && <> 
-                   <BasicSelect
-                    require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
-                    className={styles.formGroup}
-                    type="tel"
-                    name="whatsapp"
-                    value={formData.companyWhatsapp || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, companyWhatsapp: value }))}
-                    label="WhatsApp"
-                />
 
-                <BasicSelect
-                    require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
-                    className={styles.formGroup}
-                    type="tel"
-                    name="telegram"
-                    value={formData.companyTelegram || ''}
-                    onChange={(value) => setFormData(prev => ({ ...prev, companyTelegram: value }))}
-                    label="Telegram"
-                />
+                </>}
+                {toSubscribe && <>
+                    <BasicSelect
+                        require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
+                        className={styles.formGroup}
+                        type="tel"
+                        name="whatsapp"
+                        value={formData.companyWhatsapp || ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, companyWhatsapp: value }))}
+                        label="WhatsApp"
+                    />
+
+                    <BasicSelect
+                        require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
+                        className={styles.formGroup}
+                        type="tel"
+                        name="telegram"
+                        value={formData.companyTelegram || ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, companyTelegram: value }))}
+                        label="Telegram"
+                    />
                 </>
-                }                
-                
-            
+                }
+
+
 
                 <BasicSelect
                     className={styles.formGroup}

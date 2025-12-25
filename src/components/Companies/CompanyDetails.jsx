@@ -41,7 +41,7 @@ const CompanyDetails = () => {
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   // const id = company.id;
   const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
-  const { regionsWithCompanies, contactsLoadingError } = useRegions(chat_id)
+  const { companies, contactsLoadingError } = useRegions(chat_id)
   const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
   const { email } = useContext(DataContext)
@@ -49,12 +49,12 @@ const CompanyDetails = () => {
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
   console.log('activity', activity, test)
   useEffect(() => {
-    if (regionsWithCompanies) {
-      const company = regionsWithCompanies.map((region) => region.companies).flat().find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
+    if (companies) {
+      const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
       setCompany(company)
 
     }
-  }, [regionsWithCompanies, id]);
+  }, [companies, id]);
 
   useEffect(() => {
     const initBackButton = () => {
@@ -86,7 +86,7 @@ const CompanyDetails = () => {
         return acc
       }, []))
     }
-  }, [activity.planned, id])
+  }, [activity, id])
 
   useEffect(() => {
     if (activity.other && activity.other.length > 0){
@@ -96,7 +96,7 @@ const CompanyDetails = () => {
         return acc
       }, []))
     }
-  }, [activity.other, id])
+  }, [activity, id])
 
   // console.log('company', company);
 
@@ -212,7 +212,7 @@ const CompanyDetails = () => {
     }
   };
 
-  console.log('company', company)
+  console.log('companyActivity', companyActivity)
   console.log('contacts', contacts)
 
   if (!company) {
@@ -286,9 +286,11 @@ const CompanyDetails = () => {
         </div>
         <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>Запланированные события </div>
           {companyPlannedActivity?.length > 0 && !isActivityLoading ?
-            (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
+            (<div>
+              <div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
               {companyPlannedActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setPlannedExpanded(!plannedExpanded)}>{expanded ? '▲' : '▼'}</div>}
-            </div></div>) :
+            </div>
+            </div>) :
             ''}
         </div>
         {
@@ -299,6 +301,7 @@ const CompanyDetails = () => {
                   <div key={index} className={styles.contactItem}>
                     <div className={styles.activityRowVal}>{activity.plan ? new Date(activity.plan).toLocaleDateString() + ' ' : ''}
                       {activity.purpose} </div>
+                      <div>{activity.description}</div>
                   </div>
                 ))}
               </div>) : 'нет'
@@ -313,7 +316,7 @@ const CompanyDetails = () => {
         <div className={styles.companyRowInfo}> <div className={styles.companyRowHeader}>Завершенные события </div>
           {companyActivity?.length > 0 && !isActivityLoading ?
             (<div><div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
-              {activity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+              {companyActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
             </div></div>) :
             ''}
         </div>
@@ -321,10 +324,11 @@ const CompanyDetails = () => {
           !isActivityLoading ? (
             companyActivity?.length > 0 ? (
               <div className={styles.contactItem}>
-                {companyActivity?.filter((item, index) => (expanded ? index + 1 : index < 3)).map((activity, index) => (
+                {companyActivity?.filter((item, index) => (expanded ? index  : index < 3)).map((activity, index) => (
                   <div key={index} className={styles.contactItem}>
                     <div className={styles.activityRowVal}>{activity.endDatetime ? new Date(activity.endDatetime).toLocaleDateString() + ' ' : ''}
                       {activity.purpose}</div>
+                       <div>{activity.description}</div>
                   </div>
                 ))}
               </div>) : 'нет'
