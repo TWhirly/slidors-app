@@ -122,15 +122,14 @@ const ContactEditForm = () => {
     //     }, []));
     // }, [],);
 
+   
+
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {
             return company.region
          }))
          const regions = Array.from(regionSet)
        setRegionList(regions)
-    }, [companies])
-
-    useEffect(() => {
         setCompaniesList(companies.reduce((acc, company) => {
             if(company.region === formData.region)
                 acc.push(company)
@@ -186,7 +185,7 @@ const ContactEditForm = () => {
                 },
                 onError: (error) => {
                     console.error('Contact update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    showNotification(`Ошибка при сохранении контакта: ${error.message}`, false);
                     // Автоматический откат через onError в мутации
                 }
             });
@@ -209,7 +208,7 @@ const ContactEditForm = () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, []);
+    }, [handleSave, tg]);
 
     // Update ref whenever formData changes
     useEffect(() => {

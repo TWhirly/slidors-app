@@ -66,6 +66,7 @@ const CompanyEditForm = () => {
     }, [company, id, navigate, tg]);
 
      useEffect(() => {
+        
         console.log('effect 2')
             if(contactMails.length > 0)
             setEmailInputs(contactMails);
@@ -73,6 +74,7 @@ const CompanyEditForm = () => {
             setEmailInputs([{id: uuidv4(), mail: ''}]);
         }
         }, [contactMails]);
+
         const addEmailInput = () => {
             setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
         };
@@ -100,13 +102,11 @@ const CompanyEditForm = () => {
 
     useEffect(() => {
         console.log('effect 4')
+        formDataRef.current = formData;
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
         setHasChanged(hasChanged);
+        formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
         console.log('hasChanged', hasChanged);
-    }, [formData, company]);
-
-    useEffect(() => {
-        console.log('effect 5')
         if (formData?.name.trim() !== '' && formData.region.length > 0) {
             formDataRef.current = formData;
             setAllowSave(true);
@@ -116,7 +116,7 @@ const CompanyEditForm = () => {
             setAllowSave(false);
             tg.MainButton.setText('Для сохранения заполните поля')
         }
-    }, [formData, tg.MainButton]);
+    }, [formData, company, tg.MainButton]);
 
     useEffect(() => {
         console.log('effect 6')
@@ -179,7 +179,7 @@ const CompanyEditForm = () => {
 
     useEffect(() => {
         console.log('effect 9')
-        formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
+        
     }, [formData])
 
     useEffect(() => {
@@ -205,11 +205,8 @@ const CompanyEditForm = () => {
         }
     }, [companies, formData.type]);
 
-    // Update ref whenever formData changes
-    useEffect(() => {
-        console.log('effect 12')
-        formDataRef.current = formData;
-    }, [formData]);
+  
+  
 
 
 

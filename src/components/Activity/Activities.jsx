@@ -355,6 +355,15 @@ const Activities = () => {
                                 >
                                     {activity.purpose}
                                 </div>
+                                <div
+                                    className={styles.companyStatus}
+                                    style={{
+                                        color: '#888',
+                                        fontSize: '0.7rem'
+                                    }}
+                                >
+                                    {activity.description}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -412,21 +421,7 @@ const Activities = () => {
                                         minute: 'numeric'
                                     }).format(new Date(activity.endDatetime))}
                                 </div>
-                                {/* <div
-                                    className={styles.companyPlanDate}
-                                    style={{
-                                        color: "white",
-                                        fontSize: '0.7rem'
-                                    }}
-                                >
-                                    {activity.plan && 
-                                        Intl.DateTimeFormat('ru-RU', {
-                                            day: 'numeric',
-                                            month: 'numeric',
-                                            year: 'numeric'
-                                        }).format(new Date(activity.plan)) + (activity.planTime ? ` ${activity.planTime}` : '')
-                                    }
-                                </div> */}
+                               
                                 <div className={styles.companyInfo}>
                                     <div className={styles.nameAndIcon}>
                                         <div className={styles.companyName}>
@@ -448,6 +443,15 @@ const Activities = () => {
                                     }}
                                 >
                                     {activity.purpose}
+                                </div>
+                                <div
+                                    className={styles.companyStatus}
+                                    style={{
+                                        color: '#888',
+                                        fontSize: '0.7rem'
+                                    }}
+                                >
+                                    {activity.description}
                                 </div>
                             </div>
                         ))}

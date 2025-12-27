@@ -47,7 +47,7 @@ export const useRegions = (chat_id) => {
           manager: company.manager,
           whatsapp: company.whatsapp,
           telegram: company.telegram,
-          recyclers: company.recyclers ? company.recyclers.split(',').filter(Boolean) : [],
+          recyclers: company.recyclers,
           tt: company.tt,
           dealers: company.dealers,
           url: company.url,

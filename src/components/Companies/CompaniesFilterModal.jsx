@@ -79,6 +79,18 @@ export const CompaniesFilterModal = ({
             </div>
           </div>
 
+           {/* Поиск по тексту */}
+          <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>Компания</label>
+            <input
+              type="text"
+              value={filters.name}
+              onChange={(e) => updateFilter('name', e.target.value)}
+              placeholder="Введите название или часть названия компании..."
+              className={styles.textInput}
+            />
+          </div>
+
           {/* Регион */}
           <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Регионы</label>
@@ -150,17 +162,7 @@ export const CompaniesFilterModal = ({
             </div>
           </div>
 
-          {/* Поиск по тексту */}
-          <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Компания</label>
-            <input
-              type="text"
-              value={filters.name}
-              onChange={(e) => updateFilter('name', e.target.value)}
-              placeholder="Введите название или часть названия компании..."
-              className={styles.textInput}
-            />
-          </div>
+         
 
           {/* Тип */}
           <div className={styles.filterSection}>

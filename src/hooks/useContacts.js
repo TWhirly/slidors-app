@@ -68,42 +68,17 @@ export const useContacts = (chat_id) => {
   // Функция для оптимистичного обновления контакта
   const optimisticUpdateContact = (contactData, isNewContact = false) => {
     queryClient.setQueryData(['contacts'], (oldContacts = []) => {
+      console.log('isNewContact', isNewContact)
+      console.log('oldContacts h', oldContacts)
       if (isNewContact) {
         // Для нового контакта - добавляем в соответствующий регион
-        const contactRegion = contactData.region || '?';
         
-        return oldContacts.map(regionGroup => {
-          if (regionGroup.region === contactRegion) {
-            // Добавляем контакт в существующий регион
-            return {
-              ...regionGroup,
-              contacts: [...regionGroup.contacts, contactData],
-              contacts_count: regionGroup.contacts_count + 1
-            };
-          }
-          return regionGroup;
-        });
+        return oldContacts.push(contactData);
       } else {
-        // Для существующего контакта - обновляем
-        // console.log('optimisticUpdateContact', oldContacts);
-        return oldContacts.map(regionGroup => {
-          // Ищем контакт в текущей группе региона
-          const contactIndex = regionGroup.contacts.findIndex(
-            contact => contact.id === contactData.id
-          );
-          
-          if (contactIndex !== -1) {
-            // Если контакт найден в этой группе
-            const updatedContacts = [...regionGroup.contacts];
-            updatedContacts[contactIndex] = contactData;
-            
-            return {
-              ...regionGroup,
-              contacts: updatedContacts
-            };
-          }
-          return regionGroup;
-        });
+        const contactUpdIndex = oldContacts.findIndex(contact => contact.id === contactData.id);
+        oldContacts[contactUpdIndex] = contactData;
+        return oldContacts;
+      
       }
     });
   };
@@ -130,7 +105,7 @@ export const useContacts = (chat_id) => {
       const previousContacts = queryClient.getQueryData(['contacts']) || [];
       
       // Оптимистичное обновление через функцию
-      optimisticUpdateContact(contactData, contactData.isNew);
+      // optimisticUpdateContact(contactData, contactData.isNew);
       
       return { previousContacts };
     },

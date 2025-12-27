@@ -213,7 +213,7 @@ const CompanyDetails = () => {
   };
 
   console.log('companyActivity', companyActivity)
-  console.log('contacts', contacts)
+  console.log('company', company)
 
   if (!company) {
     return <div>Company not found</div>;
@@ -239,7 +239,7 @@ const CompanyDetails = () => {
       </div>
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
-        {company.recyclers?.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers.map(item => item.trim()).join(', ')}</div></div>}
+        {company.recyclers?.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers?.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Регион:</div><div className={styles.companyRowVal}>{company.region}</div></div>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Город:</div><div className={styles.companyRowVal}>{company.city}</div></div>
