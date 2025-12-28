@@ -24,6 +24,7 @@ function ContactDetails() {
   const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
+  const [contactMails, setcontactMails] = useState([])
   const tg = window.Telegram.WebApp;
   // const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const {  chat_id } = useContext(DataContext);
@@ -34,12 +35,20 @@ function ContactDetails() {
   const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
   const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   
-  const { contactMails, isContactsMailsLoading, error } = useEmail(null, id);
+  const { emails, isContactsMailsLoading, error } = useEmail(null, id);
   const {activity, isLoading: isActivityLoading} = useActivity(chat_id)
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { contacts } = useContacts(chat_id)
   console.log('ActivityID', activityId, path);
+
+  useEffect(() => {
+    if(!emails)
+      return
+    console.log('emails', emails)
+    const mails = emails.filter(item => item.contact === id)
+    setcontactMails(mails)
+  }, [emails, id])
 
   useEffect(() => {
     if(contacts){
@@ -223,7 +232,7 @@ function ContactDetails() {
                 {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
                   <div key={index} className={styles.companyMainContacts}>
                     <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                    <div className={styles.companyRowVal}>{mail.mail}</div>
+                    <div className={styles.companyRowVal}>{mail.email}</div>
                   </div>
                 ))) : (
                   <div className={styles.noDataText}>

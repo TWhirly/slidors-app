@@ -2,15 +2,15 @@
 import { useEffect } from 'react';
 import styles from'./NotificationPanel.module.css';
 
-const NotificationPanel = ({ message, show, onHide, style }) => {
+const NotificationPanel = ({ message, show, onHide, style, manualClose = false }) => {
   useEffect(() => {
-    if (show) {
+    if (show && !manualClose) {
       const timer = setTimeout(() => {
         onHide();
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [show, onHide]);
+  }, [show, onHide, manualClose]);
 
   if (!show) return null;
 
@@ -18,7 +18,11 @@ const NotificationPanel = ({ message, show, onHide, style }) => {
     <div 
     style={style || {}}
     className={styles.notificationРanel}>
-      {message}
+      <div>{message}</div>
+      {manualClose && <div
+      onClick={onHide}
+      style={{right: '15px', position: 'absolute', cursor: 'pointer'}}
+      >✕</div>}
     </div>
   );
 };

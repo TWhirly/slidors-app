@@ -23,13 +23,13 @@ const CompanyDetails = () => {
   const [company, setCompany] = useState({});
   const [companyActivity, setCompanyActivity] = useState([])
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
+  const [contactMails, setCompanyMails] = useState([]);
   const tg = window.Telegram.WebApp;
   const params = new URLSearchParams(window.Telegram.WebApp.initData);
   const chat_id = JSON.parse(params.get('user')).id;
 
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  // const id = company.id;
-  const { contactMails, isContactsMailsLoading } = useEmail(id, null);
+  const { emails, isContactsMailsLoading } = useEmail(id, null);
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
   const { email } = useContext(DataContext)
@@ -43,6 +43,16 @@ const CompanyDetails = () => {
 
     }
   }, [companies, id]);
+
+  useEffect(() => {
+    if(!emails)
+      return
+    console.log('emails', emails)
+    const mails = emails.filter(item => item.company === id)
+    setCompanyMails(mails)
+  }, [emails, id])
+
+  
 
   useEffect(() => {
     const initBackButton = () => {
@@ -259,7 +269,7 @@ const CompanyDetails = () => {
                 {contactMails?.length > 0 ? (contactMails?.map((mail, index) => (
                   <div key={index} className={styles.companyMainContacts}>
                     <img src={emailIcon} className={styles.contactPhone} alt="Phone icon" />
-                    <div className={styles.companyRowVal}>{mail.mail}</div>
+                    <div className={styles.companyRowVal}>{mail.email}</div>
 
                   </div>
                 ))) : 'нет'}

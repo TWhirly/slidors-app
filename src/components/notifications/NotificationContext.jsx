@@ -10,8 +10,8 @@ export const NotificationProvider = ({ children }) => {
     style: {}
     });
 
-  const showNotification = (message, style) => {
-    setNotification({ show: true, message, style });
+  const showNotification = (message, style, manualClose) => {
+    setNotification({ show: true, message, style, manualClose });
   };
 
   
@@ -28,7 +28,8 @@ export const NotificationProvider = ({ children }) => {
         style={notification.style} 
         show={notification.show} 
         message={notification.message}
-        onHide={hideNotification} 
+        onHide={hideNotification}
+        manualClose={notification.manualClose} 
       />
     </NotificationContext.Provider>
   );

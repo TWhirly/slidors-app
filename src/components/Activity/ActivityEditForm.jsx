@@ -14,7 +14,7 @@ import { useActivity } from '../../hooks/useActivity.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEmail } from '../../hooks/useEmail.js';
-import { set } from 'lodash';
+import { debounce, set } from 'lodash';
 import { answers, checkIfInArray, checkIfRequireFieldsFilled } from './activity.js';
 import { getContactIcons } from '../Companies/Companies-helpers.js'
 import CompanyContacts from '../Companies/CompanyContacts.jsx'
@@ -122,9 +122,13 @@ const ActivityEditForm = () => {
     }, [allContacts, formData.companyId]);
 
     useEffect(() => {
-        // console.log('effect 3')
+       
+         console.log('effect 3')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
         setHasChanged(hasChanged);
+     
+      
+       
     }, [formData, activity]);
 
 
@@ -209,7 +213,11 @@ const ActivityEditForm = () => {
     }, [formData.purpose]);
 
     useEffect(() => {
+         
         setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
+        console.log('subscribe effect')
+    
+        
     }, [formData])
 
     useEffect(() => {
@@ -287,7 +295,7 @@ const ActivityEditForm = () => {
         }
     }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
 
-    useEffect(() => {
+    useMemo(() => {
         console.log('effect 4 - Telegram init')
         tg.setBottomBarColor("#131313");
         tg.MainButton.show();
@@ -297,11 +305,12 @@ const ActivityEditForm = () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [tg, handleSave]); // Только tg и handleSave
+    }, [handleSave, tg]); // Только tg и handleSave
 
     // Отдельный эффект для обновления текста кнопки
     useEffect(() => {
-        console.log('effect 4b - Button text update')
+        
+             console.log('effect 4b - Button text update')
         if (checkIfRequireFieldsFilled(formData)) {
             formDataRef.current = formData;
             setAllowSave(true);
@@ -312,6 +321,7 @@ const ActivityEditForm = () => {
             tg.MainButton.setText('Для сохранения заполните поля');
             tg.MainButton.disable(); // Отключить кнопку
         }
+       
     }, [formData, tg.MainButton]); // formData и tg.MainButton
 
     const handleCheck = (id) => {
@@ -328,20 +338,12 @@ const ActivityEditForm = () => {
         }
     };
 
-
-    // Update ref whenever formData changes
-    useEffect(() => {
-        formDataRef.current = formData;
-    }, [formData]);
-
-
-
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
     console.log('toSubscribe', toSubscribe);
     console.log('formData', formData);
-    console.log('company', company)
+    console.log('hasChanged', hasChanged)
 
     return (
         <div className={styles.container}>
@@ -391,25 +393,13 @@ const ActivityEditForm = () => {
                     label="Компания"
                 />
 
-                {/* {contacts.map((contact) => {
-                    return(
-                <CompanyMainContacts
-                company={contact}
-                activity
-                >
-
-                </CompanyMainContacts>)})
-                } */}
-
                 {contacts.length > 0 && <CompanyContacts
                     activity
                     className={styles.companyContactsActivity}
                     onChange={handleCheck}
-                    // onChange={console.log('check')}
                     id={company.id || ''}
                     chat_id={chat_id}
                     selectedContactId={selectedContactId}
-                // checked={selectedContactId === formData.contactId}
                 >
 
                 </CompanyContacts>}

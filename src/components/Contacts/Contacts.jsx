@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Contacts.module.css';
@@ -10,7 +8,6 @@ import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from '../Companies/sx.js';
 import { DataContext } from '../../DataContext.jsx';
-import sha256 from 'crypto-js/sha256'; // Import the hashing library
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useContacts } from '../../hooks/useContacts';
