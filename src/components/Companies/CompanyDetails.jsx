@@ -1,34 +1,25 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import axios from 'axios';
 import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
 import { useEmail } from '../../hooks/useEmail';
-import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
-import { useContacts } from '../../hooks/useContacts.js';
 import { useActivity } from '../../hooks/useActivity.js';
-import { replace } from 'lodash';
 import { getEmptyActivity } from '../Activity/activity.js';
 import CompanyСontacts from './CompanyContacts.jsx'
 import CompanyMainContacts from './CompanyMainContacts.jsx'
-import { getContactIcons, formatNumber } from './Companies-helpers.js'
 
 const CompanyDetails = () => {
 
 
   const navigate = useNavigate();
   const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
-  const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const [plannedExpanded, setPlannedExpanded] = useState(false);
-  const [menuSelection, setMenuSelection] = useState(null);
-  const [contacts, setContacts] = useState([]);
   const [company, setCompany] = useState({});
   const [companyActivity, setCompanyActivity] = useState([])
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
@@ -37,12 +28,9 @@ const CompanyDetails = () => {
   const chat_id = JSON.parse(params.get('user')).id;
 
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
-  const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   // const id = company.id;
-  const { contactMails, isContactsMailsLoading, error } = useEmail(id, null);
-  const { companies, contactsLoadingError } = useRegions(chat_id)
-  const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
+  const { contactMails, isContactsMailsLoading } = useEmail(id, null);
+  const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
   const { email } = useContext(DataContext)
   // tg.BackButton.isVisible = true

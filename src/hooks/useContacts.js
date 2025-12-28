@@ -73,11 +73,11 @@ export const useContacts = (chat_id) => {
       if (isNewContact) {
         // Для нового контакта - добавляем в соответствующий регион
         
-        return oldContacts.push(contactData);
+        return [...oldContacts, contactData];
       } else {
         const contactUpdIndex = oldContacts.findIndex(contact => contact.id === contactData.id);
         oldContacts[contactUpdIndex] = contactData;
-        return oldContacts;
+        return [...oldContacts];
       
       }
     });
@@ -105,7 +105,7 @@ export const useContacts = (chat_id) => {
       const previousContacts = queryClient.getQueryData(['contacts']) || [];
       
       // Оптимистичное обновление через функцию
-      // optimisticUpdateContact(contactData, contactData.isNew);
+      optimisticUpdateContact(contactData, contactData.isNew);
       
       return { previousContacts };
     },

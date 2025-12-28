@@ -1,14 +1,14 @@
 import styles from './CompanyContacts.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import { useContacts } from '../../hooks/useContacts.js';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { getContactIcons } from './Companies-helpers.js'
 
 
 const CompanyСontacts = (props) => {
     const [contacts, setContacts] = useState([]);
-    const { regionsWithContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(props.chat_id)
-    // console.log('propsActivity', props.activity)
+    const { contacts: allContacts, isLoading: isContactsLoading } = useContacts(props.chat_id)
+    console.log('propsActivity', props.id)
 
     const contactNameStyle = {
         whiteSpace: 'nowrap',
@@ -32,18 +32,12 @@ const CompanyСontacts = (props) => {
 
 
     useEffect(() => {
-        if (regionsWithContacts) {
-            const contacts = regionsWithContacts.reduce((acc, region) => {
-                region.contacts.forEach((contact) => {
-                    if (contact.companyId === props.id) {
-                        acc.push(contact);
-                    }
-                });
-                return acc;
-            }, [])
+        if (allContacts) {
+            const contacts = allContacts
+            .filter(contact => contact.companyId === props.id)
             setContacts(contacts)
         }
-    }, [props.id, regionsWithContacts]);
+    }, [props.id, allContacts]);
     // console.log('main contacts', contacts)
 
     return (

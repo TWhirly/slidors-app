@@ -1,5 +1,4 @@
-import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
@@ -9,9 +8,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useEmail } from '../../hooks/useEmail';
 import { useContacts } from '../../hooks/useContacts';
 import { v4 as uuidv4 } from 'uuid';
-import AddIcon from '@mui/icons-material/Add';
-import { useQuery, useQueryClient, useIsFetching } from '@tanstack/react-query';
-import { fromPairs } from 'lodash';
+import { useQueryClient } from '@tanstack/react-query';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
@@ -30,22 +27,16 @@ const ContactEditForm = () => {
     const { titles, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { transformToRegionsWithCompanies, companies } = useRegions(chat_id);
-    const isFetching = useIsFetching(['regions'])
-    const [emailInputs, setEmailInputs] = useState([]);
+    const { companies } = useRegions(chat_id);
     const id = contact?.id;
     const [localEmailInputs, setLocalEmailInputs] = useState([]);
     tg.BackButton.isVisible = true;
 
-    console.log('contact.relative', contact.prevActivityData);
-    // console.log('regionsWithCompanies', regionsWithCompanies);
-    console.log('contact', contact)
 
     const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
 
-    const regionsWithCompanies = useMemo(() => { return(transformToRegionsWithCompanies(companies))
-      }, [companies, transformToRegionsWithCompanies])
+    
 
     useEffect(() => {
         if (contactMails.length > 0) {
@@ -77,7 +68,7 @@ const ContactEditForm = () => {
     useEffect(() => {
         formData.manager = email;
         contact.manager = email;
-    }, []);
+    }, [contact, email, formData]);
 
     // useEffect(() => {
     //     formDataRef.current = formData;
@@ -142,10 +133,12 @@ const ContactEditForm = () => {
         if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
             formDataRef.current = formData;
             setAllowSave(true);
+            tg.MainButton.enable();
             tg.MainButton.setText('Сохранить')
         }
         else {
             setAllowSave(false);
+            tg.MainButton.disable();
             tg.MainButton.setText('Для сохранения заполните поля')
         }
     }, [formData, tg.MainButton]);
@@ -225,7 +218,7 @@ const ContactEditForm = () => {
     console.log('contact formData', formData)
     // console.log('formData', formData)
     // console.log('hasChanged', hasChanged)
-    // console.log('emailInputs', emailInputs)
+    console.log('allowSave', allowSave)
 
     return (
         <div className={styles.container}>

@@ -1,5 +1,4 @@
-import axios from 'axios';
-import React, { useState, useEffect, useContext, useRef, useCallback, useMemo} from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
@@ -17,7 +16,6 @@ const CompanyEditForm = () => {
     const isNewComapny = company?.new === true;
     const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
-    const [companiesNames, setCompaniesNames] = useState([]);
     const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const [hasChanged, setHasChanged] = useState(false);
@@ -111,6 +109,7 @@ const CompanyEditForm = () => {
             formDataRef.current = formData;
             setAllowSave(true);
             tg.MainButton.setText('Сохранить');
+            tg.MainButton.enable();
         }
         else {
             setAllowSave(false);

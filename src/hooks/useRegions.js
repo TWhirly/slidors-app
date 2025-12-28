@@ -1,6 +1,5 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useCallback } from 'react';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
 
 export const useRegions = (chat_id) => {
@@ -22,7 +21,6 @@ export const useRegions = (chat_id) => {
 
   // Выносим функцию преобразования с useCallback
   const transformToRegionsWithCompanies = (regionRows) => {
-    console.log('select function executed - TRANSFORMATION');
     if (!regionRows) return [];
     
     const companiesByRegion = {};
@@ -76,51 +74,19 @@ export const useRegions = (chat_id) => {
     });
   }; // ← Пустой массив зависимостей, функция стабильна
 
-  const optimisticUpdateCompany = (companyData, isNewComapny = false) => {
+  const optimisticUpdateCompany =  (companyData, isNewComapny = false) => {
     queryClient.setQueryData(['regions'], (oldComapnies = []) => {
       if (isNewComapny) {
-        // Для нового контакта - добавляем в соответствующий регион
-        const companyRegion = companyData.region || '?';
-        
-        return oldComapnies.map(regionGroup => {
-          if (regionGroup.region === companyRegion) {
-            // Добавляем контакт в существующий регион
-            return {
-              ...regionGroup,
-              companies: [...regionGroup.companies, companyData],
-              companies_count: regionGroup.companies_count + 1
-            };
-          }
-          return regionGroup;
-        });
+        return [...oldComapnies, companyData];
       } else {
-        // Для существующего контакта - обновляем
-         console.log('optimisticUpdateCompany', oldComapnies);
-        return oldComapnies.map(regionGroup => {
-         
-          // Ищем контакт в текущей группе региона
-          const companyIndex = regionGroup.companies.findIndex(
-            company => company.id === companyData.id
-          );
-          
-          if (companyIndex !== -1) {
-            // Если контакт найден в этой группе
-            const updatedCompanies = [...regionGroup.companies];
-            updatedCompanies[companyIndex] = companyData;
-            
-            return {
-              ...regionGroup,
-              companies: updatedCompanies
-            };
-          }
-          return regionGroup;
-        });
+        const companyUpdIndex = oldComapnies.findIndex(contact => contact.id === companyData.id);
+        oldComapnies[companyUpdIndex] = companyData;
+        return [...oldComapnies];
       }
     });
   };
-
+    
   const updateCompanyMutation = useMutation({
-
  mutationFn: async (companyData) => {
  
       const params = {
@@ -160,7 +126,6 @@ export const useRegions = (chat_id) => {
   const { data: companies, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
-    // select: transformToRegionsWithCompanies, // ← Стабильная ссылка
     staleTime: 1000 * 60 * 30,
     refetchIntervalInBackground: true,
     refetchInterval: 1000 * 60 * 50

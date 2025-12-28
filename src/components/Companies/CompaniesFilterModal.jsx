@@ -19,12 +19,12 @@ export const CompaniesFilterModal = ({
 
   useEffect(() => {
     let filteredCities = []
-    Object.entries(regionCities).map(([region, cities]) => {
+    Object.entries(regionCities).forEach(([region, cities]) => {
       if (filters.region.includes(region))
         filteredCities.push(...cities)
     })
     setAvialableCities(filteredCities.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')))
-  }, [filters.region])
+  }, [filters.region, regionCities])
 
   console.log('regionCities', regionCities)
   console.log('avialableCities', avialableCities)

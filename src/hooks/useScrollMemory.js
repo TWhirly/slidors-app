@@ -1,10 +1,8 @@
 // hooks/useScrollMemory.js
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 
 export const useScrollMemory = (componentKey = 'default') => {
   const containerRef = useRef(null);
-  const location = useLocation();
 
   useEffect(() => {
     const storageKey = `scroll-${componentKey}`;

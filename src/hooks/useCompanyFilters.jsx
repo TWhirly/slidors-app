@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 
 export const useCompanyFilters = (companies) => {
+  console.log('companies in hook', companies)
   console.log('local storage company filters', localStorage.getItem('companyFilters'))
   const [filters, setFilters] = useState(localStorage.getItem('companyFilters') ? JSON.parse(localStorage.getItem('companyFilters')) : {
     name: '',
@@ -133,6 +134,7 @@ export const useCompanyFilters = (companies) => {
     setIsFilterModalOpen,
     avialableTypes,
     avialableRegions,
+    avialableCities,
     avialableStatuses,
     avialableManagers,
     avialableHandle,

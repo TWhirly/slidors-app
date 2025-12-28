@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
-import { scroller } from 'react-scroll';
 import styles from './Companies.module.css';
-import { YellowStarIcon } from '../../icons/SVG';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx';
@@ -14,7 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
 import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 // import { useScrollMemory } from '../../hooks/useScrollMemory.js';
-import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
 const filterIcon = require('../../icons/filter.png')
@@ -23,10 +20,8 @@ const filterActiveIcon = require('../../icons/filterActive.png')
 const Companies = () => {
 
     const { email } = useContext(DataContext);
-    const queryClient = useQueryClient();
     const { regions: contextRegions } = useContext(DataContext);
     const navigate = useNavigate();
-    const containerRef = useRef(null)
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -152,7 +147,7 @@ const Companies = () => {
     }, [navigate]);
 
     // console.log('local storage filters', localStorage.getItem('companyFilters'))
-    // console.log('regionsWithCompanies', regionsWithCompanies);
+    console.log('regionsWithCompanies', regionsWithCompanies);
     // const containerRef = useScrollMemory('companies');
     useEffect(() => {
         // if (!id) return;
@@ -289,7 +284,7 @@ const Companies = () => {
                                             </div>
                                             <div className={styles.checksContainer}>
                                                 <div>
-                                                    {company.handled !== 0 && <img
+                                                    {company.handled && <img
                                                         src={checkIcons.red}
                                                         alt="переработчик"
                                                         fill="#008ad1"
@@ -297,7 +292,7 @@ const Companies = () => {
                                                     />}
                                                 </div>
                                                 <div>
-                                                    {company.wa !== 0 && <img
+                                                    {company.wa && <img
                                                         src={checkIcons.green}
                                                         alt="переработчик"
                                                         fill="#008ad1"
@@ -305,7 +300,7 @@ const Companies = () => {
                                                     />}
                                                 </div>
                                                 <div>
-                                                    {company.tg !== 0 && <img
+                                                    {company.tg && <img
                                                         src={checkIcons.blue}
                                                         alt="переработчик"
                                                         fill="#008ad1"

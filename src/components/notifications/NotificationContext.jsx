@@ -4,7 +4,6 @@ import NotificationPanel from '../notifications/NotificationPanel.jsx';
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  console.log('children', children)
   const [notification, setNotification] = useState({
     show: false,
     message: '',
@@ -20,8 +19,6 @@ export const NotificationProvider = ({ children }) => {
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
   };
-
-  console.log('notification', notification)
 
   return (
     <NotificationContext.Provider value={{ showNotification, hideNotification }}
