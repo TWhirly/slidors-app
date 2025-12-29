@@ -47,7 +47,7 @@ const Activities = () => {
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
 
-    console.log('activity', activity)
+    // console.log('activity', activity)
    
     const {filters,
         setFilters,
@@ -92,7 +92,7 @@ const Activities = () => {
     
     
     tg.BackButton.show();
-    console.log(email, 'email');
+    // console.log(email, 'email');
     
     
 
@@ -198,7 +198,7 @@ const Activities = () => {
         }
     };
     const handleSelectActivity = (activity) => {
-        console.log('click', activity)
+        // console.log('click', activity)
         navigate(`/activities/${activity.id}`, {
             state: {activityId: activity.id, path: '/activities'}
         });
@@ -223,7 +223,7 @@ const Activities = () => {
         };
     }, [navigate]);
 
-   console.log('filteredPlannedEvents', filteredPlannedEvents)
+//    console.log('filteredPlannedEvents', filteredPlannedEvents)
 
     if (isLoading) {
         return (

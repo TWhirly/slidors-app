@@ -23,37 +23,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     return response.data || [];
   }
 
-  const fetchContactMail = async () => {
-    if (isNewContact) return [{ id: uuidv4(), mail: '' }];
-    console.log('fetchContactMail');
-    const params = {
-      name: 'Ваше имя',
-      chatID: chat_id,
-      api: 'getEmailsbyRegions'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    return response.data || [];
-  };
-
-  const fetchCompanyMail = async () => {
-    if (isNewContact) return [{ id: uuidv4(), mail: '' }];
-    console.log('fetchMail');
-    const params = {
-      name: 'Ваше имя',
-      companyId: companyId,
-      api: 'getEmails'
-    };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
-    );
-    return response.data || [];
-  };
+  
 
   // Получение данных
   const { data: emails, isLoading: isContactsMailsLoading, error: mailsFetchError } = useQuery({

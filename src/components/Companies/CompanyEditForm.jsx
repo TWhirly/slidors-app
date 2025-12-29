@@ -28,7 +28,7 @@ const CompanyEditForm = () => {
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = company.id;
-    const { contactMails , updateEmails } = useEmail(id, null, isNewComapny)
+   const { emails, updateEmails } = useEmail(id, null);
 
     // const regionsWithCompanies = useMemo(() => {
     //     return transformToRegionsWithCompanies(companies)
@@ -63,15 +63,13 @@ const CompanyEditForm = () => {
         };
     }, [company, id, navigate, tg]);
 
-     useEffect(() => {
-        
-        console.log('effect 2')
-            if(contactMails.length > 0)
-            setEmailInputs(contactMails);
-        else{
-            setEmailInputs([{id: uuidv4(), mail: ''}]);
-        }
-        }, [contactMails]);
+    useEffect(() => {
+        if(!emails)
+          return
+        console.log('emails', emails)
+        const mails = emails.filter(item => item.company === id)
+        setEmailInputs(mails)
+      }, [emails, id])
 
         const addEmailInput = () => {
             setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
@@ -115,7 +113,7 @@ const CompanyEditForm = () => {
             setAllowSave(false);
             tg.MainButton.setText('Для сохранения заполните поля')
         }
-    }, [formData, company, tg.MainButton]);
+    }, [formData, company]);
 
     useEffect(() => {
         console.log('effect 6')
@@ -154,7 +152,7 @@ const CompanyEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         } 
-    }, [allowSave, company.id, company.path, formData, hasChanged, id, isNewComapny, navigate, optimisticUpdateCompany, queryClient, showNotification, updateCompany, updateEmails]);
+    }, [allowSave, company.id, company.path, formData, hasChanged, id, isNewComapny, navigate, queryClient, showNotification]);
 
 
 
@@ -174,12 +172,9 @@ const CompanyEditForm = () => {
         tg.MainButton.offClick(handleSave);
         tg.MainButton.hide();
     };
-}, [company, handleSave, navigate, tg]);
+}, [company, handleSave, navigate]);
 
-    useEffect(() => {
-        console.log('effect 9')
-        
-    }, [formData])
+    
 
     useEffect(() => {
         console.log('effect 10')

@@ -85,7 +85,7 @@ const ActivityEditForm = () => {
         };
 
 
-    }, [activity, id, navigate, queryClient, showNotification, tg, updateActivity]);
+    }, [activity, id, queryClient, showNotification, tg]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));
@@ -267,11 +267,7 @@ const ActivityEditForm = () => {
             console.log('allowSave', allowSave)
             return
         }
-        // if (!hasChanged) {
-        //     navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: activity.id } });
-        //     showNotification(`Данные не изменились`, true);
-        //     return
-        // }
+        
         try {
             console.log('Current form data:', currentFormData);
             optimisticUpdateActivity(currentFormData, isNewActivity, true)
@@ -293,7 +289,7 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity]);
+    }, [])
 
     useMemo(() => {
         console.log('effect 4 - Telegram init')
@@ -305,7 +301,7 @@ const ActivityEditForm = () => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.hide();
         };
-    }, [handleSave, tg]); // Только tg и handleSave
+    }, [tg]); // Только tg и handleSave
 
     // Отдельный эффект для обновления текста кнопки
     useEffect(() => {
@@ -322,7 +318,7 @@ const ActivityEditForm = () => {
             tg.MainButton.disable(); // Отключить кнопку
         }
        
-    }, [formData, tg.MainButton]); // formData и tg.MainButton
+    }, [formData]); // formData и tg.MainButton
 
     const handleCheck = (id) => {
         console.log('Selected contact ID:', id);

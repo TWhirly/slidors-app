@@ -33,18 +33,18 @@ const ContactEditForm = () => {
     tg.BackButton.isVisible = true;
 
 
-    const { contactMails, updateEmails } = useEmail(null, id, isNewContact);
+    const { emails, isContactsMailsLoading, updateEmails } = useEmail(id, null);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
 
     
 
     useEffect(() => {
-        if (contactMails.length > 0) {
-            setLocalEmailInputs(contactMails);
-        } else {
-            setLocalEmailInputs([{ id: uuidv4(), mail: '' }]);
-        }
-    }, [contactMails]);
+    if(!emails)
+      return
+    console.log('emails', emails)
+    const mails = emails.filter(item => item.company === id)
+    setLocalEmailInputs(mails)
+  }, [emails, id])
 
     const addEmailInput = () => {
         setLocalEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
@@ -70,15 +70,22 @@ const ContactEditForm = () => {
         contact.manager = email;
     }, [contact, email, formData]);
 
-    // useEffect(() => {
-    //     formDataRef.current = formData;
-    // }, [formData]);
-
     useEffect(() => {
+         formDataRef.current = formData;
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== contact[key]);
         setHasChanged(hasChanged);
-        // console.log('hasChanged', hasChanged);
-    }, [formData, contact]);
+        if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
+            formDataRef.current = formData;
+            setAllowSave(true);
+            tg.MainButton.enable();
+            tg.MainButton.setText('Сохранить')
+        }
+        else {
+            setAllowSave(false);
+            tg.MainButton.disable();
+            tg.MainButton.setText('Для сохранения заполните поля')
+        }
+    }, [formData, contact, tg.MainButton]);
 
     useEffect(() => {
         const initBackButton = () => {
@@ -95,25 +102,8 @@ const ContactEditForm = () => {
         return () => {
             tg.BackButton.offClick();
         };
-        // window.addEventListener('focus', initBackButton);
-
-        // return () => {
-        //     if (tg) {
-        //         tg.BackButton.offClick();
-        //         tg.BackButton.hide();
-        //     }
-        //     window.removeEventListener('focus', initBackButton);
-        // };
+       
     }, [contact, navigate, tg]);
-
-    // useEffect(() => {
-    //     setRegionList(regionsWithCompanies.reduce((acc, region) => {
-    //         acc.push(region.region)
-    //         return acc;
-    //     }, []));
-    // }, [],);
-
-   
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {
@@ -130,17 +120,7 @@ const ContactEditForm = () => {
     }, [companies, formData.region]);
 
     useEffect(() => {
-        if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
-            formDataRef.current = formData;
-            setAllowSave(true);
-            tg.MainButton.enable();
-            tg.MainButton.setText('Сохранить')
-        }
-        else {
-            setAllowSave(false);
-            tg.MainButton.disable();
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
+        
     }, [formData, tg.MainButton]);
 
     useEffect(() => {
@@ -213,12 +193,10 @@ const ContactEditForm = () => {
     if (!contact) {
         return <div className={styles.container}>Контакт не найден</div>;
     }
-    // console.log('formData', formData)
-    // console.log('companiesList', companiesList.length)
-    console.log('contact formData', formData)
-    // console.log('formData', formData)
-    // console.log('hasChanged', hasChanged)
-    console.log('allowSave', allowSave)
+    
+    // console.log('contact formData', formData)
+   
+    // console.log('allowSave', allowSave)
 
     return (
         <div className={styles.container}>
