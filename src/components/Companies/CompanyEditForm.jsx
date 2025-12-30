@@ -152,7 +152,7 @@ const CompanyEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         } 
-    }, [allowSave, company.id, company.path, formData, hasChanged, id, isNewComapny, navigate, queryClient, showNotification]);
+    }, [allowSave, company.id, company.path, formData, hasChanged, id, isNewComapny]);
 
 
 

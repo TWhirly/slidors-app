@@ -1,13 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
+import { useContext, useEffect, useState } from 'react';
+import { DataContext } from '../DataContext.jsx'
 
 export const useActivity = (chat_id) => {
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
+  const { name, email } = useContext(DataContext);
+  const [nameMail, setNameMail] = useState('');
+  const notificationInterval = 1000 * 60 * 30 // за полчаса
+
+  useEffect(() => {
+    if(name && email)
+      setNameMail(`${name.name} (${email})`)
+  },[email, name])
 
   const fetchActivity = async () => {
-    // console.log('getActivitiesList chat_id', chat_id)
+    console.log('getActivitiesList chat_id', chat_id)
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -85,11 +95,11 @@ function createDateTime(dateStr, timeStr) {
   return date.getTime();
   };
 
-  const { data: activity, isLoading, error } = useQuery({
+  const { data: activity, isLoading, error, isSuccess, isFetching } = useQuery({
     queryKey: ['activity'],
     queryFn: fetchActivity,
-    staleTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 50,
+    staleTime: 1000 * 60 * 0.5,
+    refetchInterval: 1000 * 60 * 1,
     refetchIntervalInBackground: true
   });
 
@@ -147,13 +157,39 @@ onMutate: async (activityData) => {
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
        !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
-      console.log('Contact updated successfully:', data);
+      console.log('Activity updated successfully:', data);
+      checkScheduled()
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
       queryClient.invalidateQueries({ queryKey: ['activity'] });
     }
   });
+
+  const checkScheduled = () => {
+    if (activity) {
+      
+      const nearTimePlanned = activity.planned
+      .filter(a => a.responsible === nameMail)
+      .filter(a => {
+        let timeMs
+        if(a.planTime !== '') {
+          const tA = a.planTime.split(':');
+          timeMs = tA[0]*60*60*1000 + tA[1]*60*1000 + tA[2]*1000
+        } else {
+          timeMs = 0
+        }
+        const dateMs = +(new Date(a.plan))
+        const nowMs = +(new Date())
+        console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
+        return (nowMs + notificationInterval > timeMs + dateMs)
+      })
+      if (nearTimePlanned.length > 0)
+      showNotification('Есть запланированные события', {}, true);
+      // Perform other side effects here
+      // e.g., update a different state, show a toast, etc.
+    }
+  }
 
   // console.log('activity hook', activity)
   const test = [1, 2]

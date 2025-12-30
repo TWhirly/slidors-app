@@ -53,6 +53,44 @@ const ActivityEditForm = () => {
     const [toSubscribe, setToSubscribe] = useState(false)
 
     console.log('activityEdit', activity);
+
+    
+     const handleSave  = useCallback(async () => {
+        console.log('allowSave', allowSave)
+        const currentFormData = formDataRef.current;
+        const isNewActivity = activity?.new === true;
+        delete currentFormData.new;
+        delete activity.new
+        if (currentFormData.toFinish)
+            currentFormData.plan = ''
+        console.log('Current form data:', activity.path);
+        if (!allowSave) {
+            console.log('allowSave', allowSave)
+            return
+        }
+        try {
+            console.log('Current form data:', currentFormData);
+            optimisticUpdateActivity(currentFormData, isNewActivity, true)
+            if (tg) {
+                tg.BackButton.offClick();
+            }
+            navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: id, companyId: formData.companyId } })
+            updateActivity(currentFormData, {
+                onSuccess: () => {
+                    // showNotification(`Данные сохранены успешно!`, true);
+                    queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
+                },
+                onError: (error) => {
+                    console.log('Company update failed:', error);
+                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // Автоматический откат через onError в мутации
+                }
+            });
+        } catch (error) {
+            console.error('Save failed:', error);
+        }
+    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity])
+
     useEffect(() => {
         console.log('effect 1')
         const handleBackButton = () => {
@@ -76,16 +114,28 @@ const ActivityEditForm = () => {
             tg.BackButton.onClick(handleBackButton); // ✅ Используем именованную функцию
         };
 
+        tg.setBottomBarColor("#131313");
+        tg.MainButton.show();
+        tg.MainButton.onClick(handleSave);
+         if (checkIfRequireFieldsFilled(formData)) {
+            formDataRef.current = formData;
+            setAllowSave(true);
+            tg.MainButton.setText('Сохранить');
+            tg.MainButton.enable(); // Включить кнопку
+        } else {
+            setAllowSave(false);
+            tg.MainButton.setText('Для сохранения заполните поля');
+            tg.MainButton.disable(); // Отключить кнопку
+        }
         initBackButton();
-
         return () => {
             if (tg) {
                 tg.BackButton.offClick(handleBackButton); // ✅ Очищаем конкретный обработчик
+                tg.MainButton.offClick(handleSave);
+                tg.MainButton.hide();
             }
         };
-
-
-    }, [activity, id, queryClient, showNotification, tg]);
+    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));
@@ -103,35 +153,21 @@ const ActivityEditForm = () => {
     useEffect(() => {
         console.log('effect 2')
         if (allContacts) {
-
-            // const companyContacts = allContacts.filter(contact => {
-            //    return(contact.companyId === formData.companyId && !checkIfInArray(acc, contact))
-            // })
-
             const companyContacts = allContacts.reduce((acc, contact) => {
-
                 if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
-
                     acc.push(contact);
                 }
                 return acc;
             }, []);
-
             setContacts(companyContacts)
         }
     }, [allContacts, formData.companyId]);
 
     useEffect(() => {
-       
          console.log('effect 3')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
         setHasChanged(hasChanged);
-     
-      
-       
     }, [formData, activity]);
-
-
 
     useEffect(() => {
         // console.log('effect 5')
@@ -148,23 +184,9 @@ const ActivityEditForm = () => {
                 .map(company => company.city))
             const cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
             setCities(cities)
-            // const selectedRegion = regionsWithCompanies.find(item => item.region === formData.region);
-            // if (selectedRegion) {
-            //     const cities = selectedRegion.companies.reduce((acc, company) => {
-            //         if (!acc.includes(company.city) && company.city.length > 0) {
-            //             acc.push(company.city);
-            //         }
-            //         return acc;
-            //     }, []);
-            //     setCities(cities.sort());
-            // } else {
-            //     setCities([]);
-            // }
+            
         }
-        // else {
-        //     setCities([]);
-        // }
-
+      
     }, [allCompanies, formData.region]);
 
     useEffect(() => {
@@ -213,7 +235,6 @@ const ActivityEditForm = () => {
     }, [formData.purpose]);
 
     useEffect(() => {
-         
         setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
         console.log('subscribe effect')
     
@@ -255,70 +276,8 @@ const ActivityEditForm = () => {
     };
 
 
-    const handleSave = useCallback(async () => {
-        const currentFormData = formDataRef.current;
-        const isNewActivity = activity?.new === true;
-        delete currentFormData.new;
-        delete activity.new
-        if (currentFormData.toFinish)
-            currentFormData.plan = ''
-        console.log('Current form data:', activity.path);
-        if (!allowSave) {
-            console.log('allowSave', allowSave)
-            return
-        }
-        
-        try {
-            console.log('Current form data:', currentFormData);
-            optimisticUpdateActivity(currentFormData, isNewActivity, true)
-            if (tg) {
-                tg.BackButton.offClick();
-            }
-            navigate(activity.path || `/activities/${activity.id}`, { state: { activityId: id, companyId: formData.companyId } })
-            updateActivity(currentFormData, {
-                onSuccess: () => {
-                    // showNotification(`Данные сохранены успешно!`, true);
-                    queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
-                },
-                onError: (error) => {
-                    console.log('Company update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
-                    // Автоматический откат через onError в мутации
-                }
-            });
-        } catch (error) {
-            console.error('Save failed:', error);
-        }
-    }, [])
-
-    useMemo(() => {
-        console.log('effect 4 - Telegram init')
-        tg.setBottomBarColor("#131313");
-        tg.MainButton.show();
-        tg.MainButton.onClick(handleSave);
-
-        return () => {
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.hide();
-        };
-    }, [tg]); // Только tg и handleSave
-
-    // Отдельный эффект для обновления текста кнопки
-    useEffect(() => {
-        
-             console.log('effect 4b - Button text update')
-        if (checkIfRequireFieldsFilled(formData)) {
-            formDataRef.current = formData;
-            setAllowSave(true);
-            tg.MainButton.setText('Сохранить');
-            tg.MainButton.enable(); // Включить кнопку
-        } else {
-            setAllowSave(false);
-            tg.MainButton.setText('Для сохранения заполните поля');
-            tg.MainButton.disable(); // Отключить кнопку
-        }
-       
-    }, [formData]); // formData и tg.MainButton
+   
+   
 
     const handleCheck = (id) => {
         console.log('Selected contact ID:', id);
@@ -340,6 +299,7 @@ const ActivityEditForm = () => {
     console.log('toSubscribe', toSubscribe);
     console.log('formData', formData);
     console.log('hasChanged', hasChanged)
+    console.log('allowSave', allowSave)
 
     return (
         <div className={styles.container}>

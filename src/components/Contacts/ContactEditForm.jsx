@@ -39,9 +39,9 @@ const ContactEditForm = () => {
     
 
     useEffect(() => {
-    if(!emails)
+    if(isContactsMailsLoading)
       return
-    console.log('emails', emails)
+     console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setLocalEmailInputs(mails)
   }, [emails, id])
@@ -71,39 +71,36 @@ const ContactEditForm = () => {
     }, [contact, email, formData]);
 
     useEffect(() => {
-         formDataRef.current = formData;
-        const hasChanged = Object.keys(formData).some((key) => formData[key] !== contact[key]);
+        tg.setBottomBarColor("#131313");
+        tg.MainButton.show();
+        const currentFormData = formData
+        const hasChanged = Object.keys(currentFormData).some((key) => contact[key] !== currentFormData[key]);
         setHasChanged(hasChanged);
-        if (formData.companyId && (formData.firstName.length + formData.lastName.length > 0)) {
-            formDataRef.current = formData;
-            setAllowSave(true);
+        if (currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0)) {
+            setAllowSave(true)
             tg.MainButton.enable();
             tg.MainButton.setText('Сохранить')
         }
         else {
-            setAllowSave(false);
+            setAllowSave(false)
             tg.MainButton.disable();
             tg.MainButton.setText('Для сохранения заполните поля')
         }
-    }, [formData, contact, tg.MainButton]);
+        tg.onEvent('mainButtonClicked', handleSave)
+        return () => {
+            tg.offEvent('mainButtonClicked', handleSave)
+        }
+    }, [formData, contact, tg]);
 
     useEffect(() => {
-        const initBackButton = () => {
-            if (!tg) return;
-
-            tg.ready();
-            tg.BackButton.isVisible = true;
             tg.BackButton.show();
             tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
-                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));
-        };
-
-        initBackButton();
-        return () => {
-            tg.BackButton.offClick();
-        };
-       
-    }, [contact, navigate, tg]);
+                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));; // Вернуться на предыдущую страницу'));
+    
+            return () => {
+                tg.BackButton.offClick();
+            };
+        }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, tg.BackButton]);
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {
@@ -130,7 +127,11 @@ const ContactEditForm = () => {
 
     //    console.log('regionList', regionList);
 
-    const handleSave = useCallback(async () => {
+    const handleSave = () => {
+        const currentFormData = formDataRef.current;
+        setAllowSave(currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0))
+        console.log('allowSave', allowSave)
+        console.log('hasChanged', hasChanged)
         if (!allowSave) return;
         if (!hasChanged) {
             navigate(contact.path || '/contacts/',
@@ -140,16 +141,12 @@ const ContactEditForm = () => {
         }
 
         try {
-            const currentFormData = formDataRef.current;
-
             // 1. Сначала оптимистичное обновление
             optimisticUpdateContact(currentFormData, isNewContact);
             updateEmails(currentFormData.emails);
-
             // 2. Затем навигация (немедленно)
             navigate(contact.path || '/contacts/',
                 { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }, { replace: true })
-
             // 3. Фоновая отправка на сервер
             updateContact(currentFormData, {
                 onSuccess: () => {
@@ -168,36 +165,16 @@ const ContactEditForm = () => {
             showNotification(`Ошибка при сохранении: ${error.message}`, false);
             queryClient.invalidateQueries({ queryKey: ['contacts'] });
         }
-    }, [allowSave, contact.companyId, contact.id, contact.path, contact.prevActivityData, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
-
+    };
 
     useEffect(() => {
-        console.log('effect 4 - Telegram init')
-        tg.setBottomBarColor("#131313");
-        tg.MainButton.show();
-        tg.MainButton.onClick(handleSave);
-
-        return () => {
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.hide();
-        };
-    }, [handleSave, tg]);
-
-    // Update ref whenever formData changes
-    useEffect(() => {
-        formDataRef.current = formData;
-    }, [formData]);
-
-
+         formDataRef.current = formData;
+    },[formData])
 
     if (!contact) {
-        return <div className={styles.container}>Контакт не найден</div>;
+       return <div className={styles.container}>Контакт не найден</div>;
     }
-    
-    // console.log('contact formData', formData)
-   
-    // console.log('allowSave', allowSave)
-
+ 
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
