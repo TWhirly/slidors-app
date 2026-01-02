@@ -55,7 +55,7 @@ const ActivityEditForm = () => {
     console.log('activityEdit', activity);
 
     
-     const handleSave  = useCallback(async () => {
+     const handleSave  =  () => {
         console.log('allowSave', allowSave)
         const currentFormData = formDataRef.current;
         const isNewActivity = activity?.new === true;
@@ -78,7 +78,7 @@ const ActivityEditForm = () => {
             updateActivity(currentFormData, {
                 onSuccess: () => {
                     // showNotification(`Данные сохранены успешно!`, true);
-                    queryClient.invalidateQueries({ queryKey: ['activity', id, null] });
+                    queryClient.invalidateQueries({ queryKey: ['activity'] });
                 },
                 onError: (error) => {
                     console.log('Company update failed:', error);
@@ -89,7 +89,7 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity])
+    }
 
     useEffect(() => {
         console.log('effect 1')
@@ -103,7 +103,7 @@ const ActivityEditForm = () => {
                     showNotification(`Ошибка при сохранении: ${error.message}`, false);
                 }
             });
-            navigate(activity.path || `/activities/`, { state: { activityId: id, companyId: activity.companyId } });
+            navigate(activity.path || `/activities/`, { state: { activityId: !!formData.finalize ? formData.finalize : id, companyId: activity.companyId } });
         };
 
         const initBackButton = () => {
@@ -135,7 +135,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
+    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));

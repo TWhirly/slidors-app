@@ -111,14 +111,15 @@ function createDateTime(dateStr, timeStr) {
       const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
       if (isNewActivity) {
           unitedActivities.push(activityData)
-      } else {
+      } 
         if (finalize){
+          console.log('finalize')
         const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
         unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
         }
         const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
           unitedActivities[activtyIndex] = activityData
-      }
+      
       return(transformActivitySort(unitedActivities)) 
     });
   };
@@ -158,13 +159,18 @@ onMutate: async (activityData) => {
       // Дополнительные действия при успехе
        !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
       console.log('Activity updated successfully:', data);
-      checkScheduled()
+      // checkScheduled()
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
       queryClient.invalidateQueries({ queryKey: ['activity'] });
     }
   });
+
+  useEffect(() => {
+    console.log('activity changes')
+    checkScheduled()
+  },[activity, isFetching])
 
   const checkScheduled = () => {
     if (activity) {

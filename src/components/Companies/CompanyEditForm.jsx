@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
@@ -23,12 +23,12 @@ const CompanyEditForm = () => {
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { transformToRegionsWithCompanies , companies , optimisticUpdateCompany, updateCompany} = useRegions(chat_id);
+    const { transformToRegionsWithCompanies, companies, optimisticUpdateCompany, updateCompany } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = company.id;
-   const { emails, updateEmails } = useEmail(id, null);
+    const { emails, updateEmails } = useEmail(id, null);
 
     // const regionsWithCompanies = useMemo(() => {
     //     return transformToRegionsWithCompanies(companies)
@@ -37,12 +37,18 @@ const CompanyEditForm = () => {
     const regionsWithCompanies = transformToRegionsWithCompanies(companies)
 
     console.log('regionsWithCompanies', regionsWithCompanies);
+    console.log('allowSave', allowSave)
     useEffect(() => {
         console.log('effect 1')
         const initBackButton = () => {
             if (!tg) return;
-
             tg.ready();
+            if (!company) {
+                navigate('/companies');
+                return;
+            }
+
+           
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
             tg.BackButton.onClick(() => {
@@ -50,7 +56,7 @@ const CompanyEditForm = () => {
                 if (company?.new) {
                     navigate('/companies');
                 } else {
-                    navigate(company.path || `/companies/${company.id}`, { state: {companyId: id} });
+                    navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
                 }
             });
         };
@@ -58,62 +64,81 @@ const CompanyEditForm = () => {
         return () => {
             if (tg) {
                 tg.BackButton.offClick();
-                // tg.BackButton.hide();
+                
             }
         };
     }, [company, id, navigate, tg]);
 
     useEffect(() => {
-        if(!emails)
-          return
+        if (!emails)
+            return
         console.log('emails', emails)
         const mails = emails.filter(item => item.company === id)
-        setEmailInputs(mails)
-      }, [emails, id])
+        
+        const nonEmptyEmails = mails.reduce((acc, email) => {
+            if (email.mail.trim() !== '') {
+                acc.push(email);
+            }
+            return acc;
+        }, []);
+        console.log('nonEmptyEmails', nonEmptyEmails);
+        nonEmptyEmails.length === 0 ? setEmailInputs([...nonEmptyEmails, '']) : setEmailInputs(nonEmptyEmails)
+        setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
+    }, [emails, id])
 
-        const addEmailInput = () => {
-            setEmailInputs(prev => [...prev, {id: uuidv4(), mail: ''}]);
-        };
-    
-        const handleEmailChange = (index, value) => {
-            setEmailInputs(prev => {
-                const newEmails = [...prev];
-                const id = newEmails[index].id;
-                newEmails[index] = {id: id, mail: value};
-                return newEmails;
-            });
-        };
+    const addEmailInput = () => {
+        setEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
+    };
 
-         useEffect(() => {
-            console.log('effect 3')
-                const nonEmptyEmails = emailInputs.reduce((acc, email) => {
-                    if (email.mail.trim() !== '') {
-                        acc.push(email);
-                    }
-                    return acc;
-                }, []);
-                console.log('nonEmptyEmails', nonEmptyEmails);
-                setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-            },[emailInputs]);
+    const handleEmailChange = (index, value) => {
+        setEmailInputs(prev => {
+            const newEmails = [...prev];
+            const id = newEmails[index].id;
+            newEmails[index] = { id: id, mail: value };
+            return newEmails;
+        });
+    };
+
+    // useEffect(() => {
+    //     console.log('effect 3')
+    //     const nonEmptyEmails = emailInputs.reduce((acc, email) => {
+    //         if (email.mail.trim() !== '') {
+    //             acc.push(email);
+    //         }
+    //         return acc;
+    //     }, []);
+    //     console.log('nonEmptyEmails', nonEmptyEmails);
+    //     setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
+    // }, [emailInputs]);
 
     useEffect(() => {
         console.log('effect 4')
+        tg.MainButton.show();
+        tg.setBottomBarColor("#131313");
         formDataRef.current = formData;
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
         setHasChanged(hasChanged);
         formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
         console.log('hasChanged', hasChanged);
         if (formData?.name.trim() !== '' && formData.region.length > 0) {
-            formDataRef.current = formData;
-            setAllowSave(true);
+            // setAllowSave(true);
+            tg.MainButton.onClick(handleSave);
             tg.MainButton.setText('Сохранить');
             tg.MainButton.enable();
         }
         else {
-            setAllowSave(false);
+            // setAllowSave(false);
+            tg.MainButton.offClick(handleSave);
             tg.MainButton.setText('Для сохранения заполните поля')
         }
-    }, [formData, company]);
+         return () => {
+            if (tg) {
+                
+                tg.MainButton.offClick(handleSave);
+                tg.MainButton.hide();
+            }
+        };
+    }, [company, formData, tg]);
 
     useEffect(() => {
         console.log('effect 6')
@@ -123,13 +148,13 @@ const CompanyEditForm = () => {
     }, [contextRegions]);
 
 
-    const handleSave = useCallback(async () => {
-        console.log('effect 7')
+    const handleSave =  () => {
+        console.log('effect 7', allowSave)
         const currentFormData = formDataRef.current;
         console.log('Current form data:', formData);
-        if (!allowSave) return
+        // if (!allowSave) return
         if (!hasChanged) {
-            navigate(company.path || `/companies/${company.id}`, { state: {companyId: company.id} });
+            navigate(company.path || `/companies/${company.id}`, { state: { companyId: company.id } });
             showNotification(`Данные не изменились`, true);
             return
         }
@@ -137,50 +162,28 @@ const CompanyEditForm = () => {
             console.log('Current form data:', currentFormData);
             optimisticUpdateCompany(currentFormData, isNewComapny)
             updateEmails(currentFormData.emails);
-            navigate(company.path || `/companies/${company.id}`, { state: {companyId: id} })
-           updateCompany(currentFormData, {
-      onSuccess: () => {
-        // showNotification(`Данные сохранены успешно!`, true);
-        queryClient.invalidateQueries({ queryKey: ['emails', id, null] });
-      },
-      onError: (error) => {
-        console.error('Company update failed:', error);
-        showNotification(`Ошибка при сохранении: ${error.message}`, false);
-        // Автоматический откат через onError в мутации
-      }
-    });
+            navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } })
+            updateCompany(currentFormData, {
+                onSuccess: () => {
+                    // showNotification(`Данные сохранены успешно!`, true);
+                    queryClient.invalidateQueries({ queryKey: ['emails', id, null] });
+                },
+                onError: (error) => {
+                    console.error('Company update failed:', error);
+                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // Автоматический откат через onError в мутации
+                }
+            });
         } catch (error) {
             console.error('Save failed:', error);
-        } 
-    }, [allowSave, company.id, company.path, formData, hasChanged, id, isNewComapny]);
-
-
-
-
-    useEffect(() => {
-        console.log('effect 8')
-    if (!company) {
-        navigate('/companies');
-        return;
+        }
     }
-    
-    tg.setBottomBarColor("#131313");
-    tg.MainButton.show();
-    tg.MainButton.onClick(handleSave);
-
-    return () => {
-        tg.MainButton.offClick(handleSave);
-        tg.MainButton.hide();
-    };
-}, [company, handleSave, navigate]);
-
-    
 
     useEffect(() => {
         console.log('effect 10')
         if (formData.region) {
-            const citiesSet =  new Set(companies.filter(company => company.region === formData.region && company.city !== '')
-            .map(company => {return company.city}))
+            const citiesSet = new Set(companies.filter(company => company.region === formData.region && company.city !== '')
+                .map(company => { return company.city }))
             const cities = Array.from(citiesSet)
             setCities(cities.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')))
         } else {
@@ -192,22 +195,22 @@ const CompanyEditForm = () => {
         console.log('effect 11')
         if (formData.type === 'Дилер') {
             const recyclers = companies.filter(company => company.type === 'Переработчик')
-            .map(company => {return company.name})
+                .map(company => { return company.name })
             setRecyclers(recyclers.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')));
         } else {
             setRecyclers([]);
         }
     }, [companies, formData.type]);
 
-  
-  
+
+
 
 
 
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
     }
-    console.log('regions', regions)
+    console.log('formData', formData)
     console.log('company', company)
 
     return (
@@ -293,20 +296,20 @@ const CompanyEditForm = () => {
                     label="Telegram"
                 />
 
-                 {emailInputs?.map((email, index) => (
-                                        <BasicSelect
-                                            key={index}
-                                            className={styles.formGroup}
-                                            type="email"
-                                            name={`email-${index}`}
-                                            value={email.mail}
-                                            onChange={(value) => handleEmailChange(index, value)}
-                                            label={`Email ${index + 1}`}
-                                            // Показываем кнопку добавления только в последнем инпуте
-                                            showAddButton={index === emailInputs.length - 1 || emailInputs.length === 1}
-                                            onAdd={addEmailInput}
-                                        />
-                                    ))}
+                {emailInputs?.map((email, index) => (
+                    <BasicSelect
+                        key={index}
+                        className={styles.formGroup}
+                        type="email"
+                        name={`email-${index}`}
+                        value={email.mail}
+                        onChange={(value) => handleEmailChange(index, value)}
+                        label={`Email ${index + 1}`}
+                        // Показываем кнопку добавления только в последнем инпуте
+                        showAddButton={index === emailInputs.length - 1 || emailInputs.length === 1}
+                        onAdd={addEmailInput}
+                    />
+                ))}
 
                 <BasicSelect
                     className={styles.formGroup}
