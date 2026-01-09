@@ -8,18 +8,19 @@ import { useNotification } from '../../components/notifications/NotificationCont
 import { useRegions } from '../../hooks/useRegions';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEmail } from '../../hooks/useEmail';
+import { initBackButton , tgMainButtonSwitch } from './Companies-helpers.js';
 const CompanyEditForm = () => {
     const { state: company } = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...company });
     const isNewComapny = company?.new === true;
-    const [isDealer, setIsDealer] = useState(false)
+    // const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
     const [cities, setCities] = useState([]);
-    const [recyclers, setRecyclers] = useState([]);
-    const [hasChanged, setHasChanged] = useState(false);
-    const [allowSave, setAllowSave] = useState(false);
+    let recyclers = [];
+    // const [hasChanged, setHasChanged] = useState(false);
+    // const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
@@ -28,46 +29,60 @@ const CompanyEditForm = () => {
     const tgRef = useRef(window.Telegram.WebApp);
     const tg = tgRef.current;
     const id = company.id;
+    let isDealer = false;
+    let allowSave = false;
+    let hasChanged = false;
     const { emails, updateEmails } = useEmail(id, null);
-
-    // const regionsWithCompanies = useMemo(() => {
-    //     return transformToRegionsWithCompanies(companies)
-    // }, [companies, transformToRegionsWithCompanies])
-
+    const currentFormData = formDataRef.current
     const regionsWithCompanies = transformToRegionsWithCompanies(companies)
 
-    console.log('regionsWithCompanies', regionsWithCompanies);
-    console.log('allowSave', allowSave)
-    useEffect(() => {
-        console.log('effect 1')
-        const initBackButton = () => {
-            if (!tg) return;
-            tg.ready();
-            if (!company) {
-                navigate('/companies');
-                return;
-            }
+    tg.MainButton.show();
+    tg.setBottomBarColor("#131313");
 
-           
-            tg.BackButton.isVisible = true;
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                // Return to list if company.new === true (new company) or to details if editing
-                if (company?.new) {
-                    navigate('/companies');
-                } else {
-                    navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
+    console.log('regionsWithCompanies', regionsWithCompanies);
+
+        hasChanged = Object.keys(currentFormData).some((key) => currentFormData[key] !== company[key]);
+        allowSave = currentFormData?.name.trim() !== '' && currentFormData.region.length > 0
+        // setHasChanged(hasChanged);
+        isDealer = currentFormData.type?.toLowerCase() === 'дилер' ? true : false;
+        console.log('hasChanged', hasChanged);
+            
+    initBackButton(company, navigate, id);
+
+    const handleSave =  useCallback(() => {
+        const currentFormData = formDataRef.current
+        console.log('allowSave', allowSave, 'hasChanged', hasChanged)
+        console.log('Current form data:', currentFormData);
+        // if (!allowSave) return
+        if (!hasChanged) {
+            navigate(company.path || `/companies/${company.id}`, { state: { companyId: company.id } });
+            showNotification(`Данные не изменились`);
+            return
+        }
+        try {
+            console.log('Current form data:', currentFormData);
+            optimisticUpdateCompany(currentFormData, isNewComapny)
+            // updateEmails(currentFormData.emails);
+            // navigate(company.path || `/companies/${company.id}`, { state: { companyId: currentFormData.id } })
+            navigate(`/companies/`)
+            updateCompany(currentFormData, {
+                onSuccess: () => {
+                    showNotification(`Данные сохранены успешно 2 !`);
+                    // queryClient.invalidateQueries({ queryKey: ['regions'] });
+                },
+                onError: (error) => {
+                    console.error('Company update failed:', error);
+                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // Автоматический откат через onError в мутации
                 }
             });
-        };
-        initBackButton();
-        return () => {
-            if (tg) {
-                tg.BackButton.offClick();
-                
-            }
-        };
-    }, [company, id, navigate, tg]);
+        } catch (error) {
+            console.error('Save failed:', error);
+        }
+    },[allowSave, company.id, company.path, hasChanged, isNewComapny, navigate, optimisticUpdateCompany, showNotification, updateCompany])
+
+    tgMainButtonSwitch(allowSave, handleSave)
+    
 
     useEffect(() => {
         if (!emails)
@@ -84,7 +99,7 @@ const CompanyEditForm = () => {
         console.log('nonEmptyEmails', nonEmptyEmails);
         nonEmptyEmails.length === 0 ? setEmailInputs([...nonEmptyEmails, '']) : setEmailInputs(nonEmptyEmails)
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-    }, [emails, id])
+    }, [])
 
     const addEmailInput = () => {
         setEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
@@ -99,85 +114,17 @@ const CompanyEditForm = () => {
         });
     };
 
-    // useEffect(() => {
-    //     console.log('effect 3')
-    //     const nonEmptyEmails = emailInputs.reduce((acc, email) => {
-    //         if (email.mail.trim() !== '') {
-    //             acc.push(email);
-    //         }
-    //         return acc;
-    //     }, []);
-    //     console.log('nonEmptyEmails', nonEmptyEmails);
-    //     setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-    // }, [emailInputs]);
-
-    useEffect(() => {
-        console.log('effect 4')
-        tg.MainButton.show();
-        tg.setBottomBarColor("#131313");
-        formDataRef.current = formData;
-        const hasChanged = Object.keys(formData).some((key) => formData[key] !== company[key]);
-        setHasChanged(hasChanged);
-        formData.type?.toLowerCase() === 'дилер' ? setIsDealer(true) : setIsDealer(false)
-        console.log('hasChanged', hasChanged);
-        if (formData?.name.trim() !== '' && formData.region.length > 0) {
-            // setAllowSave(true);
-            tg.MainButton.onClick(handleSave);
-            tg.MainButton.setText('Сохранить');
-            tg.MainButton.enable();
-        }
-        else {
-            // setAllowSave(false);
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
-         return () => {
-            if (tg) {
-                
-                tg.MainButton.offClick(handleSave);
-                tg.MainButton.hide();
-            }
-        };
-    }, [company, formData, tg]);
+    
 
     useEffect(() => {
         console.log('effect 6')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
-    }, [contextRegions]);
+    }, []);
 
 
-    const handleSave =  () => {
-        console.log('effect 7', allowSave)
-        const currentFormData = formDataRef.current;
-        console.log('Current form data:', formData);
-        // if (!allowSave) return
-        if (!hasChanged) {
-            navigate(company.path || `/companies/${company.id}`, { state: { companyId: company.id } });
-            showNotification(`Данные не изменились`, true);
-            return
-        }
-        try {
-            console.log('Current form data:', currentFormData);
-            optimisticUpdateCompany(currentFormData, isNewComapny)
-            updateEmails(currentFormData.emails);
-            navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } })
-            updateCompany(currentFormData, {
-                onSuccess: () => {
-                    // showNotification(`Данные сохранены успешно!`, true);
-                    queryClient.invalidateQueries({ queryKey: ['emails', id, null] });
-                },
-                onError: (error) => {
-                    console.error('Company update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
-                    // Автоматический откат через onError в мутации
-                }
-            });
-        } catch (error) {
-            console.error('Save failed:', error);
-        }
-    }
+    
 
     useEffect(() => {
         console.log('effect 10')
@@ -189,19 +136,19 @@ const CompanyEditForm = () => {
         } else {
             setCities([]);
         }
-    }, [companies, formData.region]);
+    }, []);
 
-    useEffect(() => {
-        console.log('effect 11')
+    
         if (formData.type === 'Дилер') {
-            const recyclers = companies.filter(company => company.type === 'Переработчик')
+            recyclers = companies.filter(company => company.type === 'Переработчик')
                 .map(company => { return company.name })
-            setRecyclers(recyclers.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')));
+            .sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'));
         } else {
-            setRecyclers([]);
+            recyclers = [];
         }
-    }, [companies, formData.type]);
-
+        
+        formDataRef.current = formData
+        console.log('formData', formData)
 
 
 
@@ -406,3 +353,4 @@ const CompanyEditForm = () => {
 };
 
 export default CompanyEditForm;
+

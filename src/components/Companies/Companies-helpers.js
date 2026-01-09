@@ -181,3 +181,40 @@ export const mainContactsIcons = {
     whatsappIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197',
     telegramIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
 }
+
+export const initBackButton = (company, navigate, id) => {
+            if (!tg) return;
+            tg.ready();
+            if (!company) {
+                navigate('/companies');
+                return;
+            }
+            tg.BackButton.isVisible = true;
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                if (company?.new) {
+                    navigate('/companies');
+                } else {
+                    navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
+                }
+            });
+        };
+
+export const tgMainButtonSwitch = (allowSave, handleSave) => {
+        if (allowSave) {
+            // allowSave = true;
+            tg.MainButton.onClick(handleSave);
+            tg.MainButton.setText('Сохранить');
+            tg.MainButton.enable();
+        }
+        else {
+            // allowSave = false;
+            tg.MainButton.offClick(handleSave);
+            tg.MainButton.setText('Для сохранения заполните поля')
+        }
+        console.log('tg button switch')
+        tg.onEvent('mainButtonClicked', handleSave)
+        return () => {
+            tg.offEvent('mainButtonClicked', handleSave)
+        }
+    }

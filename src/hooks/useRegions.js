@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
 
 export const useRegions = (chat_id) => {
+  console.log('useRegions hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
@@ -114,7 +115,7 @@ export const useRegions = (chat_id) => {
     },
     onSuccess: (data, companyData) => {
       // Дополнительные действия при успехе
-       showNotification(`Данные сохранены успешно!`);
+      //  showNotification(`Данные сохранены успешно 1 !`);
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {

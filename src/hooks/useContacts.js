@@ -27,35 +27,43 @@ export const useContacts = (chat_id) => {
                 (contact.firstName ? contact.firstName + ' ' : '') + 
                 (contact.surname ? contact.surname + ' ' : '')
     if (fullName === '') {
-      return contact.companyName
+      return contact.companyName || ''
     }
     return fullName
   };
 
   const transformToRegionsWithContacts = (regionRows) => {
-    // console.log('Contacts select function executed - TRANSFORMATION', regionRows);
+    console.log('Contacts select function executed - TRANSFORMATION', regionRows);
     if (!regionRows) return [];
-
+    
     const contactsByRegion = {};
     regionRows.forEach(contact => {
       if (!contactsByRegion[contact.region]) {
         contactsByRegion[contact.region] = [];
       }
-      contactsByRegion[contact.region].push({...contact, fullName: getContactFullNmae(contact)});
+      contact.fullName = getContactFullNmae(contact)
+      contactsByRegion[contact.region].push(contact);
     });
-    // console.log('contactsByRegion', contactsByRegion);
+
+    console.log('contacts by region', contactsByRegion)
+
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
-      const sortedCompanies = contacts.sort((a, b) =>
+      console.log('reg', contacts)
+      const sortedContacts = contacts.sort((a, b) => 
         a.fullName.localeCompare(b.fullName)
       );
-
       return {
         region,
-        contacts: sortedCompanies,
+        contacts: sortedContacts,
         contacts_count: contacts.length,
+        
       };
     });
   };
+
+  // console.log(transformToRegionsWithContacts(regionRows))
+
+  // .sort((a, b) => a.fullName.localeCompare(b.fullName)); contacts_count: contacts.length
 
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ['contacts'],

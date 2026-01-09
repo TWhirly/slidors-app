@@ -40,7 +40,7 @@ function ContactDetails() {
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { contacts } = useContacts(chat_id)
-  console.log('ActivityID', activityId, path);
+  console.log('ActivityID', activity);
 
   useEffect(() => {
     if(!emails)

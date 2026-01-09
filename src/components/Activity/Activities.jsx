@@ -1,23 +1,15 @@
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
-import Switch from '@mui/material/Switch';
 import styles from '../Companies/Companies.module.css';
-import { YellowStarIcon } from '../../icons/SVG.js';
 import { IconsLine } from './IconsLine.jsx';
-import { LearningIcon } from './LearningIcon.jsx';
 import { FilterModal } from './FilterModal';
-import Avatar from '@mui/material/Avatar';
-import AvatarGroup from '@mui/material/AvatarGroup';
-import { avatar, avatarGroup } from '../Companies/sx.js';
+import { avatarGroup } from '../Companies/sx.js';
 import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
-import { useRegions } from '../../hooks/useRegions.js';
-import { useQuery, useQueryClient, QueriesObserver } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
-import { get } from 'lodash';
 import { useEventFilters } from '../../hooks/useEventFilters';
 import { getEmptyActivity } from './activity.js';
 
@@ -88,7 +80,6 @@ const Activities = () => {
 
     setFilters(emptyFilters);
   };
-    
     
     
     tg.BackButton.show();
