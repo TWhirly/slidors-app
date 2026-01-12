@@ -6,6 +6,7 @@ import { DataContext } from '../../DataContext.jsx';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { getEmptyActivity } from './activity.js';
+import { useTelegram } from '../../hooks/useTelegram.js';
 
 
 
@@ -18,9 +19,7 @@ const ActivityDetails = () => {
   const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
   const [hasAtLeastOneField, setHasAtLeastOneField] = useState(false);
-  const tg = window.Telegram.WebApp;
-  const params = new URLSearchParams(window.Telegram.WebApp.initData);
-  const chat_id = JSON.parse(params.get('user')).id;
+  const {tg , chat_id} = useTelegram()
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'

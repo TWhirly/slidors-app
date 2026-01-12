@@ -13,6 +13,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTelegram } from '../../hooks/useTelegram.js';
 import { useEmail } from '../../hooks/useEmail.js';
 import { debounce, set } from 'lodash';
 import { answers, checkIfInArray, checkIfRequireFieldsFilled } from './activity.js';
@@ -27,12 +28,12 @@ const ActivityEditForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity, companyWhatsapp: '', companyTelegram: '' });
-
+    const {tg , chat_id} = useTelegram()
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
         activityTypes,
-        activityPurposes, chat_id, namesEmails } = useContext(DataContext);
+        activityPurposes, namesEmails } = useContext(DataContext);
     const [regions, setRegions] = useState([]);
     const { companies: allCompanies } = useRegions(chat_id);
     const [cities, setCities] = useState([]);
@@ -44,8 +45,6 @@ const ActivityEditForm = () => {
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
-    const tgRef = useRef(window.Telegram.WebApp);
-    const tg = tgRef.current;
     const id = activity.id;
     const { contacts: allContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
     const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');

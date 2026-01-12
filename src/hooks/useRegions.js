@@ -76,6 +76,7 @@ export const useRegions = (chat_id) => {
   }; // ← Пустой массив зависимостей, функция стабильна
 
   const optimisticUpdateCompany =  (companyData, isNewComapny = false) => {
+    console.log('optimisticUpdateCompany')
     queryClient.setQueryData(['regions'], (oldComapnies = []) => {
       if (isNewComapny) {
         return [...oldComapnies, companyData];

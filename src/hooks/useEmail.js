@@ -1,11 +1,10 @@
-import { useContext } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { DataContext } from '../DataContext'
+import { useTelegram  } from './useTelegram';
 
 export const useEmail = (companyId = null, contactId = null, isNewContact = false) => {
-  const { chat_id } = useContext(DataContext);
+  const { chat_id } = useTelegram();
   const queryClient = useQueryClient();
 
   const fetchMail = async () => {

@@ -10,6 +10,7 @@ import { useEmail } from '../../hooks/useEmail';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { getEmptyActivity } from '../Activity/activity.js';
+import { useTelegram } from '../../hooks/useTelegram.js';
 import CompanyСontacts from './CompanyContacts.jsx'
 import CompanyMainContacts from './CompanyMainContacts.jsx'
 
@@ -24,9 +25,7 @@ const CompanyDetails = () => {
   const [companyActivity, setCompanyActivity] = useState([])
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
   const [contactMails, setCompanyMails] = useState([]);
-  const tg = window.Telegram.WebApp;
-  const params = new URLSearchParams(window.Telegram.WebApp.initData);
-  const chat_id = JSON.parse(params.get('user')).id;
+  const {tg , chat_id} = useTelegram()
 
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const { emails, isContactsMailsLoading } = useEmail(id, null);

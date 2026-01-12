@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
 
 export const useContacts = (chat_id) => {
+  console.log('contacts hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
 

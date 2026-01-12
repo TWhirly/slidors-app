@@ -11,6 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
 import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
+import { useTelegram  } from '../../hooks/useTelegram.js';
 // import { useScrollMemory } from '../../hooks/useScrollMemory.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
@@ -26,10 +27,7 @@ const Companies = () => {
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     // const scrollContainerRef = useScrollMemory('companies');
-    const tg = window.Telegram.WebApp;
-    const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    const user = JSON.parse(params.get('user'));
-    const chat_id = user.id;
+    const {tg , chat_id} = useTelegram()
     // const [regionsWithCompanies, setRegionsWithComapnies] = useState([])
 
     const id = location.state?.companyId || null

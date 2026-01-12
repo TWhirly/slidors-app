@@ -13,6 +13,7 @@ import { DataContext } from '../../DataContext.jsx';
 import sha256 from 'crypto-js/sha256'; // Import the hashing library
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
+import { useTelegram  } from '../../hooks/useTelegram.js';
 
 const Companies = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -23,12 +24,7 @@ const Companies = () => {
     const [loadingRegion, setLoadingRegion] = useState(null);
     const [regionsWithCompanies, setRegionsWithCompanies] = useState([]);
     const [loading, setLoading] = useState(true);
-    
-
-    const tg = window.Telegram.WebApp;
-    const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    const user = JSON.parse(params.get('user'));
-    const chat_id = user.id;
+    const {tg , chat_id} = useTelegram()
     
     tg.BackButton.show();
     console.log(email, 'email');

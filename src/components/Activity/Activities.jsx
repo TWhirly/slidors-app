@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters';
 import { getEmptyActivity } from './activity.js';
+import { useTelegram } from '../../hooks/useTelegram.js';
 
 
 const Activities = () => {
@@ -31,10 +32,11 @@ const Activities = () => {
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
     // const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
-    const tg = window.Telegram.WebApp;
-    const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    const user = JSON.parse(params.get('user'));
-    const chat_id = user.id;
+    // const tg = window.Telegram.WebApp;
+    // const params = new URLSearchParams(window.Telegram.WebApp.initData);
+    // const user = JSON.parse(params.get('user'));
+    // const chat_id = user.id;
+    const {tg , chat_id} = useTelegram()
     const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')

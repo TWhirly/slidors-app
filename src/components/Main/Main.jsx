@@ -5,33 +5,29 @@ import { DataContext } from '../../DataContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useActivity } from '../../hooks/useActivity.js';
+import { useTelegram } from '../../hooks/useTelegram.js';
 import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
-  const { name, loading, chat_id  } = useContext(DataContext);
+  const { chat_id , tg , dataunsafe, initData} = useTelegram()
+  const { name, loading } = useContext(DataContext);
   const navigate = useNavigate();
-  const tg = window.Telegram.WebApp;
   const { isLoading : isCompaniesLoading} = useRegions(chat_id);
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading , activity} = useActivity(chat_id);
+  console.log('initdata', initData)
 
-  useEffect(() => {
+ 
     const initializeBackButton = () => {
       if (!tg) return;
 
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.hide();
-      tg.BackButton.onClick(() => navigate('/companies/', { replace: true }));
     };
 
     initializeBackButton();
 
-    return () => {
-      tg.BackButton.offClick();
-      // tg.BackButton.hide(); // Optionally hide the button when unmounting
-    };
-  }, [navigate, tg]);
-
+   
   const checkIfLoaded = (name) => {
     switch (name) {
       case 'Компании':
@@ -54,8 +50,8 @@ export default function PersistentDrawerLeft() {
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
 
-  if(!isActivityLoading)
-    console.log('Activity', activity);
+  // if(!isActivityLoading)
+    console.log('name', name);
 
   return (
     <div className={styles.container}>

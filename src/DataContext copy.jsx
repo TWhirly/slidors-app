@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTelegram } from './hooks/useTelegram';
 
 import { set } from 'lodash';
 
@@ -15,15 +14,22 @@ export const DataProvider = ({ children }) => {
     const [activityTypes, setActivityTypes] = useState([]);
     const [activityPurposes, setActivityPurposes] = useState([]);
     const [namesEmails, setNamesEmails] = useState([]);
-    const [name, setName] = useState({});
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
-    const { chat_id , tg } = useTelegram()
+    const tg = window.Telegram.WebApp;
+    const params = new URLSearchParams(tg.initData);
+    const chat_id = JSON.parse(params.get('user')).id;
+
+    // const contacts = useContacts(chat_id || null);
+    // const regionsWithComapnies = useRegions(chat_id || null);
+    console.log('Data provider call')
+   
+
+    
 
     useEffect(() => {
-        if(!chat_id)
-            return
-        const fetchNames = async () => {
+        const fetchRegions = async () => {
         const params = {
             name: 'Ваше имя',
             chatID: chat_id,
@@ -34,7 +40,8 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-            setName(response.data || {});
+            // console.log('response Name', response.data);
+            setName(response.data || '');
             setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
             setNamesEmails(response.data.userNamesMails || []);
@@ -65,9 +72,9 @@ export const DataProvider = ({ children }) => {
             console.error('Error fetching types and statuses:', error);
         }
     };
-        fetchNames();
+        fetchRegions();
         fetchTypesAndStatuses();
-        Promise.all([fetchNames(), fetchTypesAndStatuses()]).then(() => {
+        Promise.all([fetchRegions(), fetchTypesAndStatuses()]).then(() => {
             setLoading(false);
         });
     }, [chat_id]);
@@ -78,20 +85,19 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    console.log('name in data context', name)
     return (
         <DataContext.Provider value={{
             loading,
             chat_id,
             name,
+            email,
+            regions,
             types,
             titles,
             statuses,
             activityTypes,
             activityPurposes,
-            regions,
-            namesEmails,
-            email
+            namesEmails
             
         }}>
             {children}
