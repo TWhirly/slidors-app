@@ -1,6 +1,7 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
+import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
   console.log('useRegions hook')
@@ -75,7 +76,7 @@ export const useRegions = (chat_id) => {
     });
   }; // ← Пустой массив зависимостей, функция стабильна
 
-  const optimisticUpdateCompany =  (companyData, isNewComapny = false) => {
+  const optimisticUpdateCompany =  useCallback((companyData, isNewComapny = false) => {
     console.log('optimisticUpdateCompany')
     queryClient.setQueryData(['regions'], (oldComapnies = []) => {
       if (isNewComapny) {
@@ -86,10 +87,10 @@ export const useRegions = (chat_id) => {
         return [...oldComapnies];
       }
     });
-  };
+  },[queryClient]);
     
   const updateCompanyMutation = useMutation({
- mutationFn: async (companyData) => {
+    mutationFn: async (companyData) => {
  
       const params = {
         name: 'Ваше имя',
@@ -116,7 +117,8 @@ export const useRegions = (chat_id) => {
     },
     onSuccess: (data, companyData) => {
       // Дополнительные действия при успехе
-      //  showNotification(`Данные сохранены успешно 1 !`);
+      showNotification(`Данные сохранены успешно!`);
+      // queryClient.invalidateQueries(['regions'])
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {

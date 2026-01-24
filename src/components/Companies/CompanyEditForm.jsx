@@ -6,70 +6,43 @@ import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEmail } from '../../hooks/useEmail';
 import { initBackButton, tgMainButtonSwitch } from './Companies-helpers.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
-let cities = [];
+let cities = []
 const CompanyEditForm = () => {
     console.log('first render')
     const { state: company } = useLocation();
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...company });
+    const formDataRef = useRef(formData);
     const isNewComapny = company?.new === true;
-    // const [isDealer, setIsDealer] = useState(false)
+    const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
     // const [cities, setCities] = useState([]);
-    let recyclers = [];
-    // const [hasChanged, setHasChanged] = useState(false);
-    // const [allowSave, setAllowSave] = useState(false);
+    const [recyclers, setRecyclers] = useState([]);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
-    const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { transformToRegionsWithCompanies, companies, optimisticUpdateCompany, updateCompany } = useRegions(chat_id);
+    const { companies, optimisticUpdateCompany, updateCompany, updateCompanyAsync } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
-    const { tg } = useTelegram();
+    const { tg, showButton } = useTelegram();
     const id = company.id;
-    
-    let isDealer = false;
-    let allowSave = useRef(false);
-    let hasChanged = false;
+
+
     const { emails, updateEmails } = useEmail(id, null);
-    const currentFormData = formDataRef.current
-    const regionsWithCompanies = transformToRegionsWithCompanies(companies)
+    console.log('company', company)
 
     tg.MainButton.show();
     tg.setBottomBarColor("#131313");
-
-    // console.log('regionsWithCompanies', regionsWithCompanies);
-    // console.log('currentFormData', currentFormData)
-    hasChanged = Object.keys(currentFormData).some((key) => currentFormData[key] !== company[key]);
-    allowSave.current = currentFormData?.name.trim() !== '' && currentFormData.region.length > 0
-    console.log(typeof (allowSave))
-    // setHasChanged(hasChanged);
-    isDealer = currentFormData.type?.toLowerCase() === 'дилер' ? true : false;
-    console.log('Outside save: allowSave', allowSave.current, 'hasChanged', hasChanged);
-
+    
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(() => {
         const currentFormData = formDataRef.current
-        console.log('inside save: allowSave', allowSave.current, 'hasChanged', hasChanged)
-        // console.log('Current form data:', currentFormData);
-        if (!allowSave) return
-        // if (!hasChanged) {
-        //     navigate(company.path || `/companies/${company.id}`, { state: { companyId: company.id } });
-        //     showNotification(`Данные не изменились`);
-        //     return
-        // }
         try {
-            // console.log('Current form data:', currentFormData);
             optimisticUpdateCompany(currentFormData, isNewComapny)
-            // updateEmails(currentFormData.emails);
-            // navigate(company.path || `/companies/${company.id}`, { state: { companyId: currentFormData.id } })
             navigate(`/companies/`)
-            updateCompany(currentFormData, {
+            updateCompanyAsync(currentFormData, {
                 onSuccess: () => {
                     // showNotification(`Данные сохранены успешно 2 !`);
                     // queryClient.invalidateQueries({ queryKey: ['regions'] });
@@ -83,27 +56,65 @@ const CompanyEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [])
+    }, [isNewComapny, navigate, optimisticUpdateCompany, showNotification, updateCompanyAsync])
 
-    tgMainButtonSwitch(allowSave, handleSave)
-
+    const updateCities = (region) => { 
+        if (region !== '') {
+                const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
+                    .map(company => { return company.city }))
+                cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
+            } else {
+                cities = [];
+            }
+        }
 
     useEffect(() => {
-        if (!emails)
+        formDataRef.current = formData;
+
+        if (formData.type === 'Дилер') {
+            setRecyclers(companies.filter(company => company.type === 'Переработчик')
+                .map(company => { return company.name })
+                .sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')));
+        } else {
+            setRecyclers([]);
+        }
+
+               const validateForm = () => {
+            if (!emailInputs || !formData.emails)
+                return false
+            const hasChanged = Object.keys(formData)
+                .filter(key => key !== 'recyclers' && key !== 'emails')
+                .some((key) => formData[key] !== company[key]) ||
+                emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join()
+            const isRequiredFilled = formData?.name.trim() !== '' && formData.region.length > 0;
+            return (hasChanged && isRequiredFilled)
+        }
+        const isValid = validateForm();
+        
+        // updateCitiesDropdownList();
+        showButton({
+            text: isValid ? 'Сохранить' : 'Для сохранения заполните поля',
+            // color: '#31b545',
+            isActive: isValid,
+            isVisible: true,
+            onClick: isValid ? handleSave : undefined,
+        });
+    }, [companies, company, emailInputs, formData, handleSave, showButton]);
+
+    useEffect(() => {
+        if (!emails || emails.length === 0)
             return
-        // console.log('emails', emails)
         const mails = emails.filter(item => item.company === id)
 
         const nonEmptyEmails = mails.reduce((acc, email) => {
-            if (email.mail.trim() !== '') {
+            if (email.mail?.trim() !== '') {
                 acc.push(email);
             }
             return acc;
         }, []);
-        // console.log('nonEmptyEmails', nonEmptyEmails);
         nonEmptyEmails.length === 0 ? setEmailInputs([...nonEmptyEmails, '']) : setEmailInputs(nonEmptyEmails)
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
-    }, [])
+    }, [emails, id])
 
     const addEmailInput = () => {
         setEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
@@ -113,7 +124,7 @@ const CompanyEditForm = () => {
         setEmailInputs(prev => {
             const newEmails = [...prev];
             const id = newEmails[index].id;
-            newEmails[index] = { id: id, mail: value };
+            newEmails[index] = { id: id, email: value };
             return newEmails;
         });
     };
@@ -121,37 +132,22 @@ const CompanyEditForm = () => {
 
 
     useEffect(() => {
-        // console.log('effect 6')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
-    }, []);
+    }, [contextRegions]);
+
+    updateCities(formData.region)
 
 
 
 
 
-    const updateCitiesDropdownList = (region) => {
-        if (region !== '') {
-            const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
-                .map(company => { return company.city }))
-            cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
-        } else {
-           cities = [];
-        }
-    }
 
 
 
-    if (formData.type === 'Дилер') {
-        recyclers = companies.filter(company => company.type === 'Переработчик')
-            .map(company => { return company.name })
-            .sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'));
-    } else {
-        recyclers = [];
-    }
 
-    formDataRef.current = formData
+    // formDataRef.current = formData
     // console.log('formData', formData)
 
 
@@ -190,7 +186,7 @@ const CompanyEditForm = () => {
                     value={formData.region || ''}
                     onChange={(value) => {
                         setFormData(prev => ({ ...prev, region: value }))
-                        updateCitiesDropdownList(value)
+                        updateCities(value)
                     }}
                     label="Регион"
                 />
@@ -256,7 +252,7 @@ const CompanyEditForm = () => {
                         className={styles.formGroup}
                         type="email"
                         name={`email-${index}`}
-                        value={email.mail}
+                        value={email.email}
                         onChange={(value) => handleEmailChange(index, value)}
                         label={`Email ${index + 1}`}
                         // Показываем кнопку добавления только в последнем инпуте
@@ -284,7 +280,7 @@ const CompanyEditForm = () => {
                     label="Тип компании"
                 />
 
-                {isDealer && (
+                {recyclers.length > 0 && (
                     <BasicSelect
                         className={styles.formGroup}
                         multiple={true}

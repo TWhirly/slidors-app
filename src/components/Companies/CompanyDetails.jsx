@@ -83,9 +83,6 @@ const CompanyDetails = () => {
         return acc
       }, []))
     }
-  }, [activity, id])
-
-  useEffect(() => {
     if (activity.other && activity.other.length > 0){
       setCompanyActivity(activity.other.reduce((acc, activity) => {
         if (activity.plan === '' && activity.companyId === id)
@@ -94,6 +91,8 @@ const CompanyDetails = () => {
       }, []))
     }
   }, [activity, id])
+
+  
 
   // console.log('company', company);
 
