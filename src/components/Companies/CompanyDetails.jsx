@@ -1,9 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import { YellowStarIcon } from '../../icons/SVG'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
 import { useEmail } from '../../hooks/useEmail';
@@ -11,12 +9,11 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { getEmptyActivity } from '../Activity/activity.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
+import { getCompanyTypeIcon , getEmptyContact , formatUrl } from './Companies-helpers.js';
 import CompanyСontacts from './CompanyContacts.jsx'
 import CompanyMainContacts from './CompanyMainContacts.jsx'
 
 const CompanyDetails = () => {
-
-
   const navigate = useNavigate();
   const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
   const [expanded, setExpanded] = useState(false);
@@ -26,15 +23,12 @@ const CompanyDetails = () => {
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
   const [contactMails, setCompanyMails] = useState([]);
   const {tg , chat_id} = useTelegram()
-
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  const { emails, isContactsMailsLoading } = useEmail(id, null);
+  const { emails, isContactsMailsLoading } = useEmail(chat_id);
   const { companies } = useRegions(chat_id)
-  const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
+  const { activity, isLoading: isActivityLoading, updateActivity } = useActivity(chat_id)
   const { email } = useContext(DataContext)
-  // tg.BackButton.isVisible = true
-  // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-  console.log('activity', activity, test)
+  // console.log('activity', activity, test)
   useEffect(() => {
     if (companies) {
       const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -51,12 +45,9 @@ const CompanyDetails = () => {
     setCompanyMails(mails)
   }, [emails, id])
 
-  
-
   useEffect(() => {
     const initBackButton = () => {
       if (!tg) return;
-
       tg.ready();
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
@@ -92,8 +83,6 @@ const CompanyDetails = () => {
     }
   }, [activity, id])
 
-  
-
   // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
@@ -101,29 +90,8 @@ const CompanyDetails = () => {
       navigate(`/companies/${company.id}/edit`, { state: { ...company, new: false } });
     }
     if (selectedOption === 'Добавить контакт') {
-      const getEmptyContact = (selectedRegion = '') => ({
-        id: uuidv4(), // Generates UUID v4
-        firstName: '',
-        lastName: '',
-        surname: '',
-        companyId: id,
-        companyName: company.name,
-        title: '',
-        region: selectedRegion,
-        phone1: '',
-        phone2: '',
-        manager: email.mail || '',
-        whatsapp: '',
-        telegram: '',
-        note: '',
-        emails: [{ id: uuidv4(), mail: '' }],
-        new: true
-
-      });
-      const emptyContact = getEmptyContact(company.region);
-
+      const emptyContact = getEmptyContact(company.region, id, company.name, company.manager);
       navigate(`/contacts/new/edit`, { state: { ...emptyContact, path: `/companies/${id}`, prevComponent: company, companyId: id } });
-
     }
 
     if (selectedOption === 'Добавить событие') {
@@ -142,74 +110,8 @@ const CompanyDetails = () => {
       }
     });
   };
-
-
-
-
-  const formatUrl = (url) => {
-    if (!url) return '';
-
-    // Убираем пробелы
-    let formattedUrl = url.trim();
-
-    // Проверяем наличие протокола
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-      formattedUrl = 'https://' + formattedUrl;
-    }
-
-    return formattedUrl;
-  };
-
-
-
-
-  const getCompanyTypeIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'переработчик':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
-            alt="переработчик"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'дистрибьютор':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
-            alt="дистрибьютор"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'дилер':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
-            alt="Дилер"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'смешанный':
-        return (
-          <img
-            src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
-            alt="Смешанный"
-            fill="#008ad1"
-            className={styles.factoryIcon}
-          />
-        );
-      case 'избранный':
-        return <YellowStarIcon className={styles.factoryIcon} />;
-      default:
-        return <></>;
-    }
-  };
-
-  console.log('companyActivity', companyActivity)
-  console.log('company', company)
+  // console.log('companyActivity', companyActivity)
+  // console.log('company', company)
 
   if (!company) {
     return <div>Company not found</div>;

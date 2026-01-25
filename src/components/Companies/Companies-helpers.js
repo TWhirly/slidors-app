@@ -200,21 +200,36 @@ export const initBackButton = (company, navigate, id) => {
             });
         };
 
-export const tgMainButtonSwitch = (allowSave, handleSave) => {
-        if (allowSave) {
-            // allowSave = true;
-            tg.MainButton.onClick(handleSave);
-            tg.MainButton.setText('Сохранить');
-            tg.MainButton.enable();
-        }
-        else {
-            // allowSave = false;
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
-        console.log('tg button switch')
-        tg.onEvent('mainButtonClicked', handleSave)
-        return () => {
-            tg.offEvent('mainButtonClicked', handleSave)
-        }
+        export const getEmptyContact = (selectedRegion = '', id = null, companyName = '', manager) => ({
+                id: uuidv4(), // Generates UUID v4
+                firstName: '',
+                lastName: '',
+                surname: '',
+                companyId: id,
+                companyName: companyName,
+                title: '',
+                region: selectedRegion,
+                phone1: '',
+                phone2: '',
+                manager: manager || '',
+                whatsapp: '',
+                telegram: '',
+                note: '',
+                emails: [{ id: uuidv4(), mail: '' }],
+                new: true
+        
+              });
+
+        export const formatUrl = (url) => {
+    if (!url) return '';
+
+    // Убираем пробелы
+    let formattedUrl = url.trim();
+
+    // Проверяем наличие протокола
+    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+      formattedUrl = 'https://' + formattedUrl;
     }
+
+    return formattedUrl;
+  };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
@@ -44,7 +44,7 @@ const ContactEditForm = () => {
      console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setLocalEmailInputs(mails)
-  }, [emails, id])
+  }, [emails, id, isContactsMailsLoading])
 
     const addEmailInput = () => {
         setLocalEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
