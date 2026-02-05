@@ -19,6 +19,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
     );
+    console.log('emails fetch', response.data)
     return response.data || [];
   }
 

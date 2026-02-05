@@ -4,10 +4,9 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
-import { useNotification } from '../../components/notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions';
 import { useEmail } from '../../hooks/useEmail';
-import { initBackButton, tgMainButtonSwitch } from './Companies-helpers.js';
+import { initBackButton } from './Companies-helpers.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
 let cities = []
 const CompanyEditForm = () => {
@@ -16,14 +15,10 @@ const CompanyEditForm = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ ...company });
     const formDataRef = useRef(formData);
-    const isNewComapny = company?.new === true;
-    const [isDealer, setIsDealer] = useState(false)
     const [regions, setRegions] = useState([]);
-    // const [cities, setCities] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
-    const { showNotification } = useNotification();
-    const { companies, optimisticUpdateCompany, updateCompany, updateCompanyAsync } = useRegions(chat_id);
+    const { companies, updateCompany, saving } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg, showButton } = useTelegram();
     const id = company.id;
@@ -34,29 +29,33 @@ const CompanyEditForm = () => {
 
     tg.MainButton.show();
     tg.setBottomBarColor("#131313");
+
+    const isEmailsUpdated = useCallback(() =>{
+            return(emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
+        },[emailInputs, formData.emails])
     
     initBackButton(company, navigate, id);
 
-    const handleSave = useCallback(() => {
+    const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current
         try {
-            optimisticUpdateCompany(currentFormData, isNewComapny)
+            // optimisticUpdateCompany(currentFormData, isNewComapny)
             navigate(`/companies/`)
-            updateCompanyAsync(currentFormData, {
+            updateCompany(currentFormData, {
                 onSuccess: () => {
-                    // showNotification(`Данные сохранены успешно 2 !`);
-                    // queryClient.invalidateQueries({ queryKey: ['regions'] });
                 },
                 onError: (error) => {
                     console.error('Company update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // showNotification(`Ошибка при сохранении: ${error.message}`, false);
                     // Автоматический откат через onError в мутации
                 }
             });
+            if(isEmailsUpdated())
+                updateEmails(currentFormData.emails)
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [isNewComapny, navigate, optimisticUpdateCompany, showNotification, updateCompanyAsync])
+    },[isEmailsUpdated, navigate, updateCompany, updateEmails])
 
     const updateCities = (region) => { 
         if (region !== '') {
@@ -67,6 +66,8 @@ const CompanyEditForm = () => {
                 cities = [];
             }
         }
+    
+        
 
     useEffect(() => {
         formDataRef.current = formData;
@@ -85,7 +86,7 @@ const CompanyEditForm = () => {
             const hasChanged = Object.keys(formData)
                 .filter(key => key !== 'recyclers' && key !== 'emails')
                 .some((key) => formData[key] !== company[key]) ||
-                emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join()
+                isEmailsUpdated()
             const isRequiredFilled = formData?.name.trim() !== '' && formData.region.length > 0;
             return (hasChanged && isRequiredFilled)
         }
@@ -95,11 +96,11 @@ const CompanyEditForm = () => {
         showButton({
             text: isValid ? 'Сохранить' : 'Для сохранения заполните поля',
             // color: '#31b545',
-            isActive: isValid,
+            isActive: isValid && !saving,
             isVisible: true,
             onClick: isValid ? handleSave : undefined,
         });
-    }, [companies, company, emailInputs, formData, handleSave, showButton]);
+    }, [companies, company, emailInputs, formData, handleSave, isEmailsUpdated, saving, showButton]);
 
     useEffect(() => {
         if (!emails || emails.length === 0)

@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from 'react';
+import { useQuery , useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from "react-router-dom";
 import CircularProgress from '@mui/material/CircularProgress';
 import { DataContext } from '../../DataContext.jsx';
@@ -12,7 +13,14 @@ export default function PersistentDrawerLeft() {
   const { chat_id , tg , dataunsafe, initData} = useTelegram()
   const { name, loading } = useContext(DataContext);
   const navigate = useNavigate();
-  const { isLoading : isCompaniesLoading} = useRegions(chat_id);
+  // const { isLoading : isCompaniesLoading} = useRegions(chat_id);
+  // const queryClient = useQueryClient();
+  const { 
+      
+      isLoading: isCompaniesLoading
+       
+    } = useRegions(chat_id);
+
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading , activity} = useActivity(chat_id);
   console.log('initdata', initData)

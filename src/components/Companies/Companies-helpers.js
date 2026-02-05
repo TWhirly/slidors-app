@@ -199,22 +199,3 @@ export const initBackButton = (company, navigate, id) => {
                 }
             });
         };
-
-export const tgMainButtonSwitch = (allowSave, handleSave) => {
-        if (allowSave) {
-            // allowSave = true;
-            tg.MainButton.onClick(handleSave);
-            tg.MainButton.setText('Сохранить');
-            tg.MainButton.enable();
-        }
-        else {
-            // allowSave = false;
-            tg.MainButton.offClick(handleSave);
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
-        console.log('tg button switch')
-        tg.onEvent('mainButtonClicked', handleSave)
-        return () => {
-            tg.offEvent('mainButtonClicked', handleSave)
-        }
-    }

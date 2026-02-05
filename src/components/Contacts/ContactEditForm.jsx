@@ -44,7 +44,7 @@ const ContactEditForm = () => {
      console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setLocalEmailInputs(mails)
-  }, [emails, id])
+  }, [emails, id, isContactsMailsLoading])
 
     const addEmailInput = () => {
         setLocalEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);

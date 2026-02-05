@@ -12,7 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
 import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 import { useTelegram  } from '../../hooks/useTelegram.js';
-// import { useScrollMemory } from '../../hooks/useScrollMemory.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
 const filterIcon = require('../../icons/filter.png')
@@ -20,18 +19,14 @@ const filterActiveIcon = require('../../icons/filterActive.png')
 
 const Companies = () => {
 
-    const { email } = useContext(DataContext);
-    const { regions: contextRegions } = useContext(DataContext);
+    const { email, regions: contextRegions } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-    // const scrollContainerRef = useScrollMemory('companies');
     const {tg , chat_id} = useTelegram()
-    // const [regionsWithCompanies, setRegionsWithComapnies] = useState([])
 
     const id = location.state?.companyId || null
-    // localStorage.removeItem('companyFilters');
 
     tg.BackButton.show();
 
@@ -52,8 +47,13 @@ const Companies = () => {
         });
     };
 
-    // Используем хук useRegions
-    const { companies, isLoading, error, transformToRegionsWithCompanies } = useRegions(chat_id);
+ const { 
+    companies,      
+    isLoading, 
+    error 
+  } = useRegions(chat_id);
+
+console.log('companiez', companies)
 
     const {
         filters,
@@ -69,9 +69,6 @@ const Companies = () => {
         regionCities
     } = useCompanyFilters(companies || []);
 
-
-    const regionsWithCompanies = transformToRegionsWithCompanies(filteredCompanies)
-
     const removeFilter = () => {
         localStorage.removeItem('companyFilters');
         const emptyFilters = {
@@ -83,7 +80,6 @@ const Companies = () => {
             region: [],
             handled: []
         };
-
         setFilters(emptyFilters);
     };
 
@@ -98,7 +94,6 @@ const Companies = () => {
     ].reduce((sum, count) => sum + count, 0);
 
     useEffect(() => {
-        // Load selectedRegion from sessionStorage on component mount
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
@@ -134,7 +129,6 @@ const Companies = () => {
         navigate(`/companies/new/edit`, { state: emptyCompany });
     };
 
-    // Обработка кнопки "назад" в Telegram
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
@@ -144,17 +138,13 @@ const Companies = () => {
         };
     }, [navigate]);
 
-    // console.log('local storage filters', localStorage.getItem('companyFilters'))
-    console.log('regionsWithCompanies', regionsWithCompanies);
-    // const containerRef = useScrollMemory('companies');
     useEffect(() => {
-        // if (!id) return;
-        // const encodedId = `region-${encodeURIComponent(targetRegion)}`;
         const timer = setTimeout(() => {
             scrollToSection(id, 35);
         }, 300);
         return () => clearTimeout(timer);
-    }, [id, regionsWithCompanies]);
+    }, [id, filteredCompanies]);
+    console.log('filteredCompanies', filteredCompanies)
 
     if (isLoading) {
         return (
@@ -239,7 +229,7 @@ const Companies = () => {
             <div
                 id='regionsWithCompanies'
                 className={styles.allRegions}>
-                {regionsWithCompanies?.map((region) => (
+                {filteredCompanies?.map((region) => (
                     <Element
                         key={region.region}
                         className={styles.regionContainer}

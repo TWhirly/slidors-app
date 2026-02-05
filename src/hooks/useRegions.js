@@ -1,16 +1,15 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useRegions = (chat_id) => {
-  console.log('useRegions hook')
+  const [saving, setIsSaving] = useState(false)
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
     console.log('fetchRegions executed');
     const params = {
-      name: 'Ваше имя',
       chatID: chat_id,
       api: 'getCompanies'
     };
@@ -21,8 +20,8 @@ export const useRegions = (chat_id) => {
     return (response.data);
   };
 
-  // Выносим функцию преобразования с useCallback
-  const transformToRegionsWithCompanies = (regionRows) => {
+ 
+  const transformToRegionsWithCompanies = useCallback((regionRows) => {
     if (!regionRows) return [];
     
     const companiesByRegion = {};
@@ -74,20 +73,28 @@ export const useRegions = (chat_id) => {
         regionTurnover
       };
     });
-  }; // ← Пустой массив зависимостей, функция стабильна
+  },[]); // ← Пустой массив зависимостей, функция стабильна
 
-  const optimisticUpdateCompany =  useCallback((companyData, isNewComapny = false) => {
-    console.log('optimisticUpdateCompany')
-    queryClient.setQueryData(['regions'], (oldComapnies = []) => {
-      if (isNewComapny) {
-        return [...oldComapnies, companyData];
-      } else {
-        const companyUpdIndex = oldComapnies.findIndex(contact => contact.id === companyData.id);
-        oldComapnies[companyUpdIndex] = companyData;
-        return [...oldComapnies];
-      }
-    });
-  },[queryClient]);
+  const optimisticUpdateCompany = useCallback((companyData, isNewCompany = false) => {
+  if (saving) return;
+
+  // Обновляем данные в кэше
+  queryClient.setQueryData(['regions'], (oldData) => {
+    if (!oldData) return isNewCompany ? [companyData] : [];
+
+    if (isNewCompany) {
+      // Возвращаем НОВЫЙ массив с добавленным объектом
+      return [...oldData, companyData];
+    } else {
+      // Возвращаем НОВЫЙ массив, где заменен только нужный объект
+      return oldData.map((company) => 
+        company.id === companyData.id 
+          ? { ...company, ...companyData } // Создаем новый объект компании
+          : company // Возвращаем старую ссылку на объект, если это не он
+      );
+    }
+  });
+},[queryClient, saving]);
     
   const updateCompanyMutation = useMutation({
     mutationFn: async (companyData) => {
@@ -106,41 +113,52 @@ export const useRegions = (chat_id) => {
       return response.data;
     },
     onMutate: async (companyData) => {
-      await queryClient.cancelQueries({ queryKey: ['regions'] });
-      const previousCompanies = queryClient.getQueryData(['regions']) || [];
-      return { previousCompanies };
+      setIsSaving(true)
+      const isNewComapny = companyData.new || false
+      queryClient.cancelQueries({ queryKey: ['regions'] });
+      console.log('onMutate isNew', isNewComapny)
+      optimisticUpdateCompany(companyData, isNewComapny)
+      // const previousCompanies = queryClient.getQueryData(['regions']) || [];
+      // return { previousCompanies };
     },
     onError: (error, companyData, context) => {
       // Откатываем изменения при ошибке
+      setIsSaving(false)
       queryClient.setQueryData(['regions'], context.previousCompanies);
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, companyData) => {
+      setIsSaving(false)
       // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
-      // queryClient.invalidateQueries(['regions'])
+      queryClient.invalidateQueries({ queryKey: ['regions'] })
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
-      queryClient.invalidateQueries({ queryKey: ['regions'] });
+      // queryClient.invalidateQueries({ queryKey: ['regions'] });
     }
   });
 
-  const { data: companies, isLoading, error } = useQuery({
+  const { data: rawData, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
     staleTime: 1000 * 60 * 30,
-    refetchIntervalInBackground: true,
-    refetchInterval: 1000 * 60 * 50
+    select: (data) => {return data},
+    // refetchIntervalInBackground: true,
+    // refetchOnWindowFocus: false,
+    refetchInterval: 1000 * 60 * 50,
+    cacheTime: 1000 * 60 * 60,
   });
 
   return {
-    companies: companies || [],
+    companies: rawData || [],
+    // regionsWithCompanies: companies || [],
     isLoading,
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
+    saving,
     optimisticUpdateCompany,
     transformToRegionsWithCompanies
   };
