@@ -6,7 +6,7 @@ import { getContactIcons } from './Companies-helpers.js'
 
 
 const CompanyСontacts = (props) => {
-    const [contacts, setContacts] = useState([]);
+    const [companyContacts, setCompanyContacts] = useState([]);
     const { contacts: allContacts, isLoading: isContactsLoading } = useContacts(props.chat_id)
     console.log('propsActivity', props.id)
 
@@ -35,7 +35,7 @@ const CompanyСontacts = (props) => {
         if (allContacts) {
             const contacts = allContacts
             .filter(contact => contact.companyId === props.id)
-            setContacts(contacts)
+            setCompanyContacts(contacts)
         }
     }, [props.id, allContacts]);
     // console.log('main contacts', contacts)
@@ -44,7 +44,7 @@ const CompanyСontacts = (props) => {
         <div style={props.activity ? { marginTop: '-10px', marginLeft: '20px' } : {width: '100%'}} >
             <div className={styles.companyRowInfo}>
                 <div className={styles.companyRowHeader}>
-                    Контакты</div>{contacts && contacts?.length > 0 && <div className={styles.companyRowHeader}>{contacts?.length > 0 ? `\u00A0(${contacts?.length}):` : ':'}</div>}
+                    Контакты</div>{companyContacts && companyContacts?.length > 0 && <div className={styles.companyRowHeader}>{companyContacts?.length > 0 ? `\u00A0(${companyContacts?.length}):` : ':'}</div>}
             </div>
             {isContactsLoading ? (
                 <>
@@ -54,7 +54,7 @@ const CompanyСontacts = (props) => {
             ) : (
                 <div className={styles.contactsContainer}>
 
-                    {contacts?.length > 0 ? (contacts?.map((contact, index) => (
+                    {companyContacts?.length > 0 ? (companyContacts?.map((contact, index) => (
                         <div key={index} className={!props.activity ? styles.contactPerson : styles.activityContactPerson} onClick={props.activity ? () => { return } : () => props.onClick(contact)}>
                             <div style={contactContainerStyle}>
                                 <div style={contactNameStyle}>{`${contact.fullName || getContactFullNmae(contact)}`}</div>

@@ -1,10 +1,10 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
-  const [saving, setIsSaving] = useState(false)
+  console.log('useRegions hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
@@ -75,30 +75,24 @@ export const useRegions = (chat_id) => {
     });
   },[]); // ← Пустой массив зависимостей, функция стабильна
 
-  const optimisticUpdateCompany = useCallback((companyData, isNewCompany = false) => {
-  if (saving) return;
-
-  // Обновляем данные в кэше
-  queryClient.setQueryData(['regions'], (oldData) => {
-    if (!oldData) return isNewCompany ? [companyData] : [];
-
-    if (isNewCompany) {
-      // Возвращаем НОВЫЙ массив с добавленным объектом
-      return [...oldData, companyData];
-    } else {
-      // Возвращаем НОВЫЙ массив, где заменен только нужный объект
-      return oldData.map((company) => 
-        company.id === companyData.id 
-          ? { ...company, ...companyData } // Создаем новый объект компании
-          : company // Возвращаем старую ссылку на объект, если это не он
-      );
-    }
-  });
-},[queryClient, saving]);
+  const optimisticUpdateCompany =  useCallback((companyData, isNewComapny = false) => {
+    console.log('optimisticUpdateCompany')
+    queryClient.setQueryData(['regions'], (oldComapnies = []) => {
+      if (isNewComapny) {
+        return [...oldComapnies, companyData];
+      } else {
+        const companyUpdIndex = oldComapnies.findIndex(contact => contact.id === companyData.id);
+        oldComapnies[companyUpdIndex] = companyData;
+        return [...oldComapnies];
+      }
+    });
+  },[queryClient]);
     
   const updateCompanyMutation = useMutation({
+   
     mutationFn: async (companyData) => {
- 
+      
+      console.log('update fetch', companyData)
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,
@@ -113,22 +107,16 @@ export const useRegions = (chat_id) => {
       return response.data;
     },
     onMutate: async (companyData) => {
-      setIsSaving(true)
-      const isNewComapny = companyData.new || false
-      queryClient.cancelQueries({ queryKey: ['regions'] });
-      console.log('onMutate isNew', isNewComapny)
-      optimisticUpdateCompany(companyData, isNewComapny)
-      // const previousCompanies = queryClient.getQueryData(['regions']) || [];
-      // return { previousCompanies };
+      await queryClient.cancelQueries({ queryKey: ['regions'] });
+      const previousCompanies = queryClient.getQueryData(['regions']) || [];
+      return { previousCompanies };
     },
     onError: (error, companyData, context) => {
-      // Откатываем изменения при ошибке
-      setIsSaving(false)
+     
       queryClient.setQueryData(['regions'], context.previousCompanies);
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, companyData) => {
-      setIsSaving(false)
       // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
       queryClient.invalidateQueries({ queryKey: ['regions'] })
@@ -158,7 +146,6 @@ export const useRegions = (chat_id) => {
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
-    saving,
     optimisticUpdateCompany,
     transformToRegionsWithCompanies
   };

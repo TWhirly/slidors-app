@@ -10,6 +10,7 @@ import Companies from './components/Companies/Companies';
 import CompanyDetails from './components/Companies/CompanyDetails';
 import ContactDetails from './components/Contacts/ContactDetails';
 import CompanyEditForm from './components/Companies/CompanyEditForm';
+import EmptyComponent from './components/Companies/EmptyComponent';
 import ContactEditForm from './components/Contacts/ContactEditForm';
 import Activities from './components/Activity/Activities.jsx';
 import ActivityDetails from './components/Activity/ActivityDetails';
@@ -100,6 +101,7 @@ function App() {
             <Route path="/contacts/:id" element={<ContactDetails />} />
             <Route path="/activities" element={<Activities />} />
             <Route path="/activities/:id" element={<ActivityDetails />} />
+            <Route path="/empty/" element={<EmptyComponent />} />
           </Routes>
         </div>
       </DataProvider>

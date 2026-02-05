@@ -23,7 +23,20 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     return response.data || [];
   }
 
-  
+  const optimisticUpdateEmails = (companyEmails, isSaving = false) => {
+    if(isSaving)
+      return
+    // const oldEmails = (queryClient.getQueriesData(['emails']) || [])
+      console.log('company emails', companyEmails)
+      queryClient.setQueryData(['emails'], (oldEmails) => {
+        const companyEmailsIds = companyEmails.map(email => email.id)
+        console.log('old emails', oldEmails)
+        const oldFilteredEmails = oldEmails.filter(email => !companyEmailsIds.includes(email.id)) // in case when some mails have been changed during company/contact editing
+        console.log('returned emails',[...oldFilteredEmails, companyEmails], 'old filtered emails', oldFilteredEmails)
+        return ([...oldFilteredEmails, ...companyEmails])
+      });
+
+  }
 
   // Получение данных
   const { data: emails, isLoading: isContactsMailsLoading, error: mailsFetchError } = useQuery({
@@ -36,30 +49,30 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
   // Мутация для обновления всех email
   const updateEmailsMutation = useMutation({
     mutationFn: async (contact) => {
-      console.log('mutationFn, emails', contact);
-      const params = {
-        name: 'Ваше имя',
-        contactId: contactId,
-        companyId: companyId,
-        contact: contact,
-        api: 'getEmails'
-      };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
-      );
-      return response.data;
+      // console.log('mutationFn, emails', contact);
+      // const params = {
+      //   name: 'Ваше имя',
+      //   contactId: contactId,
+      //   companyId: companyId,
+      //   contact: contact,
+      //   api: 'getEmails'
+      // };
+      // const formData = JSON.stringify(params);
+      // const response = await axios.post(
+      //   process.env.REACT_APP_GOOGLE_SHEETS_URL,
+      //   formData,
+      // );
+      // return response.data;
     },
-    onMutate: async (newEmails) => {
+    onMutate: async (companyEmails) => {
       await queryClient.cancelQueries({ queryKey: ['emails'] });
       
-      const previousEmails = queryClient.getQueryData(['emails']) || [];
+      // const previousEmails = queryClient.getQueryData(['emails']) || [];
       
       // Оптимистичное обновление
-      queryClient.setQueryData(['emails'], newEmails);
+      optimisticUpdateEmails(companyEmails)
       
-      return { previousEmails };
+      return;
     },
     onError: (error, newEmails, context) => {
       // Откатываем изменения при ошибке
@@ -68,13 +81,9 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
-      queryClient.invalidateQueries({ queryKey: ['emails', isNewContact] });
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
     }
   });
-
-  const optimisticUpdateEmails = async (newEmails) => {
-    queryClient.setQueryData(['emails'], newEmails);
-  };
 
   return {
     emails: emails || [],
