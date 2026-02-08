@@ -24,11 +24,21 @@ const Companies = () => {
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-    const {tg , chat_id} = useTelegram()
+    const {tg , chat_id, showButton} = useTelegram()
 
     const id = location.state?.companyId || null
 
     tg.BackButton.show();
+
+    useEffect(() => {
+        showButton({
+            text: '1',
+            // color: '#31b545',
+            isActive: false,
+            isVisible: false,
+            onClick: () => {},
+        });
+    }, [showButton])
 
     const scrollToSection = (sectionId, offset) => {
         const element = document.getElementById(sectionId);

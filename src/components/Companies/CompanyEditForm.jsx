@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyEditForm.module.css';
 import BasicSelect from './Select.jsx'
 import { DataContext } from '../../DataContext.jsx';
+import { useCompanyUpdate } from '../../hooks/useCompanyUpdate';
 import { useRegions } from '../../hooks/useRegions';
 import { useEmail } from '../../hooks/useEmail';
 import { initBackButton } from './Companies-helpers.js';
@@ -19,7 +20,8 @@ const CompanyEditForm = () => {
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
-    const { companies, optimisticUpdateCompany, updateCompany, updateCompanyAsync } = useRegions(chat_id);
+    const {optimisticUpdateCompany, upload, saving} = useCompanyUpdate(chat_id);
+    const { companies } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg, showButton } = useTelegram();
     const id = company.id;
@@ -28,7 +30,10 @@ const CompanyEditForm = () => {
     const [isValid, setIsValid] = useState(false)
 
     console.log('isValid', isValid)
+
+   
     useEffect(() => {
+        console.log('effect 1')
         // if (!emailInputs || !initEmails)
         //         return
             const hasChanged = Object.keys(formData)
@@ -40,6 +45,7 @@ const CompanyEditForm = () => {
     },[company, emailInputs, formData, initEmails])
 
     useEffect(() => {
+        console.log('effect 2')
         formDataRef.current = formData;
     }, [formData]);
     tg.setBottomBarColor("#131313");
@@ -47,26 +53,27 @@ const CompanyEditForm = () => {
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(() => {
+        if(saving)
+            return
+        console.log('Saving')
         const currentFormData = formDataRef.current
+       
         try {
-            optimisticUpdateCompany(currentFormData)
-            navigate(`/companies/`)
-            updateCompanyAsync(currentFormData, {
-                onSuccess: () => {
-                    // showNotification(`Данные сохранены успешно 2 !`);
-                    // queryClient.invalidateQueries({ queryKey: ['regions'] });
-                },
-                onError: (error) => {
-                    console.error('Company update failed:', error);
-                    // Автоматический откат через onError в мутации
-                }
-            });
+            // optimisticUpdateCompany(currentFormData)
+            upload(currentFormData)
+           
+            
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [navigate, optimisticUpdateCompany, updateCompanyAsync])
+        navigate(`/companies/`)
+        return(() => {})
+       
+        
+    }, [navigate, saving, upload])
 
     const updateCities = (region) => { 
+        console.log('effect 4')
         if (region !== '') {
                 const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
                     .map(company => { return company.city }))
@@ -79,6 +86,7 @@ const CompanyEditForm = () => {
         
 
     useEffect(() => {
+        console.log('effect 5')
         if (formData.type === 'Дилер') {
             setRecyclers(companies.filter(company => company.type === 'Переработчик')
                 .map(company => { return company.name })
@@ -86,8 +94,11 @@ const CompanyEditForm = () => {
         } else {
             setRecyclers([]);
         }
+    }, [companies, formData.type]);
 
-               const validateForm = () => {
+    useEffect(() => {
+
+         const validateForm = () => {
             if (!emailInputs || !formData.emails)
                 return false
             const hasChanged = Object.keys(formData)
@@ -98,8 +109,6 @@ const CompanyEditForm = () => {
             return (hasChanged && isRequiredFilled)
         }
         const isValid = validateForm();
-        
-        // updateCitiesDropdownList();
         showButton({
             text: isValid ? 'Сохранить' : 'Для сохранения заполните поля',
             // color: '#31b545',
@@ -107,9 +116,10 @@ const CompanyEditForm = () => {
             isVisible: true,
             onClick: isValid ? handleSave : {},
         });
-    }, [companies, company, emailInputs, formData, handleSave, showButton]);
+    },[company, emailInputs, formData, handleSave, isValid, showButton])
 
     useEffect(() => {
+        console.log('effect 6')
         if (!emails || emails.length === 0)
             return
         const mails = emails.filter(item => item.company === id)
@@ -140,6 +150,7 @@ const CompanyEditForm = () => {
     };
 
     useEffect(() => {
+        console.log('effect 7')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
@@ -152,7 +163,8 @@ const CompanyEditForm = () => {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+        >
             <div className={styles.naviPanel}>
                 <span className={styles.nameAndIcon}>
                     {company.new === true ? "Новая компания" : "Редактирование"}

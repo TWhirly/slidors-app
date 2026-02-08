@@ -90,7 +90,7 @@ const ContactEditForm = () => {
         return () => {
             tg.offEvent('mainButtonClicked', handleSave)
         }
-    }, [formData, contact, tg]);
+    }, [formData, contact, tg, handleSave]);
 
     useEffect(() => {
             tg.BackButton.show();
@@ -100,7 +100,7 @@ const ContactEditForm = () => {
             return () => {
                 tg.BackButton.offClick();
             };
-        }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, tg.BackButton]);
+        }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, navigate, tg.BackButton]);
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {
