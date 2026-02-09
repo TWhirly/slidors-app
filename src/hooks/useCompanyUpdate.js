@@ -1,25 +1,36 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useCompanyUpdate = (chat_id) => {
+  const navigate = useNavigate();
+  const navigateRef = useRef(navigate)
   const [saving, setIsSaving] = useState(false)
   console.log('useCompanyUpdate hook', saving)
   const { showNotification } = useNotification();
+  const showNotificationRef = useRef(showNotification)
   const queryClient = useQueryClient();
+  const queryClientRef = useRef(queryClient);
+
+  useEffect(() => {
+    navigateRef.current = navigate
+    showNotificationRef.current = showNotification
+    queryClientRef.current = queryClient
+  },[])
  
   const optimisticUpdateCompany = useCallback(async (companyData) => {
     
-    if(saving)
+    if (saving)
       return
-    queryClient.cancelQueries(['regions'])
+    queryClientRef.current.cancelQueries(['regions'])
      const isNewCompany = companyData.new || false
     console.log('optimistic')
     
   // Обновляем данные в кэше
-  const oldData = await queryClient.getQueryData(['regions']);
-  await queryClient.setQueryData(['regions'], () => {
+  const oldData = await queryClientRef.current.getQueryData(['regions']);
+  await queryClientRef.current.setQueryData(['regions'], () => {
     
     console.log('old data', oldData)
     if (!oldData) return isNewCompany ? [companyData] : [];
@@ -36,11 +47,19 @@ export const useCompanyUpdate = (chat_id) => {
       );
     }
   });
+  navigateRef.current(`/companies/`)
+  return(() => {})
   // await queryClient.invalidateQueries({ queryKey: ['regions'] })
-  },[queryClient, saving]);
+  },[saving]);
+
+  const optimisticUpdateCompanyRef = useRef(optimisticUpdateCompany)
+
+  useEffect(() => {
+    optimisticUpdateCompanyRef.current = optimisticUpdateCompany
+  })
 
     const upload = useCallback(async (companyData) => {
-      await optimisticUpdateCompany(companyData)
+      await optimisticUpdateCompanyRef.current(companyData)
       setIsSaving(true)
       console.log('upload')
       const params = {
@@ -54,12 +73,12 @@ export const useCompanyUpdate = (chat_id) => {
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
         formData,
       )
-      if(!saving)
-      showNotification(`Данные сохранены успешно!`);
-    
-      // await queryClient.invalidateQueries({ queryKey: ['regions'] })
+      setIsSaving(false);
+      showNotificationRef.current(`Данные сохранены успешно!`);
+      console.log('response', response)
+      await queryClientRef.current.invalidateQueries({ queryKey: ['regions'] })
       return response.data;
-    },[chat_id, optimisticUpdateCompany, saving, showNotification])
+    },[chat_id])
     
 //   const {
 //   data,

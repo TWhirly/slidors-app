@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
@@ -13,7 +13,7 @@ const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
     const isNewContact = contact?.new === true; // Явный флаг
-    // console.log('isNewContact', isNewContact);
+    console.log('contact', contact);
     const navigate = useNavigate();
 
 
@@ -36,15 +36,26 @@ const ContactEditForm = () => {
     const { emails, isContactsMailsLoading, updateEmails } = useEmail(id, null);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
 
-    
+    console.log('emails', emails)
 
     useEffect(() => {
-    if(isContactsMailsLoading)
-      return
-     console.log('emails', emails)
-    const mails = emails.filter(item => item.company === id)
-    setLocalEmailInputs(mails)
-  }, [emails, id, isContactsMailsLoading])
+        if (isContactsMailsLoading)
+            return
+        
+        const mails = emails.filter(item => item.contact === id)
+        console.log('mails', mails)
+        if (mails.length > 0) {
+            setLocalEmailInputs(mails)
+        } else {
+            setLocalEmailInputs([{
+                company: formData.companyId || '',
+                contact: id,
+                email: "",
+                id: uuidv4(),
+                region: formData.region || ''
+            }])
+        }
+    }, [emails, formData.companyId, formData.region, id, isContactsMailsLoading])
 
     const addEmailInput = () => {
         setLocalEmailInputs(prev => [...prev, { id: uuidv4(), mail: '' }]);
@@ -70,64 +81,44 @@ const ContactEditForm = () => {
         contact.manager = email;
     }, [contact, email, formData]);
 
+
+
     useEffect(() => {
-        tg.setBottomBarColor("#131313");
-        tg.MainButton.show();
-        const currentFormData = formData
-        const hasChanged = Object.keys(currentFormData).some((key) => contact[key] !== currentFormData[key]);
-        setHasChanged(hasChanged);
-        if (currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0)) {
-            setAllowSave(true)
-            tg.MainButton.enable();
-            tg.MainButton.setText('Сохранить')
-        }
-        else {
-            setAllowSave(false)
-            tg.MainButton.disable();
-            tg.MainButton.setText('Для сохранения заполните поля')
-        }
-        tg.onEvent('mainButtonClicked', handleSave)
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
+            { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));; // Вернуться на предыдущую страницу'));
+
         return () => {
-            tg.offEvent('mainButtonClicked', handleSave)
-        }
-    }, [formData, contact, tg, handleSave]);
+            tg.BackButton.offClick();
+        };
+    }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, navigate, tg.BackButton]);
 
     useEffect(() => {
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
-                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));; // Вернуться на предыдущую страницу'));
-    
-            return () => {
-                tg.BackButton.offClick();
-            };
-        }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, navigate, tg.BackButton]);
-
-    useEffect(() => {
-         const regionSet = new Set(companies.map(company => {
+        const regionSet = new Set(companies.map(company => {
             return company.region
-         }))
-         const regions = Array.from(regionSet)
-       setRegionList(regions)
+        }))
+        const regions = Array.from(regionSet)
+        setRegionList(regions)
         setCompaniesList(companies.reduce((acc, company) => {
-            if(company.region === formData.region)
+            if (company.region === formData.region)
                 acc.push(company)
             return acc;
         }, [])
-    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name, 'ru')));
+            .sort((a, b) => a.name.toLowerCase().localeCompare(b.name, 'ru')));
     }, [companies, formData.region]);
 
     useEffect(() => {
-        
+
     }, [formData, tg.MainButton]);
 
     useEffect(() => {
-        const nonEmptyEmails = localEmailInputs.filter(email => email.mail.trim() !== '');
+        const nonEmptyEmails = localEmailInputs.filter(email => email.mail).filter(email => email.mail.trim() !== '');
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
     }, [localEmailInputs]);
 
     //    console.log('regionList', regionList);
 
-    const handleSave = () => {
+    const handleSave = useCallback(() => {
         const currentFormData = formDataRef.current;
         setAllowSave(currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0))
         console.log('allowSave', allowSave)
@@ -165,16 +156,38 @@ const ContactEditForm = () => {
             showNotification(`Ошибка при сохранении: ${error.message}`, false);
             queryClient.invalidateQueries({ queryKey: ['contacts'] });
         }
-    };
+    }, [allowSave, contact.companyId, contact.id, contact.path, contact.prevActivityData, hasChanged, id, isNewContact, navigate, optimisticUpdateContact, queryClient, showNotification, updateContact, updateEmails]);
 
     useEffect(() => {
-         formDataRef.current = formData;
-    },[formData])
+        tg.setBottomBarColor("#131313");
+        tg.MainButton.show();
+        const currentFormData = formData
+        const hasChanged = Object.keys(currentFormData).some((key) => contact[key] !== currentFormData[key]);
+        setHasChanged(hasChanged);
+        if (currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0)) {
+            setAllowSave(true)
+            tg.MainButton.enable();
+            tg.MainButton.setText('Сохранить')
+        }
+        else {
+            setAllowSave(false)
+            tg.MainButton.disable();
+            tg.MainButton.setText('Для сохранения заполните поля')
+        }
+        tg.onEvent('mainButtonClicked', handleSave)
+        return () => {
+            tg.offEvent('mainButtonClicked', handleSave)
+        }
+    }, [formData, contact, tg, handleSave]);
+
+    useEffect(() => {
+        formDataRef.current = formData;
+    }, [formData])
 
     if (!contact) {
-       return <div className={styles.container}>Контакт не найден</div>;
+        return <div className={styles.container}>Контакт не найден</div>;
     }
- 
+
     return (
         <div className={styles.container}>
             <div className={styles.naviPanel}>
@@ -190,10 +203,10 @@ const ContactEditForm = () => {
                     <input
                         id={contact.id}
                         type="checkbox"
-                        checked={formData.snv !== ''}
-                        value={formData.snv !== ''}
+                        checked={formData.snv}
+                        value={formData.snv}
                         className={styles.contactCheckbox}
-                        onChange={(value) => setFormData(prev => ({ ...prev, snv: formData.snv === '' ? '1' : '' }))}
+                        onChange={(value) => setFormData(prev => ({ ...prev, snv: formData.snv ? false : true }))}
                         onClick={(e) => e.stopPropagation()}
                     />
                 </div>

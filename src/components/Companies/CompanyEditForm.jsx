@@ -19,7 +19,7 @@ const CompanyEditForm = () => {
     const formDataRef = useRef(formData);
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
-    const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
+    const { regions: contextRegions, types, statuses, chat_id, provided } = useContext(DataContext);
     const {optimisticUpdateCompany, upload, saving} = useCompanyUpdate(chat_id);
     const { companies } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
@@ -28,7 +28,8 @@ const CompanyEditForm = () => {
     const { emails } = useEmail(id, null);
     const initEmails = emails
     const [isValid, setIsValid] = useState(false)
-
+    const uploadRef = useRef(upload)
+    
     console.log('isValid', isValid)
 
    
@@ -53,24 +54,22 @@ const CompanyEditForm = () => {
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(() => {
-        if(saving)
-            return
         console.log('Saving')
         const currentFormData = formDataRef.current
-       
         try {
-            // optimisticUpdateCompany(currentFormData)
-            upload(currentFormData)
-           
-            
+            uploadRef.current(currentFormData)
         } catch (error) {
             console.error('Save failed:', error);
         }
-        navigate(`/companies/`)
-        return(() => {})
-       
-        
-    }, [navigate, saving, upload])
+    }, [])
+
+    const handleSaveRef = useRef(handleSave)
+
+    useEffect(() => {
+        console.log('useEffect wo dep array')
+        handleSaveRef.current = handleSave
+        uploadRef.current = upload
+    },[])
 
     const updateCities = (region) => { 
         console.log('effect 4')
@@ -114,7 +113,7 @@ const CompanyEditForm = () => {
             // color: '#31b545',
             isActive: isValid,
             isVisible: true,
-            onClick: isValid ? handleSave : {},
+            onClick: isValid ? handleSaveRef.current : {},
         });
     },[company, emailInputs, formData, handleSave, isValid, showButton])
 

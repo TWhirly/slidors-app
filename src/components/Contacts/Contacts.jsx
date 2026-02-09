@@ -124,6 +124,7 @@ const Contacts = () => {
 
     const getEmptyContact = (selectedRegion = '') => ({
         id: uuidv4(), // Generates UUID v4
+        snv: false,
         firstName: '',
         lastName: '',
         surname: '',

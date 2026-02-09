@@ -60,11 +60,12 @@ function ContactDetails() {
   }, [contacts, id]);
 
   useEffect(() => {
-    if(activity){
+    if(activity && !isActivityLoading){
+      console.log('contact activity', activity)
       const contactActivity = activity.other.filter(a => a.contactId === id);
     setContactActivity(contactActivity)
     }
-  }, [activity, id])
+  }, [activity, id, isActivityLoading])
   
 
   // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))

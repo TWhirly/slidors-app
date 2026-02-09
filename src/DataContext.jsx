@@ -72,6 +72,8 @@ export const DataProvider = ({ children }) => {
         });
     }, [chat_id]);
 
+    const provided = {cnt: 0};
+
     useEffect(() => {
         if (loading) {
             tg.ready();
@@ -91,7 +93,8 @@ export const DataProvider = ({ children }) => {
             activityPurposes,
             regions,
             namesEmails,
-            email
+            email,
+            provided
             
         }}>
             {children}
