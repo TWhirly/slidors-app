@@ -18,60 +18,52 @@ const CompanyEditForm = () => {
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
-    const { companies, updateCompany, saving } = useRegions(chat_id);
+    const { companies, updateCompany } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
-    const { tg, showButton } = useTelegram();
+    const { tg , showButton} = useTelegram();
     const id = company.id;
-
-
     const { emails, updateEmails } = useEmail(id, null);
-    console.log('company', company)
 
-    tg.MainButton.show();
+    useEffect(() => {
     tg.setBottomBarColor("#131313");
+    },[tg])
 
-    const isEmailsUpdated = useCallback(() =>{
-            return(emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
-        },[emailInputs, formData.emails])
-    
+    const isEmailsUpdated = useCallback(() => {
+        return (emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
+    }, [emailInputs, formData.emails])
+
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(async () => {
         const currentFormData = formDataRef.current
         try {
-            // optimisticUpdateCompany(currentFormData, isNewComapny)
             navigate(`/companies/`)
             updateCompany(currentFormData, {
                 onSuccess: () => {
                 },
                 onError: (error) => {
                     console.error('Company update failed:', error);
-                    // showNotification(`Ошибка при сохранении: ${error.message}`, false);
-                    // Автоматический откат через onError в мутации
                 }
             });
-            if(isEmailsUpdated())
+            if (isEmailsUpdated())
                 updateEmails(currentFormData.emails)
         } catch (error) {
             console.error('Save failed:', error);
         }
-    },[isEmailsUpdated, navigate, updateCompany, updateEmails])
+    }, [isEmailsUpdated, navigate, updateCompany, updateEmails])
 
-    const updateCities = (region) => { 
+    const updateCities = (region) => {
         if (region !== '') {
-                const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
-                    .map(company => { return company.city }))
-                cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
-            } else {
-                cities = [];
-            }
+            const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
+                .map(company => { return company.city }))
+            cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
+        } else {
+            cities = [];
         }
-    
-        
+    }
 
     useEffect(() => {
         formDataRef.current = formData;
-
         if (formData.type === 'Дилер') {
             setRecyclers(companies.filter(company => company.type === 'Переработчик')
                 .map(company => { return company.name })
@@ -79,8 +71,10 @@ const CompanyEditForm = () => {
         } else {
             setRecyclers([]);
         }
+    }, [companies, formData]);
 
-               const validateForm = () => {
+    useEffect(() => {
+        const validateForm = () => {
             if (!emailInputs || !formData.emails)
                 return false
             const hasChanged = Object.keys(formData)
@@ -91,16 +85,20 @@ const CompanyEditForm = () => {
             return (hasChanged && isRequiredFilled)
         }
         const isValid = validateForm();
-        
-        // updateCitiesDropdownList();
         showButton({
             text: isValid ? 'Сохранить' : 'Для сохранения заполните поля',
-            // color: '#31b545',
-            isActive: isValid && !saving,
+            show: true,
+            shineEffect: true,
+            isActive: isValid,
             isVisible: true,
-            onClick: isValid ? handleSave : undefined,
+            onClick:  handleSave
         });
-    }, [companies, company, emailInputs, formData, handleSave, isEmailsUpdated, saving, showButton]);
+
+        return () => {
+           tg.MainButton.offClick(handleSave)
+        };
+
+    }, [company, emailInputs, formData, handleSave, isEmailsUpdated, showButton, tg.MainButton])
 
     useEffect(() => {
         if (!emails || emails.length === 0)
@@ -113,7 +111,7 @@ const CompanyEditForm = () => {
             }
             return acc;
         }, []);
-        nonEmptyEmails.length === 0 ? setEmailInputs([...nonEmptyEmails, '']) : setEmailInputs(nonEmptyEmails)
+        nonEmptyEmails.length === 0 ? setEmailInputs(['']) : setEmailInputs(nonEmptyEmails)
         setFormData(prev => ({ ...prev, emails: nonEmptyEmails }));
     }, [emails, id])
 
@@ -130,8 +128,6 @@ const CompanyEditForm = () => {
         });
     };
 
-
-
     useEffect(() => {
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
@@ -140,26 +136,9 @@ const CompanyEditForm = () => {
 
     updateCities(formData.region)
 
-
-
-
-
-
-
-
-
-    // formDataRef.current = formData
-    // console.log('formData', formData)
-
-
-
-
-
     if (!company) {
         return <div className={styles.container}>Компания не найдена</div>;
     }
-    // console.log('formData', formData)
-    // console.log('company', company)
 
     return (
         <div className={styles.container}>

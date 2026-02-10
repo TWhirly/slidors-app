@@ -136,6 +136,7 @@ const Contacts = () => {
         whatsapp: '',
         telegram: '',
         note: '',
+        snv: false,
         emails: [{ id: uuidv4(), mail: '' }],
         new: true
     });
@@ -158,19 +159,13 @@ const Contacts = () => {
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        // const tg = window.Telegram?.WebApp;
-        // if (!tg) return;
-
         tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
 
         return () => {
             tg.BackButton.offClick();
-            //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
     }, [navigate, tg.BackButton]);
-
-    console.log('region rows', filteredContacts, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
     if (isLoading) {
         return (

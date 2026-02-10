@@ -24,9 +24,9 @@ export const useContacts = (chat_id) => {
   };
 
   const getContactFullNmae = (contact) => {
-    const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
-                (contact.firstName ? contact.firstName + ' ' : '') + 
-                (contact.surname ? contact.surname + ' ' : '')
+    const fullName = (contact.lastName ? contact.lastName + ' ' : '') +
+      (contact.firstName ? contact.firstName + ' ' : '') +
+      (contact.surname ? contact.surname + ' ' : '')
     if (fullName === '') {
       return contact.companyName || ''
     }
@@ -36,7 +36,7 @@ export const useContacts = (chat_id) => {
   const transformToRegionsWithContacts = (regionRows) => {
     console.log('Contacts select function executed - TRANSFORMATION', regionRows);
     if (!regionRows) return [];
-    
+
     const contactsByRegion = {};
     regionRows.forEach(contact => {
       if (!contactsByRegion[contact.region]) {
@@ -50,21 +50,17 @@ export const useContacts = (chat_id) => {
 
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
       console.log('reg', contacts)
-      const sortedContacts = contacts.sort((a, b) => 
+      const sortedContacts = contacts.sort((a, b) =>
         a.fullName.localeCompare(b.fullName)
       );
       return {
         region,
         contacts: sortedContacts,
         contacts_count: contacts.length,
-        
+
       };
     });
   };
-
-  // console.log(transformToRegionsWithContacts(regionRows))
-
-  // .sort((a, b) => a.fullName.localeCompare(b.fullName)); contacts_count: contacts.length
 
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ['contacts'],
@@ -77,18 +73,15 @@ export const useContacts = (chat_id) => {
   // Функция для оптимистичного обновления контакта
   const optimisticUpdateContact = (contactData, isNewContact = false) => {
     queryClient.setQueryData(['contacts'], (oldContacts = []) => {
-      console.log('isNewContact', isNewContact)
-      console.log('oldContacts h', oldContacts)
+       if (!oldContacts) return isNewContact ? [contactData] : [];
       if (isNewContact) {
-        // Для нового контакта - добавляем в соответствующий регион
-        
         return [...oldContacts, contactData];
       } else {
-        const contactUpdIndex = oldContacts.findIndex(contact => contact.id === contactData.id);
-        oldContacts[contactUpdIndex] = contactData;
-        return [...oldContacts];
-      
-      }
+       return oldContacts.map((contact) => 
+        contact.id === contactData.id 
+          ? { ...contact, ...contactData } 
+          : contact
+      )}
     });
   };
 
@@ -110,12 +103,9 @@ export const useContacts = (chat_id) => {
     },
     onMutate: async (contactData) => {
       await queryClient.cancelQueries({ queryKey: ['contacts'] });
-      
       const previousContacts = queryClient.getQueryData(['contacts']) || [];
-      
       // Оптимистичное обновление через функцию
       optimisticUpdateContact(contactData, contactData.isNew);
-      
       return { previousContacts };
     },
     onError: (error, contactData, context) => {
@@ -125,8 +115,7 @@ export const useContacts = (chat_id) => {
     },
     onSuccess: (data, contactData) => {
       // Дополнительные действия при успехе
-       showNotification(`Данные сохранены успешно!`);
-      console.log('Contact updated successfully:', data);
+      showNotification(`Данные сохранены успешно!`);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации

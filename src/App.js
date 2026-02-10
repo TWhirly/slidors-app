@@ -33,14 +33,17 @@ function App() {
   // eslint-disable-next-line no-unused-vars
   // const { showNotification } = useNotification();
   const navigate = useNavigate();
-  const { tg } = useTelegram();
+  const { tg , showButton} = useTelegram();
   // window.Telegram.WebApp.expand();
   window.Telegram.WebApp.disableVerticalSwipes()
   console.log('init param ', window.Telegram.WebApp)
-  tg.MainButton.hide()
-  tg.MainButton.setParams({
-    text: `Отправить`
+  showButton({
+    isVisible: false
   })
+  // tg.MainButton.hide()
+  // tg.MainButton.setParams({
+  //   text: `Отправить`
+  // })
   //  React.useEffect(() => {
   //     const tg = window.Telegram.WebApp;
   //       tg.BackButton.hide();

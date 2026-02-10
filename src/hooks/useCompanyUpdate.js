@@ -1,17 +1,16 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useCompanyUpdate = (chat_id) => {
-  const [saving, setIsSaving] = useState(false)
+  // const [saving, setIsSaving] = useState(false)
   console.log('useRegions hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   
-  const optimisticUpdateCompany = (companyData, isNewComapny = false) => {
-    if (saving)
-    return
+  const optimisticUpdateCompany = useCallback((companyData, isNewComapny = false) => {
+   
     console.log('optimisticUpdateCompany', companyData, isNewComapny)
     const oldComapnies = [...queryClient.getQueryData(['regions'])] || []
     queryClient.setQueryData(['regions'], () => {
@@ -24,7 +23,7 @@ export const useCompanyUpdate = (chat_id) => {
         return [...oldComapnies];
       }
     })
-  };
+  },[queryClient]);
     
   const updateCompanyMutation = useMutation({
     mutationFn: async (companyData) => {
@@ -43,28 +42,30 @@ export const useCompanyUpdate = (chat_id) => {
       return response.data;
     },
     onMutate: async (companyData) => {
-      setIsSaving(true)
+      
       const isNewComapny = companyData.new || false
-      queryClient.cancelQueries({ queryKey: ['regions'] });
+      await queryClient.cancelQueries({ queryKey: ['regions'] });
+      const previousCompanies = queryClient.getQueryData(['regions']);
       console.log('onMutate isNew', isNewComapny)
       optimisticUpdateCompany(companyData, isNewComapny)
       // const previousCompanies = queryClient.getQueryData(['regions']) || [];
-      // return { previousCompanies };
+       return { previousCompanies };
     },
     onError: (error, companyData, context) => {
       // Откатываем изменения при ошибке
-      setIsSaving(false)
+      
       queryClient.setQueryData(['regions'], context.previousCompanies);
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, companyData) => {
-      setIsSaving(false)
+      
       // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
-      queryClient.invalidateQueries({ queryKey: ['regions'] })
+     
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
+       queryClient.invalidateQueries({ queryKey: ['regions'] })
       // Перезапрашиваем данные для синхронизации
       // queryClient.invalidateQueries({ queryKey: ['regions'] });
     }
@@ -73,7 +74,7 @@ export const useCompanyUpdate = (chat_id) => {
   return {
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
-    saving,
+    
     optimisticUpdateCompany,
   };
 };

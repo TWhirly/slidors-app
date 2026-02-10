@@ -4,7 +4,7 @@ import { useNotification } from '../components/notifications/NotificationContext
 import { useCallback, useState } from 'react';
 
 export const useRegions = (chat_id) => {
-  const [saving, setIsSaving] = useState(false)
+  // const [saving, setIsSaving] = useState(false)
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
@@ -76,7 +76,7 @@ export const useRegions = (chat_id) => {
   },[]); // ← Пустой массив зависимостей, функция стабильна
 
   const optimisticUpdateCompany = useCallback((companyData, isNewCompany = false) => {
-  if (saving) return;
+  
 
   // Обновляем данные в кэше
   queryClient.setQueryData(['regions'], (oldData) => {
@@ -94,7 +94,7 @@ export const useRegions = (chat_id) => {
       );
     }
   });
-},[queryClient, saving]);
+},[queryClient]);
     
   const updateCompanyMutation = useMutation({
     mutationFn: async (companyData) => {
@@ -113,7 +113,7 @@ export const useRegions = (chat_id) => {
       return response.data;
     },
     onMutate: async (companyData) => {
-      setIsSaving(true)
+      
       const isNewComapny = companyData.new || false
       queryClient.cancelQueries({ queryKey: ['regions'] });
       console.log('onMutate isNew', isNewComapny)
@@ -123,20 +123,20 @@ export const useRegions = (chat_id) => {
     },
     onError: (error, companyData, context) => {
       // Откатываем изменения при ошибке
-      setIsSaving(false)
+      
       queryClient.setQueryData(['regions'], context.previousCompanies);
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, companyData) => {
-      setIsSaving(false)
+     
       // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
-      queryClient.invalidateQueries({ queryKey: ['regions'] })
+      // queryClient.invalidateQueries({ queryKey: ['regions'] })
       console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации
-      // queryClient.invalidateQueries({ queryKey: ['regions'] });
+      queryClient.invalidateQueries({ queryKey: ['regions'] });
     }
   });
 
@@ -158,7 +158,7 @@ export const useRegions = (chat_id) => {
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
-    saving,
+    // saving,
     optimisticUpdateCompany,
     transformToRegionsWithCompanies
   };
