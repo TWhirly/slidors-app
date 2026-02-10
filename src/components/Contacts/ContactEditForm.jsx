@@ -8,7 +8,6 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useEmail } from '../../hooks/useEmail';
 import { useContacts } from '../../hooks/useContacts';
 import { v4 as uuidv4 } from 'uuid';
-import { useQueryClient } from '@tanstack/react-query';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();

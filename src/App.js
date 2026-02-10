@@ -1,4 +1,3 @@
-// import '../src/css/theme.css';
 import * as React from 'react';
 import { useNavigate, Routes, Route } from 'react-router-dom';
 import { useEffect } from "react";
@@ -16,22 +15,9 @@ import ActivityDetails from './components/Activity/ActivityDetails';
 import ActivityEditForm from './components/Activity/ActivityEditForm';
 import Contacts from './components/Contacts/Contacts';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function App() {
 
-  // const queryClient = new QueryClient({
-  //   defaultOptions: {
-  //     queries: {
-  //       staleTime: 1000 * 60 * 5, // 5 минут данные не считаются "протухшими"
-  //       refetchOnWindowFocus: false, // Важно для TMA, чтобы не спамить при открытии
-  //     },
-  //   },
-  // });
-
-
-  // eslint-disable-next-line no-unused-vars
-  // const { showNotification } = useNotification();
   const navigate = useNavigate();
   const { tg , showButton} = useTelegram();
   // window.Telegram.WebApp.expand();
@@ -40,24 +26,8 @@ function App() {
   showButton({
     isVisible: false
   })
-  // tg.MainButton.hide()
-  // tg.MainButton.setParams({
-  //   text: `Отправить`
-  // })
-  //  React.useEffect(() => {
-  //     const tg = window.Telegram.WebApp;
-  //       tg.BackButton.hide();
-  //     }, [navigate])
-
-  // if (window.Telegram.WebApp.colorScheme === 'dark') {
+  
   document.documentElement.style.setProperty("--bgColor", "#000000");
-
-  // }
-  // else {
-  //     document.documentElement.style.setProperty("--bgColor", "#ffffff");
-  //     tg.setHeaderColor("#ffffff")
-  // }
-  // console.log('scheme', window.Telegram.WebApp.colorScheme)
 
   useEffect(() => {
     tg.ready();
@@ -77,17 +47,12 @@ function App() {
   useEffect(() => {
     // Обработка Telegram WebApp параметров
     if (window.Telegram?.WebApp?.initData) {
-      const urlParams = new URLSearchParams(window.location.hash.substring(1));
-      // const path = urlParams.get('tgWebAppStartParam') || '/';
-      // console.log('tg params', path)
-
-      // Перенаправляем на корректный путь
+     
       navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   return (
-    // <QueryClientProvider client={queryClient}>
     <NotificationProvider>
       <DataProvider>
         <div className="App">
@@ -107,10 +72,6 @@ function App() {
         </div>
       </DataProvider>
     </NotificationProvider>
-    // </QueryClientProvider>
   );
 }
-
-
-
 export default App

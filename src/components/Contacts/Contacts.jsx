@@ -13,7 +13,6 @@ import IconButton from '@mui/material/IconButton';
 import { useContacts } from '../../hooks/useContacts';
 import { useContactFilters } from '../../hooks/useContactFilters.jsx';
 import { ContactsFilterModal } from './ContactsFilterModal.jsx'
-import { replace } from 'lodash';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -22,12 +21,10 @@ const Contacts = () => {
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
-    const [regionsWithCompanies, setRegionsWithConatcts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const regionsWithCompanies = useState([]);
     const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
     const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
     const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
-    const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
     const { contacts, transformToRegionsWithContacts, isLoading, error } = useContacts(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
@@ -73,13 +70,6 @@ const Contacts = () => {
 
 
     const tg = window.Telegram.WebApp;
-    // const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    // const user = JSON.parse(params.get('user'));
-    // const chat_id = user.id;
-
-    // tg.BackButton.show();
-    // console.log(email, 'email');
-
 
     useEffect(() => {
         console.log('savedSelectedRegion')
@@ -90,22 +80,13 @@ const Contacts = () => {
         }
     }, []);
 
-    // useEffect(() => {
-
-    // }, [selectedRegion]);
-
-    // Функция для получения регионов
-
     const handleRegionClick = async (regionId) => {
-        // setLoadingRegion(regionId);
         if (selectedRegion === regionId) {
             setSelectedRegion(null);
             sessionStorage.removeItem('selectedRegion'); // Clear expanded region state
             setLoadingRegion(null);
             return;
         }
-
-
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
         console.log(regionsWithCompanies.find(r => r.region === regionId));
@@ -143,7 +124,7 @@ const Contacts = () => {
 
     const handleAddContact = () => {
         const emptyContact = getEmptyContact(selectedRegion || '');
-        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' }, replace = true);
+        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' });
     };
 
     const formatNumber = (number) => {
