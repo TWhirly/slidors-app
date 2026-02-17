@@ -2,10 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { useTelegram  } from './useTelegram';
+import { DataContext } from '../DataContext.jsx'
+import { useContext } from 'react';
 
 export const useEmail = (companyId = null, contactId = null, isNewContact = false) => {
   const { chat_id } = useTelegram();
   const queryClient = useQueryClient();
+  const {dev} = useContext(DataContext)
 
   const fetchMail = async () => {
     if (isNewContact) return [{ id: uuidv4(), mail: '' }];
@@ -18,6 +21,9 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
+       {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
     );
     console.log('emails fetch', response.data)
     return response.data || [];
@@ -48,6 +54,9 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
         formData,
+         {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
       );
       return response.data;
     },

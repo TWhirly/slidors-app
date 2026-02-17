@@ -5,9 +5,10 @@ import { useContext, useEffect, useState } from 'react';
 import { DataContext } from '../DataContext.jsx'
 
 export const useActivity = (chat_id) => {
+  
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
-  const { name, email } = useContext(DataContext);
+  const { name, email, dev } = useContext(DataContext);
   const [nameMail, setNameMail] = useState('');
   const notificationInterval = 1000 * 60 * 30 // за полчаса
 
@@ -27,6 +28,9 @@ export const useActivity = (chat_id) => {
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
+        {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
     );
     const sortedActivity = transformActivitySort(response.data);
     // console.log('sortedActivity', sortedActivity);
@@ -138,6 +142,9 @@ function createDateTime(dateStr, timeStr) {
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
         formData,
+          {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
       );
       return response.data;
     },

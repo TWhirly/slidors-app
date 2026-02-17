@@ -23,6 +23,7 @@ function App() {
   // window.Telegram.WebApp.expand();
   window.Telegram.WebApp.disableVerticalSwipes()
   console.log('init param ', window.Telegram.WebApp)
+  console.log('protocol', window.location.protocol)
   showButton({
     isVisible: false
   })
@@ -44,13 +45,14 @@ function App() {
     tg.setBackgroundColor("#131313");
   }, [tg])
 
+
   useEffect(() => {
     // Обработка Telegram WebApp параметров
     if (window.Telegram?.WebApp?.initData) {
-     
+     console.log('navigate')
       navigate('/');
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <NotificationProvider>

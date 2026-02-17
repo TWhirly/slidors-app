@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
+import { DataContext } from '../DataContext.jsx'
+import { useContext } from 'react';
 
 export const useContacts = (chat_id) => {
   console.log('contacts hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
+  const {dev} = useContext(DataContext)
 
   const fetchContacts = async () => {
     console.log('getContactsList')
@@ -18,6 +21,9 @@ export const useContacts = (chat_id) => {
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
+        {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
     );
     console.log('contacts from server', response.data)
     return (response.data);
@@ -98,6 +104,9 @@ export const useContacts = (chat_id) => {
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
         formData,
+         {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
       );
       return response.data;
     },

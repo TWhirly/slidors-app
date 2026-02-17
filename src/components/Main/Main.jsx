@@ -16,6 +16,9 @@ export default function PersistentDrawerLeft() {
       isLoading: isCompaniesLoading
     } = useRegions(chat_id);
 
+    // const isContactsLoading = false
+    // const isActivityLoading = false
+
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
   console.log('initdata', initData)

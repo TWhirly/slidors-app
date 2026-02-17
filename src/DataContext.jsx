@@ -19,6 +19,11 @@ export const DataProvider = ({ children }) => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
     const { chat_id , tg } = useTelegram()
+    const [dev, setDev] = useState(false)
+    
+    useEffect(() => {setDev(process.env.REACT_APP_GOOGLE_SHEETS_URL.slice(-7, -1) === 'devApi')}, [])
+
+    console.log('dev in data context', dev)
 
     useEffect(() => {
         if(!chat_id)
@@ -32,17 +37,27 @@ export const DataProvider = ({ children }) => {
         try {
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
-            );
-            setName(response.data || {});
+                JSON.stringify(params),
+                
+                {
+                     headers:  {'Content-Type': dev ? 'application/json' : 'text/plain' }
+                }
+            ) 
+            ;
+           setName(response.data || {});
             setEmail(response.data.email || '');
             setRegions(response.data.regions || []);
             setNamesEmails(response.data.userNamesMails || []);
             
+            
         } catch (error) {
             console.error('Error fetching regions:', error);
+            return
         }
-    };
+        
+    } 
+    fetchNames();
+    
     const fetchTypesAndStatuses = async () => {
         // console.log('fetchTypesAndStatuses');
         const params = {
@@ -52,7 +67,10 @@ export const DataProvider = ({ children }) => {
         try {
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
+                JSON.stringify(params),
+                 {
+        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+      }
             );
             console.log('TS response', response.data);
             setTypes(response.data.types || []);
@@ -64,13 +82,10 @@ export const DataProvider = ({ children }) => {
         } catch (error) {
             console.error('Error fetching types and statuses:', error);
         }
-    };
-        fetchNames();
-        fetchTypesAndStatuses();
-        Promise.all([fetchNames(), fetchTypesAndStatuses()]).then(() => {
-            setLoading(false);
-        });
-    }, [chat_id]);
+    }
+    fetchTypesAndStatuses();
+    setLoading(false)
+}, [chat_id, dev]);
 
     useEffect(() => {
         if (loading) {
@@ -91,7 +106,8 @@ export const DataProvider = ({ children }) => {
             activityPurposes,
             regions,
             namesEmails,
-            email
+            email,
+            dev
             
         }}>
             {children}
