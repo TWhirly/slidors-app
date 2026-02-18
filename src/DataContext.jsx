@@ -23,8 +23,6 @@ export const DataProvider = ({ children }) => {
     
     useEffect(() => {setDev(process.env.REACT_APP_GOOGLE_SHEETS_URL.slice(-7, -1) === 'devApi')}, [])
 
-    console.log('dev in data context', dev)
-
     useEffect(() => {
         if(!chat_id)
             return

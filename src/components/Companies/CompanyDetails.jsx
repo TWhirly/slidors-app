@@ -62,7 +62,7 @@ const CompanyDetails = () => {
       tg.BackButton.show();
       tg.BackButton.onClick(() => {
         // ✅ Используем returnPath из location.state
-        navigate('/companies', { state: { companyId: id } });
+        navigate('/companies');
       });
     };
 

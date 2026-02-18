@@ -35,8 +35,9 @@ const CompanyEditForm = () => {
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(async () => {
-        const currentFormData = formDataRef.current
+          const currentFormData = {...formDataRef.current, emails: emailInputs}
         try {
+            console.log('current form data', currentFormData)
             navigate(`/companies/`)
             updateCompany(currentFormData, {
                 onSuccess: () => {
@@ -50,7 +51,7 @@ const CompanyEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [isEmailsUpdated, navigate, updateCompany, updateEmails])
+    }, [emailInputs, isEmailsUpdated, navigate, updateCompany, updateEmails])
 
     const updateCities = (region) => {
         if (region !== '') {
@@ -124,6 +125,7 @@ const CompanyEditForm = () => {
             const newEmails = [...prev];
             const id = newEmails[index].id;
             newEmails[index] = { id: id, email: value };
+            
             return newEmails;
         });
     };

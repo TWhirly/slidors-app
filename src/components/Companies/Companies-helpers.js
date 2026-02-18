@@ -194,8 +194,12 @@ export const initBackButton = (company, navigate, id) => {
             tg.BackButton.onClick(() => {
                 if (company?.new) {
                     navigate('/companies');
-                } else {
+                } else if (company.path){
                     navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
                 }
+                else {
+                    navigate(-1)
+                }
             });
+            return(() => tg.BackButton.offClick())
         };
