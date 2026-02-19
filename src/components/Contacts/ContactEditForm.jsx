@@ -11,11 +11,8 @@ import { v4 as uuidv4 } from 'uuid';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
-    const isNewContact = contact?.new === true; // Явный флаг
-    // console.log('isNewContact', isNewContact);
+    const isNewContact = contact?.new === true; 
     const navigate = useNavigate();
-
-
     const [companiesList, setCompaniesList] = useState([]);
     const [regionList, setRegionList] = useState([]);
     const [formData, setFormData] = useState({ ...contact });
@@ -60,15 +57,14 @@ const ContactEditForm = () => {
         contact.manager = email;
     }, [contact, email, formData]);
 
-    useEffect(() => {
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
-                { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));; // Вернуться на предыдущую страницу'));
-    
-            return () => {
-                tg.BackButton.offClick();
-            };
-        }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, navigate, tg.BackButton]);
+     useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => navigate(-1));
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [navigate]);
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {

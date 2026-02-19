@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
@@ -11,7 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions';
 import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
-import { useTelegram  } from '../../hooks/useTelegram.js';
+import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
 const filterIcon = require('../../icons/filter.png')
@@ -19,16 +19,19 @@ const filterActiveIcon = require('../../icons/filterActive.png')
 
 const Companies = () => {
 
-    const { email, regions: contextRegions } = useContext(DataContext);
+    const { email, regions: contextRegions, lastVisibleCompanyId, setLastVisibleCompanyId } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
-    const {tg , chat_id} = useTelegram()
-
+    const { tg, chat_id } = useTelegram()
     const id = location.state?.companyId || null
+    const [firstVisibleId, setFirstVisibleId] = useState(null);
+    const containerRef = useRef(null);
+    const itemRefs = useRef({});
 
-    tg.BackButton.show();
+
+    console.log('firstVisibleId',firstVisibleId)
 
     const scrollToSection = (sectionId, offset) => {
         const element = document.getElementById(sectionId);
@@ -47,13 +50,13 @@ const Companies = () => {
         });
     };
 
- const { 
-    companies,      
-    isLoading, 
-    error 
-  } = useRegions(chat_id);
+ 
 
-console.log('companiez', companies)
+    const {
+        companies,
+        isLoading,
+        error
+    } = useRegions(chat_id);
 
     const {
         filters,
@@ -93,11 +96,59 @@ console.log('companiez', companies)
         filters.type.length
     ].reduce((sum, count) => sum + count, 0);
 
+    // Добавляем selectedRegion в зависимости useEffect
+useEffect(() => {
+  // Этот эффект будет запускаться каждый раз при смене региона
+  const observer = new IntersectionObserver((entries) => {
+    const visibleEntries = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => a.target.offsetTop - b.target.offsetTop);
+
+    if (visibleEntries.length > 0) {
+      setLastVisibleCompanyId(visibleEntries[0].target.id);
+    }
+  }, { threshold: 0.5 });
+
+  // Даем время React отрендерить компании
+  setTimeout(() => {
+    const companies = document.querySelectorAll('[data-item-marker]');
+    companies.forEach(company => observer.observe(company));
+  }, 100);
+
+  return () => observer.disconnect();
+}, [selectedRegion, setLastVisibleCompanyId]); // Зависимость от selectedRegion
+
+// useEffect(() => {
+//     if (firstVisibleId) {
+//       setLastVisibleCompanyId(firstVisibleId);
+//       // Можно также сохранять в sessionStorage для надежности
+//       sessionStorage.setItem('lastVisibleCompanyId', firstVisibleId);
+//     }
+//   }, [firstVisibleId, setLastVisibleCompanyId]);
+
+  useEffect(() => {
+    // Проверяем, откуда пришли
+    
+    
+    // Если вернулись с другой страницы и есть сохраненный ID
+    if (lastVisibleCompanyId) {
+      console.log('scroll to section call')
+      setTimeout(() => {
+        scrollToSection(lastVisibleCompanyId, 60);
+      }, 300);
+    }
+    
+    // Также проверяем sessionStorage на случай перезагрузки страницы
+    // const savedId = sessionStorage.getItem('lastVisibleCompanyId');
+    // if (savedId && !lastVisibleCompanyId) {
+    //   setLastVisibleCompanyId(savedId);
+    // }
+  }, []);
+
     useEffect(() => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
-
         }
     }, []);
 
@@ -114,8 +165,7 @@ console.log('companiez', companies)
 
     const handleSelectCompany = (company) => {
         navigate(`/companies/${company.id}`, {
-            state: { companyId: company.id, path: '/companies' }
-            //, replace: true
+            state: { companyId: company.id, from: '/companies', replace: true }
         });
     };
 
@@ -126,25 +176,27 @@ console.log('companiez', companies)
 
     const handleAddCompany = () => {
         const emptyCompany = getEmptyCompany(selectedRegion || '', email);
-        navigate(`/companies/new/edit`, { state: emptyCompany });
+        navigate(`/companies/new/edit`, { state: {company: emptyCompany, from: '/companies'} });
     };
 
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => navigate(('/')));
         return () => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            scrollToSection(id, 35);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [id, filteredCompanies]);
-    console.log('filteredCompanies', filteredCompanies)
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         scrollToSection(id, 35);
+    //     }, 300);
+    //     return () => clearTimeout(timer);
+    // }, [id, filteredCompanies]);
+
+   
 
     if (isLoading) {
         return (
@@ -156,7 +208,8 @@ console.log('companiez', companies)
 
     if (error) {
         return (
-            <div className={styles.container}>
+            <div className={styles.container}
+            >
                 <div className={styles.paper}>
                     Ошибка при загрузке данных: {error.message}
                 </div>
@@ -166,13 +219,14 @@ console.log('companiez', companies)
 
     return (
         <div className={styles.container}
+        
         >
             <div
                 className={styles.naviPanel}
-                
+
             >
                 <div className={selectedRegion ? styles.companyNamePanelExpanded : styles.companyNamePanel}
-                onClick={collapseRegion}>
+                    onClick={collapseRegion}>
                     
                     Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
                         .filter((item) => item !== "область")
@@ -225,17 +279,20 @@ console.log('companiez', companies)
                         </Avatar>
                     )) : ''}
                 </AvatarGroup>
+                First Visible: {firstVisibleId}
             </div>
             <div
+                
                 id='regionsWithCompanies'
                 className={styles.allRegions}>
+                   
                 {filteredCompanies?.map((region) => (
                     <Element
                         key={region.region}
                         className={styles.regionContainer}
                         name={region.region}
                         id={`region-${encodeURIComponent(region.region)}`}
-                    >
+                    > 
                         <button
                             onClick={() => handleRegionClick(region.region)}
                             className={styles.regionButton}
@@ -250,9 +307,14 @@ console.log('companiez', companies)
                             </span>
                         </button>
                         {selectedRegion === region.region && (
-                            <div className={styles.dataGridContainer}>
+                            <div className={styles.dataGridContainer}
+                             ref={containerRef}
+                            >
                                 {region.companies?.map((company) => (
-                                    <Element
+                                    <div
+                                    
+                                        data-item-marker
+                                        // ref={el => itemRefs.current[company.id] = el}
                                         key={company.id}
                                         className={styles.companyItem}
                                         name={company.id}
@@ -306,7 +368,7 @@ console.log('companiez', companies)
                                         >
                                             {company.status || 'Неизвестно'}
                                         </div>
-                                    </Element>
+                                    </div>
                                 ))}
                             </div>
                         )}

@@ -11,18 +11,21 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 let cities = []
 const CompanyEditForm = () => {
     console.log('first render')
-    const { state: company } = useLocation();
+    const { state: {company , from} } = useLocation();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ ...company });
-    const formDataRef = useRef(formData);
+    
+   
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
     const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
     const { companies, updateCompany } = useRegions(chat_id);
+    const [formData, setFormData] = useState({ ...company });
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg , showButton} = useTelegram();
+    console.log('company', company)
     const id = company.id;
     const { emails, updateEmails } = useEmail(id, null);
+     const formDataRef = useRef(formData);
 
     useEffect(() => {
     tg.setBottomBarColor("#131313");
@@ -32,7 +35,15 @@ const CompanyEditForm = () => {
         return (emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
     }, [emailInputs, formData.emails])
 
-    initBackButton(company, navigate, id);
+    // initBackButton(company, navigate, id);
+    useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => navigate(from || (-1), {state: {companyId: id}}));
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [from, id, navigate]);
 
     const handleSave = useCallback(async () => {
           const currentFormData = {...formDataRef.current, emails: emailInputs}

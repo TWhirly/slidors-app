@@ -18,7 +18,7 @@ const CompanyDetails = () => {
 
 
   const navigate = useNavigate();
-  const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
+  const { state: { companyId: id, from } } = useLocation();
   const [expanded, setExpanded] = useState(false);
   const [plannedExpanded, setPlannedExpanded] = useState(false);
   const [company, setCompany] = useState({});
@@ -31,10 +31,10 @@ const CompanyDetails = () => {
   const { emails, isContactsMailsLoading } = useEmail(id, null);
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
-  const { email } = useContext(DataContext)
+  const { email , lastVisibleCompanyId} = useContext(DataContext)
   // tg.BackButton.isVisible = true
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-  console.log('activity', activity, test)
+  console.log('from', from)
   useEffect(() => {
     if (companies) {
       const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -54,26 +54,14 @@ const CompanyDetails = () => {
   
 
   useEffect(() => {
-    const initBackButton = () => {
-      if (!tg) return;
-
-      tg.ready();
-      tg.BackButton.isVisible = true;
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => {
-        // ✅ Используем returnPath из location.state
-        navigate('/companies');
-      });
-    };
-
-    initBackButton();
-
-    return () => {
-      if (tg) {
-        tg.BackButton.offClick();
-      }
-    };
-  }, [id, navigate, returnPath, tg]);
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.isVisible = true
+        tg.BackButton.onClick(() => navigate(from || -1, {state: {companyId: id}, replace: true}));
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [from, id, navigate]);
 
   useEffect(() => {
     if (activity.planned && activity.planned.length > 0){
@@ -98,7 +86,7 @@ const CompanyDetails = () => {
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/companies/${company.id}/edit`, { state: { ...company, new: false } });
+      navigate(`/companies/${company.id}/edit`, { state: { company: {...company}, new: false, from: `/companies/${company.id}` } });
     }
     if (selectedOption === 'Добавить контакт') {
       const getEmptyContact = (selectedRegion = '') => ({
@@ -234,6 +222,7 @@ const CompanyDetails = () => {
         />
       </div>
       <div className={styles.CompanyDetails}>
+        {lastVisibleCompanyId}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
         {company.recyclers?.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers?.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>

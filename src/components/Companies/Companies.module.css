@@ -164,6 +164,7 @@
     font-size: 16px;
     background: none;
     overflow-x: hidden;
+    /* overflow-y: scroll; */
     /* Прозрачный фон */
     padding: 1px 0;
     display: flex;

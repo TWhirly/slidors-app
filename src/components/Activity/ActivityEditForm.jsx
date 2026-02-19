@@ -102,7 +102,7 @@ const ActivityEditForm = () => {
                     showNotification(`Ошибка при сохранении: ${error.message}`, false);
                 }
             });
-            navigate(activity.path || `/activities/`, { state: { activityId: !!formData.finalize ? formData.finalize : id, companyId: activity.companyId } });
+            navigate(-1);
         };
 
         const initBackButton = () => {
@@ -110,7 +110,8 @@ const ActivityEditForm = () => {
             tg.ready();
             tg.BackButton.isVisible = true;
             tg.BackButton.show();
-            tg.BackButton.onClick(handleBackButton); // ✅ Используем именованную функцию
+            tg.BackButton.onClick(handleBackButton);
+            
         };
 
         tg.setBottomBarColor("#131313");
@@ -134,7 +135,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg]);
+    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));

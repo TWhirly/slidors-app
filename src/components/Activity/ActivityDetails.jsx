@@ -8,14 +8,9 @@ import { useActivity } from '../../hooks/useActivity.js';
 import { getEmptyActivity } from './activity.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
 
-
-
 const ActivityDetails = () => {
-
-  
   const navigate = useNavigate();
-  const { state: { activityId: id , path} } = useLocation();
-  const [menuSelection, setMenuSelection] = useState(null);
+  const { state: { activityId: id } } = useLocation();
   const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
   const [hasAtLeastOneField, setHasAtLeastOneField] = useState(false);
@@ -23,18 +18,16 @@ const ActivityDetails = () => {
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
-  const { activity: activities, isLoading, updateActivity, optimisticUpdateActivity } = useActivity(chat_id)
+  const { activity: activities, updateActivity } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
   const [options, setOptions] = useState([])
   const {name, email} = useContext(DataContext)
-  // const getEmptyActivity = require('./ActivityDetails.jsx')
-  // console.log(name)
+  
   tg.BackButton.isVisible = true
     useEffect(() => {
     if (activities) {
       let activity = []
       activity = activities.planned?.filter((activity) => activity.id === id);
-      // console.log('activity in useEffect', activity, id, activities) // Find the activity with the matching ID and set it as the state variable)
       if (activity.length === 0) {
         activity = activities.other?.filter((activity) => activity.id === id);
       }
@@ -57,25 +50,14 @@ const ActivityDetails = () => {
     }
   }, [contacts, activity]);
 
-  useEffect(() => {
-    const initializeBackButton = () => {
-      if (!tg) return;
-      // console.log('back button init', path)
-      tg.ready(); // Ensure Telegram WebApp is fully initialized
-      tg.BackButton.isVisible = true;
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(path || '/activities/', 
-         { replace: true }));
-    };
-
-    initializeBackButton();
-
-    return () => {
-      tg.BackButton.offClick();
-    };
-  }, [navigate, path, tg]);
-
-  // console.log('company', company);
+   useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => navigate(-1));
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [navigate]);
    
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
@@ -87,22 +69,8 @@ const ActivityDetails = () => {
         updateActivity({...emptyActivity, new: true, toFinish: true})
       navigate(`/activities/${activity.id}/edit`, { state: {...emptyActivity, path: `/activities/${activity.id}`, finalize: activity.id, new: true  } });
     }
-    // if (selectedOption === 'Добавить контакт') {
-      
-    //       const emptyActivity = getEmptyActivity();
-      
-    //   navigate(`/activities/new/edit`, { state: {...emptyActivity, path: `/activities/${id}`, prevComponent : activity, activityId: id} });
-             
-    // }
+   
   };
-
-  //  const handleSelectContact = (contact) => {
-  //       console.log('handleSelectCompany', contact);
-  //        navigate(`/contacts/${contact.id}`, {
-  //           state: {contactId: contact.id, companyId: id,
-  //           path: `/companies/${id}`, prevComponent : company}
-  //       },  { replace:  true});
-  //           };
 
   const formatNumber = (number) => {
     const cleanNumber = number.replace(/\D/g, '');
@@ -119,7 +87,6 @@ const ActivityDetails = () => {
   if (!activity)
     return
     let options = [];
-    // console.log('options check', activity.responsible, `${name.name} (${email})`)
     if(activity.plan && activity.responsible === `${name.name} (${email})`)
       options.push('Завершить')
     if(name.role === 'Админ')
@@ -195,15 +162,11 @@ const ActivityDetails = () => {
   
 
   const handleSelectContact = (contact) => {
-          // console.log('handleSelectCompany', contact);
            navigate(`/contacts/${contact.id}`, {
               state: {contactId: contact.id, companyId: activity.companyId, activityId: id,
               path: `/activities/${id}`, prevComponent : activity}
           });
               };
-
-  // console.log('activity', activity)
-  // console.log('tg.BackButton.onClick', tg.BackButton.onClick())
 
   if (!activity) {
     return <div>Activity not found</div>;

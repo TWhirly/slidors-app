@@ -205,12 +205,10 @@ const Activities = () => {
         navigate(`/activities/new/edit`, { state: {...emptyActivity, new: true} });
     };
 
-    useEffect(() => {
+     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
-
+        tg.BackButton.onClick(() => navigate(-1));
         return () => {
             tg.BackButton.offClick();
         };

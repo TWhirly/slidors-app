@@ -57,7 +57,7 @@ const Contacts = () => {
         setFilters(emptyFilters);
     };
 
-     const activeFiltersCount = [
+    const activeFiltersCount = [
     filters.snv ? 1 : 0,
     filters.company ? 1 : 0,
     filters.name ? 1 : 0,
@@ -89,13 +89,11 @@ const Contacts = () => {
         }
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-        console.log(regionsWithCompanies.find(r => r.region === regionId));
     };
 
     const handleSelectContact = (contact) => {
-        console.log('handleSelectCompany', contact);
         navigate(`/contacts/${contact.id}`, {
-            state: { contactId: contact.id }
+            state: { contactId: contact.id, from: '/contacts', replace: true }
         });
     };
 
@@ -140,13 +138,13 @@ const Contacts = () => {
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
-
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => navigate('/'));
         return () => {
             tg.BackButton.offClick();
         };
-    }, [navigate, tg.BackButton]);
+    }, [navigate]);
 
     if (isLoading) {
         return (

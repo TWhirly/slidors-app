@@ -182,24 +182,24 @@ export const mainContactsIcons = {
     telegramIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
 }
 
-export const initBackButton = (company, navigate, id) => {
-            if (!tg) return;
-            tg.ready();
-            if (!company) {
-                navigate('/companies');
-                return;
-            }
-            tg.BackButton.isVisible = true;
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => {
-                if (company?.new) {
-                    navigate('/companies');
-                } else if (company.path){
-                    navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
-                }
-                else {
-                    navigate(-1)
-                }
-            });
-            return(() => tg.BackButton.offClick())
-        };
+// export const initBackButton = (company, navigate, id) => {
+//             if (!tg) return;
+//             tg.ready();
+//             if (!company) {
+//                 navigate('/companies');
+//                 return;
+//             }
+//             tg.BackButton.isVisible = true;
+//             tg.BackButton.show();
+//             tg.BackButton.onClick(() => {
+//                 if (company?.new) {
+//                     navigate('/companies');
+//                 } else if (company.path){
+//                     navigate(company.path || `/companies/${company.id}`, { state: { companyId: id } });
+//                 }
+//                 else {
+//                     navigate(-1)
+//                 }
+//             });
+//             return(() => tg.BackButton.offClick())
+//         };

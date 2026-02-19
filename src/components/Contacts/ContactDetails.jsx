@@ -18,7 +18,7 @@ function ContactDetails() {
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: {contactId: id ,  path = '/contacts' , activityId } } = useLocation();
+  const { state: {contactId: id ,  from , activityId } } = useLocation();
   const [contact, setContact] = useState({});
   const [contactActivity, setContactActivity] = useState([])
   const [loadingMail, setLoadingMail] = useState(true);
@@ -65,34 +65,15 @@ function ContactDetails() {
     setContactActivity(contactActivity)
     }
   }, [activity, id])
-  
 
-  // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))
-  // console.log('contactMails', contactMails);
-
-  
-
-  
-
-  
-
-  useEffect(() => {
-    const initializeBackButton = () => {
-      if (!tg) return;
-
-      tg.ready(); // Ensure Telegram WebApp is fully initialized
-      tg.BackButton.isVisible = true;
-      tg.BackButton.show();
-     tg.BackButton.onClick(() => navigate(path || '/contacts/', 
-        {state: {companyId : contact.companyId, contactId: contact.id, activityId}}));
-    };
-
-    initializeBackButton();
-
-    return () => {
-      tg.BackButton.offClick();
-    };
-  }, [activityId, contact.companyId, contact.id, navigate, path, tg]);
+   useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => navigate(from || -1));
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [from, navigate]);
 
   // console.log('company', company);
 

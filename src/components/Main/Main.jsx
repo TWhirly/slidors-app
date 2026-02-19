@@ -80,7 +80,7 @@ export default function PersistentDrawerLeft() {
               <div
                 key={item.name}
                 className={styles.menuItemPlainText}
-                onClick={() => navigate(item.path, { replace: true })}
+                onClick={() => navigate(item.path)}
               >
                 {checkIfLoaded(item.name) ?
                <img alt='icon' src={item.icon} className={styles.icon}></img> :
