@@ -34,7 +34,7 @@ const CompanyDetails = () => {
   const { email , lastVisibleCompanyId} = useContext(DataContext)
   // tg.BackButton.isVisible = true
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-  console.log('from', from)
+  // console.log('from', from)
   useEffect(() => {
     if (companies) {
       const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -46,7 +46,7 @@ const CompanyDetails = () => {
   useEffect(() => {
     if(!emails)
       return
-    console.log('emails', emails)
+    // console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setCompanyMails(mails)
   }, [emails, id])
@@ -122,7 +122,7 @@ const CompanyDetails = () => {
   };
 
   const handleSelectContact = (contact) => {
-    console.log('handleSelectCompany', contact);
+    // console.log('handleSelectCompany', contact);
     navigate(`/contacts/${contact.id}`, {
       state: {
         contactId: contact.id, companyId: id,
@@ -196,8 +196,6 @@ const CompanyDetails = () => {
     }
   };
 
-  console.log('companyActivity', companyActivity)
-  console.log('company', company)
 
   if (!company) {
     return <div>Company not found</div>;
@@ -222,7 +220,6 @@ const CompanyDetails = () => {
         />
       </div>
       <div className={styles.CompanyDetails}>
-        {lastVisibleCompanyId}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Тип:</div><div className={styles.companyRowVal}>{company.type}</div></div>
         {company.recyclers?.length > 0 && <div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Работает с:</div><div className={styles.companyDescriptionRowVal}>{company.recyclers?.map(item => item.trim()).join(', ')}</div></div>}
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Статус:</div><div className={styles.companyRowVal}>{company.status}</div></div>

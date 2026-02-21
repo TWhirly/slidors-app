@@ -10,7 +10,7 @@ import { initBackButton } from './Companies-helpers.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
 let cities = []
 const CompanyEditForm = () => {
-    console.log('first render')
+    // console.log('first render')
     const { state: {company , from} } = useLocation();
     const navigate = useNavigate();
     
@@ -22,7 +22,7 @@ const CompanyEditForm = () => {
     const [formData, setFormData] = useState({ ...company });
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg , showButton} = useTelegram();
-    console.log('company', company)
+    // console.log('company', company)
     const id = company.id;
     const { emails, updateEmails } = useEmail(id, null);
      const formDataRef = useRef(formData);
@@ -48,7 +48,7 @@ const CompanyEditForm = () => {
     const handleSave = useCallback(async () => {
           const currentFormData = {...formDataRef.current, emails: emailInputs}
         try {
-            console.log('current form data', currentFormData)
+            // console.log('current form data', currentFormData)
             navigate(`/companies/`)
             updateCompany(currentFormData, {
                 onSuccess: () => {

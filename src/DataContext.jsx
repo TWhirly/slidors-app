@@ -71,7 +71,7 @@ export const DataProvider = ({ children }) => {
                         headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
                     }
                 );
-                console.log('TS response', response.data);
+                // console.log('TS response', response.data);
                 setTypes(response.data.types || []);
                 setStatuses(response.data.statuses || []);
                 setTitles(response.data.titles || []);
@@ -92,7 +92,7 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    console.log('name in data context', name)
+    // console.log('name in data context', name)
     return (
         <DataContext.Provider value={{
             loading,

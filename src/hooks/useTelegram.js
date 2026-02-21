@@ -38,7 +38,7 @@ export function useTelegram() {
       shineEffect = false,
       onClick
     } = params;
-    console.log('params', params)
+    // console.log('params', params)
     mainButton.current.setText(text);
     mainButton.current.setParams({
       text_color: textColor,

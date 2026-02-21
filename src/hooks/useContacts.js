@@ -5,13 +5,12 @@ import { DataContext } from '../DataContext.jsx'
 import { useContext } from 'react';
 
 export const useContacts = (chat_id) => {
-  console.log('contacts hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const {dev} = useContext(DataContext)
 
   const fetchContacts = async () => {
-    console.log('getContactsList')
+    // console.log('getContactsList')
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -25,7 +24,7 @@ export const useContacts = (chat_id) => {
         headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
       }
     );
-    console.log('contacts from server', response.data)
+    // console.log('contacts from server', response.data)
     return (response.data);
   };
 
@@ -40,7 +39,7 @@ export const useContacts = (chat_id) => {
   };
 
   const transformToRegionsWithContacts = (regionRows) => {
-    console.log('Contacts select function executed - TRANSFORMATION', regionRows);
+    // console.log('Contacts select function executed - TRANSFORMATION', regionRows);
     if (!regionRows) return [];
 
     const contactsByRegion = {};
@@ -52,10 +51,10 @@ export const useContacts = (chat_id) => {
       contactsByRegion[contact.region].push(contact);
     });
 
-    console.log('contacts by region', contactsByRegion)
+    // console.log('contacts by region', contactsByRegion)
 
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
-      console.log('reg', contacts)
+      // console.log('reg', contacts)
       const sortedContacts = contacts.sort((a, b) =>
         a.fullName.localeCompare(b.fullName)
       );
@@ -93,7 +92,7 @@ export const useContacts = (chat_id) => {
 
   const updateContactMutation = useMutation({
     mutationFn: async (contactData) => {
-      console.log('mutationFn, contact', contactData);
+      // console.log('mutationFn, contact', contactData);
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,

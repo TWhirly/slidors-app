@@ -10,7 +10,7 @@ import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
   const { chat_id , tg , initData} = useTelegram()
-  const { name, loading } = useContext(DataContext);
+  const { name, loading, lastVisibleCompanyId } = useContext(DataContext);
   const navigate = useNavigate();
   const { 
       isLoading: isCompaniesLoading
@@ -21,7 +21,6 @@ export default function PersistentDrawerLeft() {
 
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
-  console.log('initdata', initData)
 
  
     const initializeBackButton = () => {
@@ -57,7 +56,6 @@ export default function PersistentDrawerLeft() {
   ];
 
   // if(!isActivityLoading)
-    console.log('name', name);
 
   return (
     <div className={styles.container}>

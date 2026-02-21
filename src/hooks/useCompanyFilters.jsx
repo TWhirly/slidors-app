@@ -1,8 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useRegions } from './useRegions'
 export const useCompanyFilters = (companies) => {
-  console.log('companies in hook', companies)
-  console.log('local storage company filters', localStorage.getItem('companyFilters'))
   const transformToRegionsWithCompanies = useCallback((regionRows) => {
       if (!regionRows) return [];
       
@@ -174,11 +171,6 @@ export const useCompanyFilters = (companies) => {
   }, [companies])
 
   const avialableHandle =  ['Проработан', 'Не проработан']
-  
-
-  console.log('region cities in hook', regionCities)
-
-  
   
   return {
     filters,

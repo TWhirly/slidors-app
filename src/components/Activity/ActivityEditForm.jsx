@@ -51,24 +51,24 @@ const ActivityEditForm = () => {
     const [header, setHeader] = useState('');
     const [toSubscribe, setToSubscribe] = useState(false)
 
-    console.log('activityEdit', activity);
+    // console.log('activityEdit', activity);
 
     
-     const handleSave  =  () => {
-        console.log('allowSave', allowSave)
+     const handleSave  =  useCallback(() => {
+        // console.log('allowSave', allowSave)
         const currentFormData = formDataRef.current;
         const isNewActivity = activity?.new === true;
         delete currentFormData.new;
         delete activity.new
         if (currentFormData.toFinish)
             currentFormData.plan = ''
-        console.log('Current form data:', activity.path);
+        // console.log('Current form data:', activity.path);
         if (!allowSave) {
-            console.log('allowSave', allowSave)
+            // console.log('allowSave', allowSave)
             return
         }
         try {
-            console.log('Current form data:', currentFormData);
+            // console.log('Current form data:', currentFormData);
             optimisticUpdateActivity(currentFormData, isNewActivity, true)
             if (tg) {
                 tg.BackButton.offClick();
@@ -80,7 +80,7 @@ const ActivityEditForm = () => {
                     queryClient.invalidateQueries({ queryKey: ['activity'] });
                 },
                 onError: (error) => {
-                    console.log('Company update failed:', error);
+                    // console.log('Company update failed:', error);
                     showNotification(`Ошибка при сохранении: ${error.message}`, false);
                     // Автоматический откат через onError в мутации
                 }
@@ -88,10 +88,10 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }
+    },[activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity])
 
     useEffect(() => {
-        console.log('effect 1')
+        // console.log('effect 1')
         const handleBackButton = () => {
             updateActivity({ ...activity, delete: activity.new }, {
                 onSuccess: () => {
@@ -151,7 +151,7 @@ const ActivityEditForm = () => {
     }, [activity.finalize, activity.new])
 
     useEffect(() => {
-        console.log('effect 2')
+        // console.log('effect 2')
         if (allContacts) {
             const companyContacts = allContacts.reduce((acc, contact) => {
                 if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
@@ -164,7 +164,7 @@ const ActivityEditForm = () => {
     }, [allContacts, formData.companyId]);
 
     useEffect(() => {
-         console.log('effect 3')
+         // console.log('effect 3')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
         setHasChanged(hasChanged);
     }, [formData, activity]);
@@ -177,7 +177,7 @@ const ActivityEditForm = () => {
     }, [contextRegions]);
 
     useEffect(() => {
-        console.log('effect 6')
+        // console.log('effect 6')
         const currentFormDataRegion = formData.region;
         if (currentFormDataRegion && allCompanies) {
             const citiesSet = new Set(allCompanies.filter(company => company.region === currentFormDataRegion)
@@ -190,7 +190,7 @@ const ActivityEditForm = () => {
     }, [allCompanies, formData.region]);
 
     useEffect(() => {
-        console.log('effect 7')
+        // console.log('effect 7')
         const currentFormDataRegion = formData.region;
         if (currentFormDataRegion && currentFormDataRegion.length > 0 && allCompanies) {
             let names = []
@@ -236,7 +236,7 @@ const ActivityEditForm = () => {
 
     useEffect(() => {
         setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
-        console.log('subscribe effect')
+        // console.log('subscribe effect')
     
         
     }, [formData])
@@ -280,7 +280,7 @@ const ActivityEditForm = () => {
    
 
     const handleCheck = (id) => {
-        console.log('Selected contact ID:', id);
+        // console.log('Selected contact ID:', id);
 
         // Если кликаем на уже выбранный контакт - снимаем выбор
         if (selectedContactId === id) {
@@ -296,10 +296,10 @@ const ActivityEditForm = () => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('toSubscribe', toSubscribe);
-    console.log('formData', formData);
-    console.log('hasChanged', hasChanged)
-    console.log('allowSave', allowSave)
+    // console.log('toSubscribe', toSubscribe);
+    // console.log('formData', formData);
+    // console.log('hasChanged', hasChanged)
+    // console.log('allowSave', allowSave)
 
     return (
         <div className={styles.container}>

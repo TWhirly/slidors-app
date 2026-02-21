@@ -25,7 +25,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
         headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
       }
     );
-    console.log('emails fetch', response.data)
+    // console.log('emails fetch', response.data)
     return response.data || [];
   }
 
@@ -42,7 +42,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
   // Мутация для обновления всех email
   const updateEmailsMutation = useMutation({
     mutationFn: async (contact) => {
-      console.log('mutationFn, emails', contact);
+      // console.log('mutationFn, emails', contact);
       const params = {
         name: 'Ваше имя',
         contactId: contactId,

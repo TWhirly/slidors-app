@@ -6,12 +6,12 @@ import { DataContext } from '../DataContext.jsx'
 
 export const useRegions = (chat_id) => {
   const { dev } = useContext(DataContext)
-  console.log('dev in useRegions', dev)
+  // console.log('dev in useRegions', dev)
   // const [saving, setIsSaving] = useState(false)
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
-    console.log('fetchRegions executed');
+    // console.log('fetchRegions executed');
     const params = {
       chatID: chat_id,
       api: 'getCompanies'
@@ -125,7 +125,7 @@ export const useRegions = (chat_id) => {
 
       const isNewComapny = companyData.new || false
       queryClient.cancelQueries({ queryKey: ['regions'] });
-      console.log('onMutate isNew', isNewComapny)
+      // console.log('onMutate isNew', isNewComapny)
       optimisticUpdateCompany(companyData, isNewComapny)
       // const previousCompanies = queryClient.getQueryData(['regions']) || [];
       // return { previousCompanies };
@@ -141,7 +141,7 @@ export const useRegions = (chat_id) => {
       // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
       // queryClient.invalidateQueries({ queryKey: ['regions'] })
-      console.log('Contact updated successfully:', data);
+      // console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации

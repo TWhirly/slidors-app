@@ -18,7 +18,7 @@ export const useActivity = (chat_id) => {
   },[email, name])
 
   const fetchActivity = async () => {
-    console.log('getActivitiesList chat_id', chat_id)
+    // console.log('getActivitiesList chat_id', chat_id)
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -110,14 +110,14 @@ function createDateTime(dateStr, timeStr) {
   // Функция для оптимистичного обновления события
   const optimisticUpdateActivity = (activityData, isNewActivity = false) => {
     const finalize = !!activityData.finalize
-    console.log('isNewActivity', isNewActivity)
+    // console.log('isNewActivity', isNewActivity)
     queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
       const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
       if (isNewActivity) {
           unitedActivities.push(activityData)
       } 
         if (finalize){
-          console.log('finalize')
+          // console.log('finalize')
         const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
         unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
         }
@@ -130,8 +130,8 @@ function createDateTime(dateStr, timeStr) {
 
   const updateActivityMutation = useMutation({
     mutationFn: async (activityData) => {
-      // console.log('mutationFn, contact', activityData);
-      console.log('updateActivity')
+      // // console.log('mutationFn, contact', activityData);
+      // console.log('updateActivity')
       const params = {
         name: 'Ваше имя',
         chatID: chat_id,
@@ -165,7 +165,7 @@ onMutate: async (activityData) => {
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
        !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
-      console.log('Activity updated successfully:', data);
+      // console.log('Activity updated successfully:', data);
       // checkScheduled()
     },
     onSettled: () => {
@@ -175,7 +175,7 @@ onMutate: async (activityData) => {
   });
 
   useEffect(() => {
-    console.log('activity changes')
+    // console.log('activity changes')
     checkScheduled()
   },[activity, isFetching])
 
@@ -194,7 +194,7 @@ onMutate: async (activityData) => {
         }
         const dateMs = +(new Date(a.plan))
         const nowMs = +(new Date())
-        console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
+        // console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
         return (nowMs + notificationInterval > timeMs + dateMs)
       })
       if (nearTimePlanned.length > 0)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
@@ -26,14 +26,20 @@ const Companies = () => {
     const [selectedRegion, setSelectedRegion] = useState(null);
     const { tg, chat_id } = useTelegram()
     const id = location.state?.companyId || null
-    const [firstVisibleId, setFirstVisibleId] = useState(null);
+    const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
     const itemRefs = useRef({});
 
+    
+    // console.log('firstVisibleId',firstVisibleId)
 
-    console.log('firstVisibleId',firstVisibleId)
+    useEffect(() => {
+        firstVisibleId.current = lastVisibleCompanyId
+    },[lastVisibleCompanyId])
+    
 
     const scrollToSection = (sectionId, offset) => {
+        // console.log('current in scroll func', sectionId)
         const element = document.getElementById(sectionId);
         if (!element) {
             console.error(`Элемент с id=${sectionId} не найден`);
@@ -105,6 +111,7 @@ useEffect(() => {
       .sort((a, b) => a.target.offsetTop - b.target.offsetTop);
 
     if (visibleEntries.length > 0) {
+        // console.log('visibleEntries', visibleEntries)
       setLastVisibleCompanyId(visibleEntries[0].target.id);
     }
   }, { threshold: 0.5 });
@@ -126,31 +133,24 @@ useEffect(() => {
 //     }
 //   }, [firstVisibleId, setLastVisibleCompanyId]);
 
-  useEffect(() => {
-    // Проверяем, откуда пришли
+  useLayoutEffect(() => {
     
-    
-    // Если вернулись с другой страницы и есть сохраненный ID
     if (lastVisibleCompanyId) {
-      console.log('scroll to section call')
+      // console.log('scroll to section call')
       setTimeout(() => {
-        scrollToSection(lastVisibleCompanyId, 60);
+        scrollToSection(lastVisibleCompanyId, 0);
       }, 300);
     }
-    
-    // Также проверяем sessionStorage на случай перезагрузки страницы
-    // const savedId = sessionStorage.getItem('lastVisibleCompanyId');
-    // if (savedId && !lastVisibleCompanyId) {
-    //   setLastVisibleCompanyId(savedId);
-    // }
+        
   }, []);
 
     useEffect(() => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
+            
         }
-    }, []);
+    }, [lastVisibleCompanyId]);
 
     const handleRegionClick = async (regionId) => {
         if (selectedRegion === regionId) {
@@ -158,7 +158,7 @@ useEffect(() => {
             sessionStorage.removeItem('selectedRegion');
             return;
         }
-        console.log('regionId', regionId);
+        // console.log('regionId', regionId);
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId);
     };
@@ -188,13 +188,6 @@ useEffect(() => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
-
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //         scrollToSection(id, 35);
-    //     }, 300);
-    //     return () => clearTimeout(timer);
-    // }, [id, filteredCompanies]);
 
    
 
@@ -279,13 +272,16 @@ useEffect(() => {
                         </Avatar>
                     )) : ''}
                 </AvatarGroup>
-                First Visible: {firstVisibleId}
+                {/* First Visible: {(firstVisibleId.current != null && filteredCompanies && selectedRegion) && (filteredCompanies.find(region => region.region === selectedRegion)
+   .companies
+   .find(company => company.id === firstVisibleId.current)
+).name} */}
             </div>
             <div
                 
                 id='regionsWithCompanies'
                 className={styles.allRegions}>
-                   
+                 {/* {lastVisibleCompanyId && (filteredCompanies.find(company => company.id === lastVisibleCompanyId)).name}   */}
                 {filteredCompanies?.map((region) => (
                     <Element
                         key={region.region}
@@ -326,7 +322,7 @@ useEffect(() => {
                                                     onClick={() => handleSelectCompany(company)}
                                                     className={styles.companyName}
                                                 >
-                                                    {company.name}
+                                                    {company.name} {company.id}
                                                 </div>
                                                 <div className={styles.iconContainer}>
                                                     {getCompanyTypeIcon(company.type)}

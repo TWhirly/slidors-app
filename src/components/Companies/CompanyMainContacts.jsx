@@ -6,7 +6,7 @@ const CompanyMainContacts = (props) => {
     const tg = window.Telegram.WebApp;
     const company = props.company;
 
-    console.log('company main contacts', company)
+    // console.log('company main contacts', company)
 
     return (
         <div> {company.phone1 && (

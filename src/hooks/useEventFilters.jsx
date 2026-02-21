@@ -4,7 +4,7 @@ import { DataContext } from '../DataContext.jsx';
 
 export const useEventFilters = (events) => {
   const { email } = useContext(DataContext);
-   console.log('events', events)
+   // console.log('events', events)
   const [filters, setFilters] = useState(localStorage.getItem('eventFilters') ? JSON.parse(localStorage.getItem('eventFilters')) : {
     searchText: '',
     purpose: [],

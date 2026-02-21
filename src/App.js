@@ -22,8 +22,8 @@ function App() {
   const { tg , showButton} = useTelegram();
   // window.Telegram.WebApp.expand();
   window.Telegram.WebApp.disableVerticalSwipes()
-  console.log('init param ', window.Telegram.WebApp)
-  console.log('protocol', window.location.protocol)
+  // console.log('init param ', window.Telegram.WebApp)
+  // console.log('protocol', window.location.protocol)
   showButton({
     isVisible: false
   })
@@ -49,7 +49,7 @@ function App() {
   useEffect(() => {
     // Обработка Telegram WebApp параметров
     if (window.Telegram?.WebApp?.initData) {
-     console.log('navigate')
+     // console.log('navigate')
       navigate('/');
     }
   }, []);
