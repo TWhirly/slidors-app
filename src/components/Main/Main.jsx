@@ -6,6 +6,7 @@ import { useRegions } from '../../hooks/useRegions';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
+import { useEmail } from '../../hooks/useEmail.js';
 import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
@@ -21,7 +22,7 @@ export default function PersistentDrawerLeft() {
 
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
-
+  const { isContactsMailsLoading } = useEmail(chat_id)
  
     const initializeBackButton = () => {
       if (!tg) return;
@@ -41,6 +42,8 @@ export default function PersistentDrawerLeft() {
         return !isContactsLoading;
         case 'События':
         return !isActivityLoading;
+        case 'Email':
+        return !isContactsMailsLoading;
       default:
         return true;
     }
@@ -53,6 +56,7 @@ export default function PersistentDrawerLeft() {
     { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Email', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
 
   // if(!isActivityLoading)

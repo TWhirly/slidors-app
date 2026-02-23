@@ -23,7 +23,7 @@ const CompanyEditForm = () => {
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg, showButton } = useTelegram();
     // console.log('company', company)
-    const id = company.id;
+    const id = formData.id;
     const { emails, updateEmails } = useEmail(id, null);
     const formDataRef = useRef(formData);
 

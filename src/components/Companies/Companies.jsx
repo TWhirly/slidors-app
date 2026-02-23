@@ -14,6 +14,7 @@ import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
+import AnchoredTip from './AnchoredTip';
 import { backButton } from '@telegram-apps/sdk';
 const filterIcon = require('../../icons/filter.png')
 const filterActiveIcon = require('../../icons/filterActive.png')
@@ -224,6 +225,7 @@ const Companies = () => {
                 >
                     <AddIcon />
                 </IconButton>
+                
                 <AvatarGroup
                     max={5}
                     direction="row"
@@ -231,15 +233,15 @@ const Companies = () => {
                     sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
                 >
                     {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
+                           
                         <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
                             {`${user.name.split('')[0]}${user.name.split('')[1]}`}
                         </Avatar>
+                       
                     )) : ''}
                 </AvatarGroup>
-                {/* First Visible: {(firstVisibleId.current != null && filteredCompanies && selectedRegion) && (filteredCompanies.find(region => region.region === selectedRegion)
-   .companies
-   .find(company => company.id === firstVisibleId.current)
-).name} */}
+                
+                
             </div>
             <div
                 
@@ -286,7 +288,7 @@ const Companies = () => {
                                                     onClick={() => handleSelectCompany(company)}
                                                     className={styles.companyName}
                                                 >
-                                                    {company.name} {company.id}
+                                                    {company.name}
                                                 </div>
                                                 <div className={styles.iconContainer}>
                                                     {getCompanyTypeIcon(company.type)}
