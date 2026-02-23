@@ -11,7 +11,7 @@ import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
   const { chat_id , tg , initData} = useTelegram()
-  const { name, loading, lastVisibleCompanyId } = useContext(DataContext);
+  const { name, loading, setFrom } = useContext(DataContext);
   const navigate = useNavigate();
   const { 
       isLoading: isCompaniesLoading
@@ -23,6 +23,8 @@ export default function PersistentDrawerLeft() {
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
   const { isContactsMailsLoading } = useEmail(chat_id)
+
+  // setFrom('/')
  
     const initializeBackButton = () => {
       if (!tg) return;

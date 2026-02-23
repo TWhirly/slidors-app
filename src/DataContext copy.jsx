@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTelegram } from './hooks/useTelegram';
 
 import { set } from 'lodash';
 
@@ -17,7 +18,7 @@ export const DataProvider = ({ children }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
-    const tg = window.Telegram.WebApp;
+    const { tg } = useTelegram();
     const params = new URLSearchParams(tg.initData);
     const chat_id = JSON.parse(params.get('user')).id;
 

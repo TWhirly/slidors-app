@@ -14,8 +14,7 @@ import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
-import AnchoredTip from './AnchoredTip';
-import { backButton } from '@telegram-apps/sdk';
+import ClickTooltip from './ClickTooltip.jsx';
 const filterIcon = require('../../icons/filter.png')
 const filterActiveIcon = require('../../icons/filterActive.png')
 
@@ -30,12 +29,13 @@ const Companies = () => {
     const id = location.state?.companyId || null
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
+    setFrom('/')
 
     console.log('scroll pos in companies', scrollPos)
 
     useEffect(() => {
         firstVisibleId.current = lastVisibleCompanyId
-    },[lastVisibleCompanyId])
+    }, [lastVisibleCompanyId])
 
     const {
         companies,
@@ -88,7 +88,7 @@ const Companies = () => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
         if (savedSelectedRegion) {
             setSelectedRegion(savedSelectedRegion);
-            
+
         }
     }, [lastVisibleCompanyId]);
 
@@ -105,10 +105,11 @@ const Companies = () => {
 
     const handleSelectCompany = (company) => {
         setScrollPos(prev => {
-            const newPositions = {...prev}
+            const newPositions = { ...prev }
             newPositions['companies'] = window.scrollY
             return newPositions
         })
+        setFrom('/companies')
         navigate(`/companies/${company.id}`, {
             state: { companyId: company.id, from: '/companies', replace: true }
         });
@@ -121,24 +122,23 @@ const Companies = () => {
 
     const handleAddCompany = () => {
         const emptyCompany = getEmptyCompany(selectedRegion || '', email);
-        navigate(`/companies/new/edit`, { state: {company: emptyCompany, from: '/companies'} });
+        navigate(`/companies/new/edit`, { state: { company: emptyCompany, from: '/companies' } });
     };
 
     const backButton = useCallback(() => {
-        navigate(('/'))
-           setScrollPos(prev => {
-            const newPositions = {...prev}
+        
+        setScrollPos(prev => {
+            const newPositions = { ...prev }
             newPositions['companies'] = window.scrollY
             return newPositions
-        }) 
-    },[navigate, setScrollPos])
+        })
+        navigate(('/'))
+    }, [navigate, setScrollPos])
 
     useEffect(() => {
-       
-        // const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.show();
-        
+
         tg.BackButton.onClick(backButton);
         return () => {
             tg.BackButton.offClick(backButton);
@@ -146,15 +146,15 @@ const Companies = () => {
         };
     }, [backButton, navigate, setScrollPos, tg]);
 
-     useLayoutEffect(() => {
-      if (scrollPos.companies) {
-        setTimeout(() => {
-        window.scrollTo(0, scrollPos.companies);
-        }, 100)
-      }
+    useLayoutEffect(() => {
+        if (scrollPos.companies) {
+            setTimeout(() => {
+                window.scrollTo(0, scrollPos.companies);
+            }, 100)
+        }
     }, [scrollPos.companies]);
 
-   
+
 
     if (isLoading) {
         return (
@@ -177,7 +177,7 @@ const Companies = () => {
 
     return (
         <div className={styles.container}
-        
+
         >
             <div
                 className={styles.naviPanel}
@@ -185,7 +185,7 @@ const Companies = () => {
             >
                 <div className={selectedRegion ? styles.companyNamePanelExpanded : styles.companyNamePanel}
                     onClick={collapseRegion}>
-                    
+
                     Компании{selectedRegion ? ` — ${selectedRegion.split(" ")
                         .filter((item) => item !== "область")
                         .join(" ")}` : ""}
@@ -225,36 +225,81 @@ const Companies = () => {
                 >
                     <AddIcon />
                 </IconButton>
-                
-                <AvatarGroup
-                    max={5}
-                    direction="row"
-                    spacing={10}
-                    sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
+                <ClickTooltip
+                    content={
+                        <AvatarGroup
+                            max={100}
+                            spacing={10}
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                backgroundColor: '#131313',
+                                '& .MuiAvatar-root': {
+                                    border: '2px solid white',
+                                    marginLeft: 0,
+                                }
+                            }}
+                        >
+                            {selectedRegion ? contextRegions
+                                .filter((item) => item.region === selectedRegion)[0]
+                                ?.regionUsers?.map((user) => (
+                                    <div
+                                        key={user.name}
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            marginBottom: '4px'
+                                        }}
+                                    >
+                                        <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
+                                            {`${user.name?.split('')[0] || ''}${user.name?.split('')[1] || ''}`}
+                                        </Avatar>
+                                        <div style={{ color: 'white' }}>{user.name}</div>
+                                    </div>
+                                )) : null}
+                        </AvatarGroup>
+                    }
                 >
-                    {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
-                           
-                        <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
-                            {`${user.name.split('')[0]}${user.name.split('')[1]}`}
-                        </Avatar>
-                       
-                    )) : ''}
-                </AvatarGroup>
-                
-                
+                    <AvatarGroup
+                        max={5}
+                        direction="row"
+                        spacing={10}
+                        sx={{
+                            ...avatarGroupStyle,
+                            '& .MuiAvatarGroup-avatar': avatar(''),
+                            cursor: 'pointer' // Добавляем указатель
+                        }}
+                    >
+                        {selectedRegion ? contextRegions
+                            .filter((item) => item.region === selectedRegion)[0]
+                            ?.regionUsers?.map((user) => (
+                                <Avatar
+                                    key={user.name}
+                                    sx={avatar(user.name)}
+                                    alt={user.name}
+                                    src={user.avatar}
+                                >
+                                    {`${user.name?.split('')[0] || ''}${user.name?.split('')[1] || ''}`}
+                                </Avatar>
+                            )) : null}
+                    </AvatarGroup>
+                </ClickTooltip>
+
             </div>
             <div
-                
+
                 id='regionsWithCompanies'
                 className={styles.allRegions}>
-                 {/* {lastVisibleCompanyId && (filteredCompanies.find(company => company.id === lastVisibleCompanyId)).name}   */}
+                {/* {lastVisibleCompanyId && (filteredCompanies.find(company => company.id === lastVisibleCompanyId)).name}   */}
                 {filteredCompanies?.map((region) => (
                     <Element
                         key={region.region}
                         className={styles.regionContainer}
                         name={region.region}
                         id={`region-${encodeURIComponent(region.region)}`}
-                    > 
+                    >
                         <button
                             onClick={() => handleRegionClick(region.region)}
                             className={styles.regionButton}
@@ -270,11 +315,11 @@ const Companies = () => {
                         </button>
                         {selectedRegion === region.region && (
                             <div className={styles.dataGridContainer}
-                             ref={containerRef}
+                                ref={containerRef}
                             >
                                 {region.companies?.map((company) => (
                                     <div
-                                    
+
                                         data-item-marker
                                         // ref={el => itemRefs.current[company.id] = el}
                                         key={company.id}
@@ -294,32 +339,86 @@ const Companies = () => {
                                                     {getCompanyTypeIcon(company.type)}
                                                 </div>
                                             </div>
-                                            <div className={styles.checksContainer}>
-                                                <div>
-                                                    {company.handled && <img
-                                                        src={checkIcons.red}
-                                                        alt="переработчик"
-                                                        fill="#008ad1"
-                                                        className={styles.checkIcon}
-                                                    />}
+                                            <ClickTooltip
+                                                content={
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            backgroundColor: '#131313',
+                                                            
+                                                        }}
+                                                    >
+                                                        <div>
+                                                            {company.handled && (<div
+                                                            style={{display: 'flex',
+                                                                flexDirection: 'row',
+                                                                gap: 5
+                                                            }}
+                                                            ><img
+                                                                src={checkIcons.red}
+                                                                alt="переработчик"
+                                                                fill="#008ad1"
+                                                                className={styles.checkIcon} /><div>Проработано</div></div>)}
+
+                                                        </div>
+                                                        
+                                                        <div>
+                                                            {company.wa && (<div
+                                                            style={{display: 'flex',
+                                                                flexDirection: 'row',
+                                                                gap: 5
+                                                            }}
+                                                            ><img
+                                                                src={checkIcons.green}
+                                                                alt="переработчик"
+                                                                fill="#008ad1"
+                                                                className={styles.checkIcon}
+                                                            /><div>Подписка WhatsApp</div></div>)}
+                                                        </div>
+                                                        <div>
+                                                            {company.tg && (<div
+                                                            style={{display: 'flex',
+                                                                flexDirection: 'row',
+                                                                gap: 5
+                                                            }}
+                                                            ><img
+                                                                src={checkIcons.blue}
+                                                                alt="переработчик"
+                                                                fill="#008ad1"
+                                                                className={styles.checkIcon}
+                                                            /><div>Подписка Telegram</div></div>)}
+                                                        </div>
+                                                    </div>
+                                                }
+                                            >
+                                                <div className={styles.checksContainer}>
+                                                    <div>
+                                                        {company.handled && <img
+                                                            src={checkIcons.red}
+                                                            alt="переработчик"
+                                                            fill="#008ad1"
+                                                            className={styles.checkIcon}
+                                                        />}
+                                                    </div>
+                                                    <div>
+                                                        {company.wa && <img
+                                                            src={checkIcons.green}
+                                                            alt="переработчик"
+                                                            fill="#008ad1"
+                                                            className={styles.checkIcon}
+                                                        />}
+                                                    </div>
+                                                    <div>
+                                                        {company.tg && <img
+                                                            src={checkIcons.blue}
+                                                            alt="переработчик"
+                                                            fill="#008ad1"
+                                                            className={styles.checkIcon}
+                                                        />}
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    {company.wa && <img
-                                                        src={checkIcons.green}
-                                                        alt="переработчик"
-                                                        fill="#008ad1"
-                                                        className={styles.checkIcon}
-                                                    />}
-                                                </div>
-                                                <div>
-                                                    {company.tg && <img
-                                                        src={checkIcons.blue}
-                                                        alt="переработчик"
-                                                        fill="#008ad1"
-                                                        className={styles.checkIcon}
-                                                    />}
-                                                </div>
-                                            </div>
+                                            </ClickTooltip>
                                         </div>
                                         <div
                                             className={styles.companyStatus}
@@ -351,6 +450,7 @@ const Companies = () => {
                 regionCities={regionCities}
 
             />}
+            
         </div>
     );
 };

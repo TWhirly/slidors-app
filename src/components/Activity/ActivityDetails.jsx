@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext, act } from 'react';
+import { useEffect, useState, useContext, act, useCallback } from 'react';
 import styles from '../Companies/CompanyDetails.module.css';
 import LongMenu from '../Companies/CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
@@ -21,8 +21,8 @@ const ActivityDetails = () => {
   const { activity: activities, updateActivity } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
   const [options, setOptions] = useState([])
-  const {name, email} = useContext(DataContext)
-  
+  const {name, email, from, setFrom} = useContext(DataContext)
+  console.log('activity details from', from)
   tg.BackButton.isVisible = true
     useEffect(() => {
     if (activities) {
@@ -50,20 +50,26 @@ const ActivityDetails = () => {
     }
   }, [contacts, activity]);
 
+  const backButton = useCallback(() => {
+    navigate(!!from ? from : '/activities')
+    // setFrom(null)
+  },[from, navigate])
+
    useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(-1));
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
         };
-    }, [navigate]);
+    }, [backButton, tg]);
    
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
+      setFrom(`/activities/${activity.id}`)
       navigate(`/activities/${activity.id}/edit`, { state: { ...activity, path: `/activities/${activity.id}`,new: false } });
     }
     if (selectedOption === 'Завершить') {
+      setFrom(`/activities/${activity.id}`)
       const emptyActivity = getEmptyActivity(email, activity.companyId, activity.companyName,
         activity.region, activity.city)
         updateActivity({...emptyActivity, new: true, toFinish: true})

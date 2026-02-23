@@ -1,15 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext, useCallback } from 'react';
-import { useQuery , useQueryClient} from '@tanstack/react-query';
 import { DataContext } from '../../DataContext.jsx';
+import { useTelegram } from '../../hooks/useTelegram.js';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import axios from 'axios';
 import { useEmail } from '../../hooks/useEmail';
 import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
-import { useNotification } from '../notifications/NotificationContext.jsx';
-import { replace } from 'lodash';
 import { useContacts } from '../../hooks/useContacts';
 import { useActivity } from '../../hooks/useActivity.js';
 
@@ -24,7 +21,7 @@ function ContactDetails() {
   const [expanded, setExpanded] = useState(false);
   const [menuSelection, setMenuSelection] = useState(null);
   const [contactMails, setcontactMails] = useState([])
-  const tg = window.Telegram.WebApp;
+  const { tg } = useTelegram();
   const { chat_id , from, setFrom } = useContext(DataContext);
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
@@ -63,11 +60,10 @@ function ContactDetails() {
   }, [activity, id])
 
   const back = useCallback(() => {
-    navigate(from || '/contacts')
+    navigate(!!from ? from : '/contacts')
   }, [from, navigate])
 
    useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.show();
         
@@ -75,7 +71,7 @@ function ContactDetails() {
         return () => {
             tg.BackButton.offClick(back);
         };
-    }, [back]);
+    }, [back, tg]);
 
     const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {

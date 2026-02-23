@@ -42,3 +42,7 @@
     color: white !important;
     -webkit-text-fill-color: white !important;
 }
+
+.MuiPopper-root {
+  z-index: 999999 !important;
+}

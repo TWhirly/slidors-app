@@ -13,10 +13,11 @@ import IconButton from '@mui/material/IconButton';
 import { useContacts } from '../../hooks/useContacts';
 import { useContactFilters } from '../../hooks/useContactFilters.jsx';
 import { ContactsFilterModal } from './ContactsFilterModal.jsx'
+import { useTelegram } from '../../hooks/useTelegram.js';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
-    const { email, chat_id, scrollPos, setScrollPos } = useContext(DataContext);
+    const { email, chat_id, scrollPos, setScrollPos, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
@@ -69,7 +70,7 @@ const Contacts = () => {
   ].reduce((sum, count) => sum + count, 0);
 
 
-    const tg = window.Telegram.WebApp;
+    const { tg } = useTelegram();
 
     useEffect(() => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
@@ -96,6 +97,7 @@ const Contacts = () => {
             newPositions['contacts'] = window.scrollY
             return newPositions
         })
+        setFrom('/contacts')
         navigate(`/contacts/${contact.id}`, {
             state: { contactId: contact.id, from: '/contacts', replace: true }
         });
@@ -165,15 +167,15 @@ const Contacts = () => {
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return;
+        if(!tg) return
+       
         tg.BackButton.show()
             
         tg.BackButton.onClick(backButton);
         return () => {
             tg.BackButton.offClick(backButton);
         };
-    }, [backButton, navigate, setScrollPos]);
+    }, [backButton, navigate, setScrollPos, tg]);
 
     if (isLoading) {
         return (

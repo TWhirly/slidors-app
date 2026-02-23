@@ -8,6 +8,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useEmail } from '../../hooks/useEmail';
 import { useContacts } from '../../hooks/useContacts';
 import { v4 as uuidv4 } from 'uuid';
+import { useTelegram } from '../../hooks/useTelegram.js';
 const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
@@ -18,7 +19,7 @@ const ContactEditForm = () => {
     const [formData, setFormData] = useState({ ...contact });
     const [allowSave, setAllowSave] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
-    const tg = window.Telegram.WebApp;
+    const { tg } = useTelegram();
     const { titles, chat_id, from, setFrom } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
@@ -33,7 +34,6 @@ const ContactEditForm = () => {
     useEffect(() => {
     if(isContactsMailsLoading)
       return
-     console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setLocalEmailInputs(mails.length> 0 ? mails : [{ id: uuidv4(), mail: '', contactId: id , companyId: formData.companyId || '' }])
   }, [emails, formData.companyId, id, isContactsMailsLoading])
@@ -59,17 +59,16 @@ const ContactEditForm = () => {
 
     const back = useCallback(() => {
         setFrom(null)
-       navigate(from || '/contacts', {state: {contactId: id}}) 
+       navigate(!!from ? from : '/contacts', {state: {contactId: id}}) 
     }, [from, id, navigate, setFrom])
 
      useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.onClick(back);
         return () => {
             tg.BackButton.offClick(back);
         };
-    }, [back]);
+    }, [back, tg]);
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {

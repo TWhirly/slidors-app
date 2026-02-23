@@ -33,7 +33,7 @@ const ActivityEditForm = () => {
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
         activityTypes,
-        activityPurposes, namesEmails } = useContext(DataContext);
+        activityPurposes, namesEmails, from, setFrom } = useContext(DataContext);
     const [regions, setRegions] = useState([]);
     const { companies: allCompanies } = useRegions(chat_id);
     const [cities, setCities] = useState([]);
@@ -102,7 +102,8 @@ const ActivityEditForm = () => {
                     showNotification(`Ошибка при сохранении: ${error.message}`, false);
                 }
             });
-            navigate(-1);
+            navigate(from || '/activities', {state: {companyId: activity.companyId ?? null}});
+            setFrom(null)
         };
 
         const initBackButton = () => {
@@ -135,7 +136,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
+    }, [activity, formData, from, handleSave, id, navigate, queryClient, setFrom, showNotification, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));

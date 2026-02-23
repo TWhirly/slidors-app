@@ -285,7 +285,7 @@ const Companies = () => {
 
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        const tg = window.Telegram?.WebApp;
+        
         if (!tg) return;
 
         tg.BackButton.show();
@@ -295,7 +295,7 @@ const Companies = () => {
             tg.BackButton.offClick();
             //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
-    }, [navigate]);
+    }, [navigate, tg]);
 
     // console.log('region rows', regionsWithCompanies, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 

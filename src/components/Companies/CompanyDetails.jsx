@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
@@ -51,17 +51,18 @@ const CompanyDetails = () => {
     setCompanyMails(mails)
   }, [emails, id])
 
-  
+  const backButton = useCallback(() => {
+    navigate(!!from ? from : '/companies')
+  },[from, navigate])
 
   useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.isVisible = true
-        tg.BackButton.onClick(() => navigate('/companies'));
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
         };
-    }, [navigate]);
+    }, [backButton, tg]);
 
   useEffect(() => {
     if (activity.planned && activity.planned.length > 0){
@@ -85,8 +86,9 @@ const CompanyDetails = () => {
   // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
+    setFrom(`/companies/${company.id}`)
     if (selectedOption === 'Редактировать') {
-      setFrom(`/companies/${company.id}`)
+      
       navigate(`/companies/${company.id}/edit`, { state: { company: {...company}, new: false } });
     }
     if (selectedOption === 'Добавить контакт') {

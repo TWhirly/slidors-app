@@ -34,11 +34,6 @@ const Activities = () => {
     const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
-    // const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
-    // const tg = window.Telegram.WebApp;
-    // const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    // const user = JSON.parse(params.get('user'));
-    // const chat_id = user.id;
     const {tg , chat_id} = useTelegram()
     const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
     const filterIcon = require('../../icons/filter.png')
@@ -194,7 +189,7 @@ const Activities = () => {
         }
     };
     const handleSelectActivity = (activity) => {
-        // console.log('click', activity)
+        setFrom('/activities')
         navigate(`/activities/${activity.id}`, {
             state: {activityId: activity.id, path: '/activities'}
         });
@@ -208,14 +203,17 @@ const Activities = () => {
         navigate(`/activities/new/edit`, { state: {...emptyActivity, new: true} });
     };
 
+    const backButton = useCallback(() => {
+        navigate('/')
+    },[navigate])
+
      useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(-1));
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
         };
-    }, [navigate]);
+    }, [backButton, tg]);
 
 //    console.log('filteredPlannedEvents', filteredPlannedEvents)
 

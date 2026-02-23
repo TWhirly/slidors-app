@@ -35,18 +35,18 @@ const CompanyEditForm = () => {
         return (emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
     }, [emailInputs, formData.emails])
 
-    // initBackButton(company, navigate, id);
+    const backButton = useCallback(() => {
+        navigate(formData.new ? '/companies' : from, { state: { companyId: id } })
+        setFrom(null)
+    }, [formData.new, from, id, navigate, setFrom])
+
     useEffect(() => {
-        const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => {
-            navigate(from, { state: { companyId: id } })
-            setFrom(null)
-        });
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
         };
-    }, [from, id, navigate, setFrom]);
+    }, [backButton, tg]);
 
     const handleSave = useCallback(async () => {
         const currentFormData = { ...formDataRef.current, emails: emailInputs }
@@ -90,10 +90,13 @@ const CompanyEditForm = () => {
 
     useEffect(() => {
         const validateForm = () => {
+            if (!company)
+                return false
             if (!emailInputs || !formData.emails)
                 return false
+            console.log('validate effect', company, formData)
             const hasChanged = Object.keys(formData)
-                .filter(key => key !== 'recyclers' && key !== 'emails')
+                .filter(key => key !== 'recyclers' && key !== 'emails' && key !== 'id')
                 .some((key) => formData[key] !== company[key]) ||
                 isEmailsUpdated()
             const isRequiredFilled = formData?.name.trim() !== '' && formData.region.length > 0;

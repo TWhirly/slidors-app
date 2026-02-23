@@ -1,9 +1,10 @@
 import styles from './CompanyDetails.module.css';
 import { mainContactsIcons , formatNumber } from './Companies-helpers.js'
+import { useTelegram } from '../../hooks/useTelegram.js';
 
 const CompanyMainContacts = (props) => {
 
-    const tg = window.Telegram.WebApp;
+    const { tg } = useTelegram();
     const company = props.company;
 
     // console.log('company main contacts', company)
