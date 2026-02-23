@@ -70,8 +70,8 @@ export const useContacts = (chat_id) => {
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
-    staleTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 50,
+    staleTime: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 15,
     refetchIntervalInBackground: true
   });
 

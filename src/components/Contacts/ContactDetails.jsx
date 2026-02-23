@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import { useQuery , useQueryClient} from '@tanstack/react-query';
 import { DataContext } from '../../DataContext.jsx';
 import styles from './CompanyDetails.module.css';
@@ -15,10 +15,9 @@ import { useActivity } from '../../hooks/useActivity.js';
 
 function ContactDetails() {
 
-  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: {contactId: id ,  from , activityId } } = useLocation();
+  const { state: {contactId: id } } = useLocation();
   const [contact, setContact] = useState({});
   const [contactActivity, setContactActivity] = useState([])
   const [loadingMail, setLoadingMail] = useState(true);
@@ -26,8 +25,7 @@ function ContactDetails() {
   const [menuSelection, setMenuSelection] = useState(null);
   const [contactMails, setcontactMails] = useState([])
   const tg = window.Telegram.WebApp;
-  // const params = new URLSearchParams(window.Telegram.WebApp.initData);
-  const {  chat_id } = useContext(DataContext);
+  const { chat_id , from, setFrom } = useContext(DataContext);
   const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
@@ -37,15 +35,13 @@ function ContactDetails() {
   
   const { emails, isContactsMailsLoading, error } = useEmail(null, id);
   const {activity, isLoading: isActivityLoading} = useActivity(chat_id)
-  tg.BackButton.isVisible = true
-  console.log('id', id);
+  // tg.BackButton.isVisible = true
   const { contacts } = useContacts(chat_id)
-  console.log('ActivityID', activity);
-
+  console.log('detail from', from)
   useEffect(() => {
     if(!emails)
       return
-    console.log('emails', emails)
+    // console.log('emails', emails)
     const mails = emails.filter(item => item.contact === id)
     setcontactMails(mails)
   }, [emails, id])
@@ -61,27 +57,32 @@ function ContactDetails() {
 
   useEffect(() => {
     if(activity){
-      const contactActivity = activity.other.filter(a => a.contactId === id);
+      const contactActivity = activity.other?.filter(a => a.contactId === id);
     setContactActivity(contactActivity)
     }
   }, [activity, id])
 
+  const back = useCallback(() => {
+    navigate(from || '/contacts')
+  }, [from, navigate])
+
    useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(from || -1));
+        tg.BackButton.show();
+        
+        tg.BackButton.onClick(back);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(back);
         };
-    }, [from, navigate]);
+    }, [back]);
 
-  // console.log('company', company);
-
-  const handleMenuSelection = (selectedOption) => {
+    const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
+      setFrom(`/contacts/${contact.id}`)
       navigate(`/contacts/${contact.id}/edit`, {
             state: {...contact,
-            path: `/contacts/${id}`, prevComponent : contact, new: false, contactId: contact.id},
+            prevComponent : contact, new: false, contactId: contact.id},
             
         });
     }
@@ -112,9 +113,6 @@ function ContactDetails() {
 
     return formattedUrl;
   };
-
- 
-
   const getContactFullNmae = (contact) => {
         const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
                     (contact.firstName ? contact.firstName + ' ' : '') + 
@@ -123,12 +121,6 @@ function ContactDetails() {
                         return contact.companyName}
                         return fullName
     };
-
-
-
- 
-
-  console.log('contactActivity', contactActivity)
 
   if (!contact) {
     return <div>contact not found</div>;

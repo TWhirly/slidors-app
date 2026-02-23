@@ -152,12 +152,10 @@ export const useRegions = (chat_id) => {
   const { data: rawData, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
-    staleTime: 1000 * 60 * 30,
     select: (data) => { return data },
-    // refetchIntervalInBackground: true,
-    // refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 50,
-    cacheTime: 1000 * 60 * 60,
+    refetchIntervalInBackground: true,
+    staleTime: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 15,
   });
 
   return {

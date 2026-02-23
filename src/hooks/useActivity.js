@@ -102,8 +102,8 @@ function createDateTime(dateStr, timeStr) {
   const { data: activity, isLoading, error, isSuccess, isFetching } = useQuery({
     queryKey: ['activity'],
     queryFn: fetchActivity,
-    staleTime: 1000 * 60 * 0.5,
-    refetchInterval: 1000 * 60 * 1,
+    staleTime: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 15,
     refetchIntervalInBackground: true
   });
 

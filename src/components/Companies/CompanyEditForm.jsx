@@ -11,25 +11,25 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 let cities = []
 const CompanyEditForm = () => {
     // console.log('first render')
-    const { state: {company , from} } = useLocation();
+    const { state: { company } } = useLocation();
     const navigate = useNavigate();
-    
-   
+
+
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
-    const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
+    const { regions: contextRegions, types, statuses, chat_id, from, setFrom } = useContext(DataContext);
     const { companies, updateCompany } = useRegions(chat_id);
     const [formData, setFormData] = useState({ ...company });
     const [emailInputs, setEmailInputs] = useState([]);
-    const { tg , showButton} = useTelegram();
+    const { tg, showButton } = useTelegram();
     // console.log('company', company)
     const id = company.id;
     const { emails, updateEmails } = useEmail(id, null);
-     const formDataRef = useRef(formData);
+    const formDataRef = useRef(formData);
 
     useEffect(() => {
-    tg.setBottomBarColor("#131313");
-    },[tg])
+        tg.setBottomBarColor("#131313");
+    }, [tg])
 
     const isEmailsUpdated = useCallback(() => {
         return (emailInputs.map((email) => email.email).join() !== formData.emails.map((email) => email.email).join())
@@ -39,14 +39,17 @@ const CompanyEditForm = () => {
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(from || (-1), {state: {companyId: id}}));
+        tg.BackButton.onClick(() => {
+            navigate(from, { state: { companyId: id } })
+            setFrom(null)
+        });
         return () => {
             tg.BackButton.offClick();
         };
-    }, [from, id, navigate]);
+    }, [from, id, navigate, setFrom]);
 
     const handleSave = useCallback(async () => {
-          const currentFormData = {...formDataRef.current, emails: emailInputs}
+        const currentFormData = { ...formDataRef.current, emails: emailInputs }
         try {
             // console.log('current form data', currentFormData)
             navigate(`/companies/`)
@@ -103,11 +106,11 @@ const CompanyEditForm = () => {
             shineEffect: true,
             isActive: isValid,
             isVisible: true,
-            onClick:  handleSave
+            onClick: handleSave
         });
 
         return () => {
-           tg.MainButton.offClick(handleSave)
+            tg.MainButton.offClick(handleSave)
         };
 
     }, [company, emailInputs, formData, handleSave, isEmailsUpdated, showButton, tg.MainButton])
@@ -136,7 +139,7 @@ const CompanyEditForm = () => {
             const newEmails = [...prev];
             const id = newEmails[index].id;
             newEmails[index] = { id: id, email: value };
-            
+
             return newEmails;
         });
     };

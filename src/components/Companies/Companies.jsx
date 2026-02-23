@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useContext, useRef, useLayoutEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
@@ -14,12 +14,13 @@ import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
+import { backButton } from '@telegram-apps/sdk';
 const filterIcon = require('../../icons/filter.png')
 const filterActiveIcon = require('../../icons/filterActive.png')
 
 const Companies = () => {
 
-    const { email, regions: contextRegions, lastVisibleCompanyId, setLastVisibleCompanyId } = useContext(DataContext);
+    const { email, regions: contextRegions, lastVisibleCompanyId, scrollPos, setScrollPos, from, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
@@ -28,35 +29,12 @@ const Companies = () => {
     const id = location.state?.companyId || null
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
-    const itemRefs = useRef({});
 
-    
-    // console.log('firstVisibleId',firstVisibleId)
+    console.log('scroll pos in companies', scrollPos)
 
     useEffect(() => {
         firstVisibleId.current = lastVisibleCompanyId
     },[lastVisibleCompanyId])
-    
-
-    const scrollToSection = (sectionId, offset) => {
-        // console.log('current in scroll func', sectionId)
-        const element = document.getElementById(sectionId);
-        if (!element) {
-            console.error(`Элемент с id=${sectionId} не найден`);
-            return;
-        }
-
-        const elementPosition = element.getBoundingClientRect().top;
-        const scrollTop = window.pageYOffset || window.scrollY;
-        const offsetPosition = elementPosition + scrollTop - offset;
-
-        window.scrollTo({
-            top: offsetPosition,
-            // behavior: 'smooth'
-        });
-    };
-
- 
 
     const {
         companies,
@@ -103,46 +81,7 @@ const Companies = () => {
     ].reduce((sum, count) => sum + count, 0);
 
     // Добавляем selectedRegion в зависимости useEffect
-useEffect(() => {
-  // Этот эффект будет запускаться каждый раз при смене региона
-  const observer = new IntersectionObserver((entries) => {
-    const visibleEntries = entries
-      .filter(entry => entry.isIntersecting)
-      .sort((a, b) => a.target.offsetTop - b.target.offsetTop);
 
-    if (visibleEntries.length > 0) {
-        // console.log('visibleEntries', visibleEntries)
-      setLastVisibleCompanyId(visibleEntries[0].target.id);
-    }
-  }, { threshold: 0.5 });
-
-  // Даем время React отрендерить компании
-  setTimeout(() => {
-    const companies = document.querySelectorAll('[data-item-marker]');
-    companies.forEach(company => observer.observe(company));
-  }, 100);
-
-  return () => observer.disconnect();
-}, [selectedRegion, setLastVisibleCompanyId]); // Зависимость от selectedRegion
-
-// useEffect(() => {
-//     if (firstVisibleId) {
-//       setLastVisibleCompanyId(firstVisibleId);
-//       // Можно также сохранять в sessionStorage для надежности
-//       sessionStorage.setItem('lastVisibleCompanyId', firstVisibleId);
-//     }
-//   }, [firstVisibleId, setLastVisibleCompanyId]);
-
-  useLayoutEffect(() => {
-    
-    if (lastVisibleCompanyId) {
-      // console.log('scroll to section call')
-      setTimeout(() => {
-        scrollToSection(lastVisibleCompanyId, 0);
-      }, 300);
-    }
-        
-  }, []);
 
     useEffect(() => {
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
@@ -164,6 +103,11 @@ useEffect(() => {
     };
 
     const handleSelectCompany = (company) => {
+        setScrollPos(prev => {
+            const newPositions = {...prev}
+            newPositions['companies'] = window.scrollY
+            return newPositions
+        })
         navigate(`/companies/${company.id}`, {
             state: { companyId: company.id, from: '/companies', replace: true }
         });
@@ -179,15 +123,35 @@ useEffect(() => {
         navigate(`/companies/new/edit`, { state: {company: emptyCompany, from: '/companies'} });
     };
 
+    const backButton = useCallback(() => {
+        navigate(('/'))
+           setScrollPos(prev => {
+            const newPositions = {...prev}
+            newPositions['companies'] = window.scrollY
+            return newPositions
+        }) 
+    },[navigate, setScrollPos])
+
     useEffect(() => {
-        const tg = window.Telegram?.WebApp;
+       
+        // const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(('/')));
+        
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
+            console.log('return')
         };
-    }, [navigate]);
+    }, [backButton, navigate, setScrollPos, tg]);
+
+     useLayoutEffect(() => {
+      if (scrollPos.companies) {
+        setTimeout(() => {
+        window.scrollTo(0, scrollPos.companies);
+        }, 100)
+      }
+    }, [scrollPos.companies]);
 
    
 

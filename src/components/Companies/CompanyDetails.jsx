@@ -18,7 +18,7 @@ const CompanyDetails = () => {
 
 
   const navigate = useNavigate();
-  const { state: { companyId: id, from } } = useLocation();
+  const { state: { companyId: id } } = useLocation();
   const [expanded, setExpanded] = useState(false);
   const [plannedExpanded, setPlannedExpanded] = useState(false);
   const [company, setCompany] = useState({});
@@ -31,10 +31,10 @@ const CompanyDetails = () => {
   const { emails, isContactsMailsLoading } = useEmail(id, null);
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
-  const { email , lastVisibleCompanyId} = useContext(DataContext)
+  const { email, from, setFrom, scrollPos } = useContext(DataContext)
   // tg.BackButton.isVisible = true
   // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-  // console.log('from', from)
+  console.log('scrollPos', scrollPos)
   useEffect(() => {
     if (companies) {
       const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -57,11 +57,11 @@ const CompanyDetails = () => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
         tg.BackButton.isVisible = true
-        tg.BackButton.onClick(() => navigate(from || -1, {state: {companyId: id}, replace: true}));
+        tg.BackButton.onClick(() => navigate('/companies'));
         return () => {
             tg.BackButton.offClick();
         };
-    }, [from, id, navigate]);
+    }, [navigate]);
 
   useEffect(() => {
     if (activity.planned && activity.planned.length > 0){
@@ -86,7 +86,8 @@ const CompanyDetails = () => {
 
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      navigate(`/companies/${company.id}/edit`, { state: { company: {...company}, new: false, from: `/companies/${company.id}` } });
+      setFrom(`/companies/${company.id}`)
+      navigate(`/companies/${company.id}/edit`, { state: { company: {...company}, new: false } });
     }
     if (selectedOption === 'Добавить контакт') {
       const getEmptyContact = (selectedRegion = '') => ({

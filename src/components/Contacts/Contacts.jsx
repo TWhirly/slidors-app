@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useLayoutEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Contacts.module.css';
@@ -16,8 +16,9 @@ import { ContactsFilterModal } from './ContactsFilterModal.jsx'
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
-    const { email, chat_id } = useContext(DataContext);
+    const { email, chat_id, scrollPos, setScrollPos } = useContext(DataContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
@@ -28,7 +29,6 @@ const Contacts = () => {
     const { contacts, transformToRegionsWithContacts, isLoading, error } = useContacts(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
-    console.log('contacts component', contacts)
     const {
         filters,
         setFilters,
@@ -72,7 +72,6 @@ const Contacts = () => {
     const tg = window.Telegram.WebApp;
 
     useEffect(() => {
-        console.log('savedSelectedRegion')
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
 
         if (savedSelectedRegion) {
@@ -92,12 +91,31 @@ const Contacts = () => {
     };
 
     const handleSelectContact = (contact) => {
+        setScrollPos(prev => {
+            const newPositions = {...prev}
+            newPositions['contacts'] = window.scrollY
+            return newPositions
+        })
         navigate(`/contacts/${contact.id}`, {
             state: { contactId: contact.id, from: '/contacts', replace: true }
         });
     };
 
+    useLayoutEffect(() => {
+  if (scrollPos.contacts) {
+    setTimeout(() => {
+    window.scrollTo(0, scrollPos.contacts);
+    }, 100)
+  }
+}, [scrollPos.contacts]);
+
     const collapseRegion = () => {
+        setScrollPos(prev => {
+            const newPositions = {...prev}
+            newPositions['contacts'] = 0
+            return newPositions
+        })
+        sessionStorage.removeItem('selectedRegion')
         setSelectedRegion(null);
     };
 
@@ -136,15 +154,26 @@ const Contacts = () => {
         return '7' + cleanNumber;
     };
 
+    const backButton = useCallback(() => {
+        setScrollPos(prev => {
+            const newPositions = {...prev}
+            newPositions['contacts'] = window.scrollY
+            return newPositions
+        })
+        navigate('/')
+    },[navigate, setScrollPos])
+
     // Обработка кнопки "назад" в Telegram
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate('/'));
+        tg.BackButton.show()
+            
+        tg.BackButton.onClick(backButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(backButton);
         };
-    }, [navigate]);
+    }, [backButton, navigate, setScrollPos]);
 
     if (isLoading) {
         return (
@@ -163,7 +192,6 @@ const Contacts = () => {
             </div>
         );
     }
-    console.log(regionsWithContacts);
     return (
         <div className={styles.container}>
 

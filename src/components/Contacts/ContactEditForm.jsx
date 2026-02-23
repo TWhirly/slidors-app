@@ -19,17 +19,17 @@ const ContactEditForm = () => {
     const [allowSave, setAllowSave] = useState(false);
     const [hasChanged, setHasChanged] = useState(false);
     const tg = window.Telegram.WebApp;
-    const { titles, chat_id } = useContext(DataContext);
+    const { titles, chat_id, from, setFrom } = useContext(DataContext);
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { companies } = useRegions(chat_id);
     const id = contact?.id;
     const [localEmailInputs, setLocalEmailInputs] = useState([]);
-    tg.BackButton.isVisible = true;
+    // tg.BackButton.isVisible = true;
 
     const { emails, isContactsMailsLoading, updateEmails } = useEmail(id, null);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
-
+    console.log('from', contact.from)
     useEffect(() => {
     if(isContactsMailsLoading)
       return
@@ -57,14 +57,19 @@ const ContactEditForm = () => {
         contact.manager = email;
     }, [contact, email, formData]);
 
+    const back = useCallback(() => {
+        setFrom(null)
+       navigate(from || '/contacts', {state: {contactId: id}}) 
+    }, [from, id, navigate, setFrom])
+
      useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(-1));
+        tg.BackButton.onClick(back);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(back);
         };
-    }, [navigate]);
+    }, [back]);
 
     useEffect(() => {
          const regionSet = new Set(companies.map(company => {
@@ -79,10 +84,6 @@ const ContactEditForm = () => {
         }, [])
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name, 'ru')));
     }, [companies, formData.region]);
-
-    useEffect(() => {
-        
-    }, [formData, tg.MainButton]);
 
     useEffect(() => {
         const nonEmptyEmails = localEmailInputs.filter(email => email.mail.trim() !== '');

@@ -17,7 +17,10 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 
 const Activities = () => {
     const queryClient = useQueryClient();
-    const { regions: contextRegions } = useContext(DataContext);
+    const { scrollPos,
+            setScrollPos,
+            from,
+            setFrom } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
