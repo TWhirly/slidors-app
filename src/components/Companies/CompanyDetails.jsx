@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useContext, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './CompanyDetails.module.css';
@@ -18,7 +18,8 @@ const CompanyDetails = () => {
 
 
   const navigate = useNavigate();
-  const { state: { companyId: id } } = useLocation();
+  const location = useLocation();
+  const { id } = useParams();
   const [expanded, setExpanded] = useState(false);
   const [plannedExpanded, setPlannedExpanded] = useState(false);
   const [company, setCompany] = useState({});
@@ -32,9 +33,7 @@ const CompanyDetails = () => {
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
   const { email, from, setFrom, scrollPos } = useContext(DataContext)
-  // tg.BackButton.isVisible = true
-  // console.log('regionsWithComapnies', regionsWithCompanies, 'id', id, 'path', path)
-  console.log('scrollPos', scrollPos)
+  console.log('from', from)
   useEffect(() => {
     if (companies) {
       const company = companies.find((company) => company.id === id); // Find the company with the matching ID and set it as the state variable)
@@ -86,7 +85,7 @@ const CompanyDetails = () => {
   // console.log('company', company);
 
   const handleMenuSelection = (selectedOption) => {
-    setFrom(`/companies/${company.id}`)
+    setFrom(location)
     if (selectedOption === 'Редактировать') {
       
       navigate(`/companies/${company.id}/edit`, { state: { company: {...company}, new: false } });

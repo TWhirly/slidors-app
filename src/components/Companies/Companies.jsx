@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect, useCallback } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate  } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
 import styles from './Companies.module.css';
@@ -29,7 +29,6 @@ const Companies = () => {
     const id = location.state?.companyId || null
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
-    setFrom('/')
 
     console.log('scroll pos in companies', scrollPos)
 
@@ -104,12 +103,13 @@ const Companies = () => {
     };
 
     const handleSelectCompany = (company) => {
+         setFrom('/companies')
         setScrollPos(prev => {
             const newPositions = { ...prev }
             newPositions['companies'] = window.scrollY
             return newPositions
         })
-        setFrom('/companies')
+       
         navigate(`/companies/${company.id}`, {
             state: { companyId: company.id, from: '/companies', replace: true }
         });
@@ -300,19 +300,21 @@ const Companies = () => {
                         name={region.region}
                         id={`region-${encodeURIComponent(region.region)}`}
                     >
-                        <button
-                            onClick={() => handleRegionClick(region.region)}
+                        <div
+                            
                             className={styles.regionButton}
                         >
                             <span>
-                                {region?.region
+                                <div
+                                onClick={() => handleRegionClick(region.region)}
+                                >{region?.region
                                     .split(" ")
                                     .filter((item) => item !== "область")
                                     .join(" ")}{" "}
-                                ({region.company_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}
-                                <div className={styles.regionButtonArrow} />
+                                ({region.company_count}){region.regionTurnover > 0 ? ' – ' + region.regionTurnover.toLocaleString('ru-RU', {}) : ''}</div>
+                                <div onClick={() => handleRegionClick(region.region)} className={styles.regionButtonArrow} />
                             </span>
-                        </button>
+                        </div>
                         {selectedRegion === region.region && (
                             <div className={styles.dataGridContainer}
                                 ref={containerRef}
