@@ -18,9 +18,9 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 const Activities = () => {
     const queryClient = useQueryClient();
     const { scrollPos,
-            setScrollPos,
-            from,
-            setFrom } = useContext(DataContext);
+        setScrollPos,
+        from,
+        setFrom } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
     const avatarGroupStyle = avatarGroup();
@@ -34,16 +34,17 @@ const Activities = () => {
     const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
     const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
-    const {tg , chat_id} = useTelegram()
+    const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
+    const [firstVisibleActivityId, setFirstVisibleActivityId] = useState(null);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
 
-    // console.log('activity', activity)
-   
-    const {filters,
+    console.log('firstVisibleActivityId', firstVisibleActivityId)
+
+    const { filters,
         setFilters,
-        filteredEvents : filteredPlannedEvents,
+        filteredEvents: filteredPlannedEvents,
         filteredOtherEvents,
         isFilterModalOpen,
         setIsFilterModalOpen,
@@ -52,40 +53,40 @@ const Activities = () => {
         avialableManagers,
         avialableRegions,
         avialableTypes
-    } = useEventFilters(activity || {planned: [], other: []});
+    } = useEventFilters(activity || { planned: [], other: [] });
 
     const activeFiltersCount = [
-    filters.searchText ? 1 : 0,
-    filters.purpose.length,
-    filters.status.length,
-    filters.manager.length,
-    filters.region.length,
-    filters.type.length,
-    filters.dateRange.from ? 1 : 0,
-    filters.dateRange.to ? 1 : 0
-  ].reduce((sum, count) => sum + count, 0);
+        filters.searchText ? 1 : 0,
+        filters.purpose.length,
+        filters.status.length,
+        filters.manager.length,
+        filters.region.length,
+        filters.type.length,
+        filters.dateRange.from ? 1 : 0,
+        filters.dateRange.to ? 1 : 0
+    ].reduce((sum, count) => sum + count, 0);
 
-  const removeFilter = () => {
-    localStorage.removeItem('eventFilters');
-    const emptyFilters = {
-                searchText: '',
-                purpose: [],
-                status: [],
-                tags: [],
-                region: [],
-                manager: [],
-                type: [],
-                dateRange: { from: '', to: '' }
-              };
+    const removeFilter = () => {
+        localStorage.removeItem('eventFilters');
+        const emptyFilters = {
+            searchText: '',
+            purpose: [],
+            status: [],
+            tags: [],
+            region: [],
+            manager: [],
+            type: [],
+            dateRange: { from: '', to: '' }
+        };
 
-    setFilters(emptyFilters);
-  };
-    
-    
+        setFilters(emptyFilters);
+    };
+
+
     tg.BackButton.show();
     // console.log(email, 'email');
-    
-    
+
+
 
     useEffect(() => {
         const storedPlannedExpand = sessionStorage.getItem('plannedExpand');
@@ -115,12 +116,13 @@ const Activities = () => {
 
     const getPaginatedOtherActivities = () => {
         if (!filteredOtherEvents) return [];
-        
+
         const endIndex = otherPage * itemsPerPage;
         return filteredOtherEvents.slice(0, endIndex);
-    };    
+    };
+    const displayedOtherActivities = getPaginatedOtherActivities();
 
-    const totalOtherPages = other 
+    const totalOtherPages = other
         ? Math.ceil(filteredOtherEvents.length / itemsPerPage)
         : 0;
 
@@ -165,8 +167,10 @@ const Activities = () => {
 
     
 
+
+
     const handleScroll = useCallback((e) => {
-        
+
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         if (scrollHeight - scrollTop - clientHeight < 100 && hasMore && !isLoadingMore) {
             loadMore();
@@ -180,34 +184,34 @@ const Activities = () => {
     }
 
     const getPurporseColor = (status) => {
-        
+
         switch (status.toLowerCase()) {
             case 'да':
                 return 'lightgreen';
-                       default:
+            default:
                 return 'var(--hintColor, #888)';
         }
     };
     const handleSelectActivity = (activity) => {
         setFrom('/activities')
         navigate(`/activities/${activity.id}`, {
-            state: {activityId: activity.id, path: '/activities'}
+            state: { activityId: activity.id, path: '/activities' }
         });
     };
 
-    
+
 
     const handleAddActivity = () => {
         const emptyActivity = getEmptyActivity(email);
-        updateActivity({...emptyActivity, new: true});
-        navigate(`/activities/new/edit`, { state: {...emptyActivity, new: true} });
+        updateActivity({ ...emptyActivity, new: true });
+        navigate(`/activities/new/edit`, { state: { ...emptyActivity, new: true } });
     };
 
     const backButton = useCallback(() => {
         navigate('/')
-    },[navigate])
+    }, [navigate])
 
-     useEffect(() => {
+    useEffect(() => {
         if (!tg) return;
         tg.BackButton.onClick(backButton);
         return () => {
@@ -215,7 +219,35 @@ const Activities = () => {
         };
     }, [backButton, tg]);
 
-//    console.log('filteredPlannedEvents', filteredPlannedEvents)
+    useEffect(() => {
+    if (!otherExpand) return;
+
+    const observer = new IntersectionObserver(
+    (entries) => {
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            if (entry.isIntersecting) {
+                const activityId = entry.target.dataset.activityId;
+                setFirstVisibleActivityId(activityId);
+                break; 
+            }
+        }
+    },
+    {
+        root: null,
+        threshold: 0.1
+    }
+);
+
+    // Наблюдаем за всеми элементами
+    document.querySelectorAll('[data-activity-id]').forEach(el => {
+        observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+}, [displayedOtherActivities, otherExpand]);
+
+    //    console.log('filteredPlannedEvents', filteredPlannedEvents)
 
     if (isLoading) {
         return (
@@ -235,38 +267,38 @@ const Activities = () => {
         );
     }
 
-    const displayedOtherActivities = getPaginatedOtherActivities();
+    
     //  console.log('eventFilters', localStorage.getItem('eventFilters'))
 
     return (
-       
-            <div className={styles.container}>
+
+        <div className={styles.container}>
             <div className={styles.naviPanel}>
                 <div className={styles.companyNamePanel}>
                     События
                 </div>
 
                 <div
-            
-            className={styles.filterButton}
-          >
-            <div
-            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-            >
-            <img src={activeFiltersCount > 0 ? filterActiveIcon : filterIcon} 
-            alt="Filter icon" 
-            className={styles.filterIcon}
-            >
-                
-            </img>
-            </div>
-             <div className={styles.filterCountPanel}
-             onClick={() =>activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
-             >
-                    {activeFiltersCount === 0 ? "ㅤ" : `✕`}
+
+                    className={styles.filterButton}
+                >
+                    <div
+                        onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+                    >
+                        <img src={activeFiltersCount > 0 ? filterActiveIcon : filterIcon}
+                            alt="Filter icon"
+                            className={styles.filterIcon}
+                        >
+
+                        </img>
+                    </div>
+                    <div className={styles.filterCountPanel}
+                        onClick={() => activeFiltersCount === 0 ? setIsFilterModalOpen(!isFilterModalOpen) : removeFilter()}
+                    >
+                        {activeFiltersCount === 0 ? "ㅤ" : `✕`}
+                    </div>
+
                 </div>
-            
-          </div>
                 <IconButton
                     onClick={(e) => {
                         e.stopPropagation();
@@ -280,12 +312,12 @@ const Activities = () => {
                     <AddIcon />
                 </IconButton>
             </div>
-            
+
             {/* Блок для запланированных активностей с фиксированным заголовком */}
-           
+
             <div className={styles.allRegions}>
-                <div 
-                    className={styles.plannedHeader} 
+                <div
+                    className={styles.plannedHeader}
                     onClick={handlePlannedExpand}
                     style={{
                         position: 'sticky',
@@ -296,26 +328,26 @@ const Activities = () => {
                 >
                     Запланированные ({filteredPlannedEvents?.length})<div className={styles.regionButtonArrow}></div>
                 </div>
-                
+
                 {plannedExpand && (
-                    <div 
+                    <div
                         className={styles.scrollContainer}
-                        style={{ 
+                        style={{
                             overflow: 'auto',
                             marginTop: '0' // убираем отступ, так как заголовок фиксированный
                         }}
                     >
                         {filteredPlannedEvents.map((activity, index) => (
                             <div key={index}
-                             className={styles.dataGridContainer}
-                             onClick={() => handleSelectActivity(activity)}
-                             >
+                                className={styles.dataGridContainer}
+                                onClick={() => handleSelectActivity(activity)}
+                            >
                                 <div
                                     className={styles.companyPlanDate}
-                                    // style={{
-                                    //     color: "white",
-                                    //     fontSize: '0.7rem'
-                                    // }}
+                                // style={{
+                                //     color: "white",
+                                //     fontSize: '0.7rem'
+                                // }}
                                 >
                                     {Intl.DateTimeFormat('ru-RU', {
                                         day: 'numeric',
@@ -364,8 +396,8 @@ const Activities = () => {
 
             {/* Блок для других активностей с фиксированным заголовком */}
             <div className={styles.allRegions2}>
-                <div 
-                    className={styles.plannedHeader} 
+                <div
+                    className={styles.plannedHeader}
                     onClick={handleOtherExpand}
                     style={{
                         position: 'sticky',
@@ -377,27 +409,28 @@ const Activities = () => {
                 >
                     Завершенные ({filteredOtherEvents?.length})<div className={styles.regionButtonArrow}></div>
                 </div>
-                
+
                 {otherExpand && (
-                    <div 
+                    <div
                         className={styles.scrollContainer}
                         onScroll={handleScroll}
-                        style={{ 
-                            
+                        style={{
+
                             overflowY: 'auto',
                             overflowX: 'hidden',
                             marginTop: '0'
                         }}
                     >
                         {displayedOtherActivities.map((activity, index) => (
-                            
-                            <div 
-                                key={index} 
+
+                            <div
+                                data-activity-id={activity.id}
+                                key={index}
                                 className={styles.dataGridContainer}
                                 ref={index === displayedOtherActivities.length - 1 ? lastItemRef : null}
                                 onClick={() => handleSelectActivity(activity)}
                             >
-                                 <div
+                                <div
                                     className={styles.companyPlanDate}
                                     style={{
                                         width: '100%',
@@ -405,15 +438,15 @@ const Activities = () => {
                                         fontSize: '0.7rem'
                                     }}
                                 >
-                                 {activity.endDatetime && Intl.DateTimeFormat('ru-RU', {
+                                    {activity.endDatetime && Intl.DateTimeFormat('ru-RU', {
                                         day: 'numeric',
                                         month: 'numeric',
                                         year: 'numeric',
                                         hour: 'numeric',
                                         minute: 'numeric'
-                                    }).format(new Date(activity.endDatetime))}
+                                    }).format(new Date(activity.endDatetime))} {activity.id}
                                 </div>
-                               
+
                                 <div className={styles.companyInfo}>
                                     <div className={styles.nameAndIcon}>
                                         <div className={styles.companyName}>
@@ -447,14 +480,14 @@ const Activities = () => {
                                 </div>
                             </div>
                         ))}
-                        
+
                         {isLoadingMore && (
                             <div className={styles.loadingMore}>
                                 <CircularProgress size={20} />
                                 <span>Загрузка...</span>
                             </div>
                         )}
-                        
+
                         {!hasMore && displayedOtherActivities.length > 0 && (
                             <div className={styles.endOfList}>
                                 Все события загружены
@@ -463,19 +496,19 @@ const Activities = () => {
                     </div>
                 )}
             </div>
-            
-            {isFilterModalOpen && <FilterModal 
-            //  className={styles.allRegions}
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-        filters={filters}
-        onFiltersChange={setFilters}
-        avialableStatuses={avialableStatuses}
-        avialablePurposes={avialablePurposes}
-        avialableRegions={avialableRegions}
-        avialableManagers={avialableManagers}
-        avialableTypes={avialableTypes}
-      />}
+
+            {isFilterModalOpen && <FilterModal
+                //  className={styles.allRegions}
+                isOpen={isFilterModalOpen}
+                onClose={() => setIsFilterModalOpen(false)}
+                filters={filters}
+                onFiltersChange={setFilters}
+                avialableStatuses={avialableStatuses}
+                avialablePurposes={avialablePurposes}
+                avialableRegions={avialableRegions}
+                avialableManagers={avialableManagers}
+                avialableTypes={avialableTypes}
+            />}
         </div>
     );
 };
