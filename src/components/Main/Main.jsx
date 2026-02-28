@@ -11,12 +11,12 @@ import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
   const { chat_id , tg , initData} = useTelegram()
-  const { name, loading, setFrom } = useContext(DataContext);
+  const { name, loading, setFrom, scrollPos } = useContext(DataContext);
   const navigate = useNavigate();
   const { 
       isLoading: isCompaniesLoading
     } = useRegions(chat_id);
-
+    console.log(scrollPos)
     // const isContactsLoading = false
     // const isActivityLoading = false
 

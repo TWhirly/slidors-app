@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import styles from '../Companies/Companies.module.css';
@@ -27,7 +27,7 @@ const Activities = () => {
     const [plannedExpand, setPlannedExpand] = useState(false);
     const [otherExpand, setOtherExpand] = useState(false);
     const [otherPage, setOtherPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const observerRef = useRef(null);
     const lastItemRef = useRef(null);
@@ -39,8 +39,11 @@ const Activities = () => {
     const [firstVisibleActivityId, setFirstVisibleActivityId] = useState(null);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
+    const [targetScrollElement, setTargetScrollElement] = useState(null);
+    const [isPagesForAutoScrollNeededLoaded, setIsPagesForAutoScrollNeededLoaded] = useState(false)
+    const [isElforAutoScrollLoading, setIsElforAutoScrollLoading] = useState(false)
 
-    console.log('firstVisibleActivityId', firstVisibleActivityId)
+    // console.log('firstVisibleActivityId', firstVisibleActivityId, window.scrollY)
 
     const { filters,
         setFilters,
@@ -128,13 +131,13 @@ const Activities = () => {
 
     const hasMore = otherPage < totalOtherPages;
 
-    const loadMore = useCallback(() => {
+    const loadMore = useCallback((timeOut = 300) => {
         if (hasMore && !isLoadingMore) {
             setIsLoadingMore(true);
             setTimeout(() => {
                 setOtherPage(prev => prev + 1);
                 setIsLoadingMore(false);
-            }, 300);
+            }, timeOut);
         }
     }, [hasMore, isLoadingMore]);
 
@@ -208,8 +211,15 @@ const Activities = () => {
     };
 
     const backButton = useCallback(() => {
+        setScrollPos(prev => {
+           const newPositions = {...prev}
+            newPositions.activity = {activityId: firstVisibleActivityId,
+                scrollPos: window.scrollY
+            }
+            return newPositions
+        })
         navigate('/')
-    }, [navigate])
+    }, [firstVisibleActivityId, navigate, setScrollPos])
 
     useEffect(() => {
         if (!tg) return;
@@ -227,6 +237,7 @@ const Activities = () => {
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
             if (entry.isIntersecting) {
+                // console.log(entry)
                 const activityId = entry.target.dataset.activityId;
                 setFirstVisibleActivityId(activityId);
                 break; 
@@ -246,6 +257,77 @@ const Activities = () => {
 
     return () => observer.disconnect();
 }, [displayedOtherActivities, otherExpand]);
+
+useEffect(() => {
+    if (!otherExpand) return;
+     if(!scrollPos.activity?.activityId)
+        return
+    if(isPagesForAutoScrollNeededLoaded)
+        return
+    
+
+    const observer = new IntersectionObserver(
+       
+    (entries) => {
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            // console.log('entries check')
+            if (entry.target.dataset.activityId === scrollPos.activity.activityId) {
+                setTargetScrollElement(entry.target);
+                console.log('el settled')
+                break; 
+            }
+        }
+    },
+    {
+        root: null,
+        threshold: 1
+    }
+);
+
+    // Наблюдаем за всеми элементами
+    document.querySelectorAll('[data-activity-id]').forEach(el => {
+        observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+}, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollPos]);
+
+const scrollToItem = useCallback((element) => {
+    setTimeout(() => {
+    // const element = document.getElementById(itemId);
+    if (element) {
+        console.log('element found', element)
+        setIsElforAutoScrollLoading(false)
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'start'
+      });
+    }
+}, 100)
+  }, []);
+
+  useLayoutEffect(() => {
+        if(isPagesForAutoScrollNeededLoaded) return
+        if (!targetScrollElement && scrollPos.activity?.activityId){
+            setIsElforAutoScrollLoading(true)
+            loadMore(0);
+            // setIsPagesForAutoScrollNeededLoaded(true)
+        } else if(targetScrollElement && scrollPos.activity?.activityId) {
+            scrollToItem(targetScrollElement)
+            setIsPagesForAutoScrollNeededLoaded(true)
+        }
+       
+    }, [isPagesForAutoScrollNeededLoaded, loadMore, scrollPos.activity?.activityId, scrollToItem, targetScrollElement])
+
+// useLayoutEffect(() => {
+//     if(!targetScrollElement)
+//         return
+    
+//         console.log('layout effect')
+//         scrollToItem(targetScrollElement)
+//     },[scrollToItem, targetScrollElement])
+
 
     //    console.log('filteredPlannedEvents', filteredPlannedEvents)
 
@@ -267,6 +349,7 @@ const Activities = () => {
         );
     }
 
+    
     
     //  console.log('eventFilters', localStorage.getItem('eventFilters'))
 
@@ -425,6 +508,7 @@ const Activities = () => {
 
                             <div
                                 data-activity-id={activity.id}
+                                id={activity.id}
                                 key={index}
                                 className={styles.dataGridContainer}
                                 ref={index === displayedOtherActivities.length - 1 ? lastItemRef : null}

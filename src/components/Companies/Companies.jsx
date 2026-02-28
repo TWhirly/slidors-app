@@ -30,7 +30,7 @@ const Companies = () => {
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
 
-    console.log('scroll pos in companies', scrollPos)
+    console.log('scroll pos in companies', window.scrollY)
 
     useEffect(() => {
         firstVisibleId.current = lastVisibleCompanyId
