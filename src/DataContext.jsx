@@ -21,7 +21,13 @@ export const DataProvider = ({ children }) => {
     const { chat_id, tg } = useTelegram()
     const [dev, setDev] = useState(false)
     const [lastVisibleCompanyId, setLastVisibleCompanyId] = useState(null);
-    const [scrollPos, setScrollPos] = useState({})
+    const [scrollPos, setScrollPos] = useState(
+        {
+            companies: null,
+            contacts: null,
+            activities: {activityId : null}
+        }
+    )
     const [from, setFrom] = useState(null)
 
     useEffect(() => { setDev(process.env.REACT_APP_GOOGLE_SHEETS_URL.slice(-7, -1) === 'devApi') }, [])

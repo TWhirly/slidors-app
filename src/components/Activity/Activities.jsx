@@ -41,10 +41,12 @@ const Activities = () => {
     const filterActiveIcon = require('../../icons/filterActive.png')
     const [targetScrollElement, setTargetScrollElement] = useState(null);
     const [isPagesForAutoScrollNeededLoaded, setIsPagesForAutoScrollNeededLoaded] = useState(false)
-    const [isElforAutoScrollLoading, setIsElforAutoScrollLoading] = useState(false)
+    const isElforAutoScrollLoading = useRef(!!scrollPos.activities.activityId)
+    const [scrollLoad, setScrollLoad] = useState(isElforAutoScrollLoading.current)
 
     // console.log('firstVisibleActivityId', firstVisibleActivityId, window.scrollY)
 
+    
     const { filters,
         setFilters,
         filteredEvents: filteredPlannedEvents,
@@ -117,12 +119,15 @@ const Activities = () => {
         sessionStorage.setItem('otherExpand', !otherExpand);
     };
 
-    const getPaginatedOtherActivities = () => {
+    const getPaginatedOtherActivities = useCallback(() => {
         if (!filteredOtherEvents) return [];
-
-        const endIndex = otherPage * itemsPerPage;
+        console.log('isAutoScrollNeededLoaded', isElforAutoScrollLoading.current)
+        const endIndex = isElforAutoScrollLoading.current ?
+        filteredOtherEvents.findIndex(ev => ev.id === scrollPos.activities.activityId) :
+        otherPage * itemsPerPage
+        isElforAutoScrollLoading.current = false 
         return filteredOtherEvents.slice(0, endIndex);
-    };
+    },[filteredOtherEvents, itemsPerPage, otherPage, scrollPos.activities.activityId]);
     const displayedOtherActivities = getPaginatedOtherActivities();
 
     const totalOtherPages = other
@@ -168,7 +173,7 @@ const Activities = () => {
         };
     }, [otherExpand, hasMore, isLoadingMore, loadMore]);
 
-    
+
 
 
 
@@ -212,8 +217,9 @@ const Activities = () => {
 
     const backButton = useCallback(() => {
         setScrollPos(prev => {
-           const newPositions = {...prev}
-            newPositions.activity = {activityId: firstVisibleActivityId,
+            const newPositions = { ...prev }
+            newPositions.activities = {
+                activityId: firstVisibleActivityId,
                 scrollPos: window.scrollY
             }
             return newPositions
@@ -230,106 +236,118 @@ const Activities = () => {
     }, [backButton, tg]);
 
     useEffect(() => {
-    if (!otherExpand) return;
+        if (!otherExpand) return;
 
-    const observer = new IntersectionObserver(
-    (entries) => {
-        for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i];
-            if (entry.isIntersecting) {
-                // console.log(entry)
-                const activityId = entry.target.dataset.activityId;
-                setFirstVisibleActivityId(activityId);
-                break; 
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (let i = 0; i < entries.length; i++) {
+                    const entry = entries[i];
+                    if (entry.isIntersecting) {
+                        // console.log(entry)
+                        const activityId = entry.target.dataset.activityId;
+                        setFirstVisibleActivityId(activityId);
+                        break;
+                    }
+                }
+            },
+            {
+                root: null,
+                threshold: 0.1
             }
-        }
-    },
-    {
-        root: null,
-        threshold: 0.1
-    }
-);
+        );
 
-    // Наблюдаем за всеми элементами
-    document.querySelectorAll('[data-activity-id]').forEach(el => {
-        observer.observe(el);
-    });
+        // Наблюдаем за всеми элементами
+        document.querySelectorAll('[data-activity-id]').forEach(el => {
+            observer.observe(el);
+        });
 
-    return () => observer.disconnect();
-}, [displayedOtherActivities, otherExpand]);
+        return () => observer.disconnect();
+    }, [displayedOtherActivities, otherExpand]);
 
-useEffect(() => {
-    if (!otherExpand) return;
-     if(!scrollPos.activity?.activityId)
-        return
-    if(isPagesForAutoScrollNeededLoaded)
-        return
-    
+    useEffect(() => {
+        if (!otherExpand) return;
+        if (!scrollPos.activities?.activityId)
+            return
+        if (isPagesForAutoScrollNeededLoaded)
+            return
 
-    const observer = new IntersectionObserver(
-       
-    (entries) => {
-        for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i];
-            // console.log('entries check')
-            if (entry.target.dataset.activityId === scrollPos.activity.activityId) {
-                setTargetScrollElement(entry.target);
-                console.log('el settled')
-                break; 
+
+        const observer = new IntersectionObserver(
+
+            (entries) => {
+                for (let i = 0; i < entries.length; i++) {
+                    const entry = entries[i];
+                    // console.log('entries check')
+                    if (entry.target.dataset.activityId === scrollPos.activities.activityId) {
+                        setTargetScrollElement(entry.target);
+                        observer.disconnect()
+                        
+                        console.log('scr load obs', scrollLoad)
+                        // setScrollPos(prev => {
+                        //     const newPositions = { ...prev }
+                        //     newPositions.activities = {
+                        //         activityId: null,
+                        //         scrollPos: window.scrollY
+                        //     }
+                        //     return newPositions
+                        // })
+                        console.log('el settled')
+                        break;
+                    }
+                }
+            },
+            {
+                root: null,
+                threshold: 1
             }
-        }
-    },
-    {
-        root: null,
-        threshold: 1
-    }
-);
+        );
 
-    // Наблюдаем за всеми элементами
-    document.querySelectorAll('[data-activity-id]').forEach(el => {
-        observer.observe(el);
-    });
+        // Наблюдаем за всеми элементами
+        document.querySelectorAll('[data-activity-id]').forEach(el => {
+            observer.observe(el);
+        });
 
-    return () => observer.disconnect();
-}, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollPos]);
+        return () => observer.disconnect();
+    }, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollLoad, scrollPos, setScrollPos]);
 
-const scrollToItem = useCallback((element) => {
-    setTimeout(() => {
-    // const element = document.getElementById(itemId);
-    if (element) {
-        console.log('element found', element)
-        setIsElforAutoScrollLoading(false)
-      element.scrollIntoView({
-        behavior: 'auto',
-        block: 'start'
-      });
-    }
-}, 100)
-  }, []);
+    const scrollToItem = useCallback((element) => {
+        
+        setTimeout(() => {
+            // const element = document.getElementById(itemId);
+            if (element) {
+                console.log('element found', element)
+                element.scrollIntoView({
+                    behavior: 'auto',
+                    block: 'start'
+                });
+            }
+        }, 100)
+        
+    }, []);
 
-  useLayoutEffect(() => {
-        if(isPagesForAutoScrollNeededLoaded) return
-        if (!targetScrollElement && scrollPos.activity?.activityId){
-            setIsElforAutoScrollLoading(true)
+    useLayoutEffect(() => {
+        // if (isPagesForAutoScrollNeededLoaded) return
+        if (!targetScrollElement && scrollPos.activities?.activityId) {
             loadMore(0);
             // setIsPagesForAutoScrollNeededLoaded(true)
-        } else if(targetScrollElement && scrollPos.activity?.activityId) {
+        } else if (targetScrollElement && scrollPos.activities?.activityId) {
+            setScrollLoad(false)
             scrollToItem(targetScrollElement)
             setIsPagesForAutoScrollNeededLoaded(true)
         }
-       
-    }, [isPagesForAutoScrollNeededLoaded, loadMore, scrollPos.activity?.activityId, scrollToItem, targetScrollElement])
 
-// useLayoutEffect(() => {
-//     if(!targetScrollElement)
-//         return
-    
-//         console.log('layout effect')
-//         scrollToItem(targetScrollElement)
-//     },[scrollToItem, targetScrollElement])
+    }, [isPagesForAutoScrollNeededLoaded, loadMore, scrollPos.activities?.activityId, scrollToItem, targetScrollElement])
+
+    // useLayoutEffect(() => {
+    //     if(!targetScrollElement)
+    //         return
+
+    //         console.log('layout effect')
+    //         scrollToItem(targetScrollElement)
+    //     },[scrollToItem, targetScrollElement])
 
 
-    //    console.log('filteredPlannedEvents', filteredPlannedEvents)
+       console.log('scrollLoad', scrollLoad)
 
     if (isLoading) {
         return (
@@ -349,8 +367,8 @@ const scrollToItem = useCallback((element) => {
         );
     }
 
-    
-    
+
+
     //  console.log('eventFilters', localStorage.getItem('eventFilters'))
 
     return (
