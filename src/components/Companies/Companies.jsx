@@ -3,9 +3,6 @@ import { useLocation, useNavigate  } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
 import styles from './Companies.module.css';
-import Avatar from '@mui/material/Avatar';
-import AvatarGroup from '@mui/material/AvatarGroup';
-import { avatar, avatarGroup } from './sx';
 import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +12,7 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, getStatusColor, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
 import ClickTooltip from './ClickTooltip.jsx';
+import AvatarGroupWithTooltip from './AvatarGroupWithTooltip.jsx';
 const filterIcon = require('../../icons/filter.png')
 const filterActiveIcon = require('../../icons/filterActive.png')
 
@@ -22,11 +20,8 @@ const Companies = () => {
 
     const { email, regions: contextRegions, lastVisibleCompanyId, scrollPos, setScrollPos, from, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
-    const location = useLocation();
-    const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const { tg, chat_id } = useTelegram()
-    const id = location.state?.companyId || null
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
 
@@ -225,67 +220,12 @@ const Companies = () => {
                 >
                     <AddIcon />
                 </IconButton>
-                <ClickTooltip
-                    content={
-                        <AvatarGroup
-                            max={100}
-                            spacing={10}
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                backgroundColor: '#131313',
-                                '& .MuiAvatar-root': {
-                                    border: '2px solid white',
-                                    marginLeft: 0,
-                                }
-                            }}
-                        >
-                            {selectedRegion ? contextRegions
-                                .filter((item) => item.region === selectedRegion)[0]
-                                ?.regionUsers?.map((user) => (
-                                    <div
-                                        key={user.name}
-                                        style={{
-                                            display: 'flex',
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            marginBottom: '4px'
-                                        }}
-                                    >
-                                        <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
-                                            {`${user.name?.split('')[0] || ''}${user.name?.split('')[1] || ''}`}
-                                        </Avatar>
-                                        <div style={{ color: 'white' }}>{user.name}</div>
-                                    </div>
-                                )) : null}
-                        </AvatarGroup>
-                    }
-                >
-                    <AvatarGroup
-                        max={5}
-                        direction="row"
-                        spacing={10}
-                        sx={{
-                            ...avatarGroupStyle,
-                            '& .MuiAvatarGroup-avatar': avatar(''),
-                            cursor: 'pointer' // Добавляем указатель
-                        }}
-                    >
-                        {selectedRegion ? contextRegions
-                            .filter((item) => item.region === selectedRegion)[0]
-                            ?.regionUsers?.map((user) => (
-                                <Avatar
-                                    key={user.name}
-                                    sx={avatar(user.name)}
-                                    alt={user.name}
-                                    src={user.avatar}
-                                >
-                                    {`${user.name?.split('')[0] || ''}${user.name?.split('')[1] || ''}`}
-                                </Avatar>
-                            )) : null}
-                    </AvatarGroup>
-                </ClickTooltip>
+              <AvatarGroupWithTooltip
+                selectedRegion={selectedRegion}
+                contextRegions={contextRegions}
+              >
+
+              </AvatarGroupWithTooltip>
 
             </div>
             <div

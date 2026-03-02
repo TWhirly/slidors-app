@@ -16,37 +16,27 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 
 
 const Activities = () => {
-    const queryClient = useQueryClient();
     const { scrollPos,
         setScrollPos,
-        from,
         setFrom } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
-    const avatarGroupStyle = avatarGroup();
     const [plannedExpand, setPlannedExpand] = useState(false);
     const [otherExpand, setOtherExpand] = useState(false);
     const [otherPage, setOtherPage] = useState(1);
     const [itemsPerPage] = useState(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const observerRef = useRef(null);
     const lastItemRef = useRef(null);
     const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
-    const [planned, setPlanned] = useState([]);
     const [other, setOther] = useState([]);
     const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
     const [firstVisibleActivityId, setFirstVisibleActivityId] = useState(null);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
-    const [targetScrollElement, setTargetScrollElement] = useState(null);
     const [isPagesForAutoScrollNeededLoaded, setIsPagesForAutoScrollNeededLoaded] = useState(false)
     const isElforAutoScrollLoading = useRef(!!scrollPos.activities.activityId)
-    const [scrollLoad, setScrollLoad] = useState(isElforAutoScrollLoading.current)
 
-    // console.log('firstVisibleActivityId', firstVisibleActivityId, window.scrollY)
-
-    
     const { filters,
         setFilters,
         filteredEvents: filteredPlannedEvents,
@@ -71,6 +61,18 @@ const Activities = () => {
         filters.dateRange.to ? 1 : 0
     ].reduce((sum, count) => sum + count, 0);
 
+    useEffect(() => {
+        if (activeFiltersCount > 0) {
+            setScrollPos(prev => {
+                const newPositions = { ...prev }
+                newPositions.activities = {
+                    activityId: null,
+                    scrollPos: window.scrollY
+                }
+                return newPositions
+            })
+        }
+    }, [activeFiltersCount, setScrollPos])
     const removeFilter = () => {
         localStorage.removeItem('eventFilters');
         const emptyFilters = {
@@ -117,18 +119,30 @@ const Activities = () => {
         setOtherExpand(!otherExpand);
         setOtherPage(1);
         sessionStorage.setItem('otherExpand', !otherExpand);
+        setScrollPos(prev => {
+            const newPositions = { ...prev }
+            newPositions.activities = {
+                activityId: null,
+                scrollPos: window.scrollY
+            }
+            return newPositions
+        })
     };
 
     const getPaginatedOtherActivities = useCallback(() => {
         if (!filteredOtherEvents) return [];
-        console.log('isAutoScrollNeededLoaded', isElforAutoScrollLoading.current)
+        // console.log('isAutoScrollNeededLoaded', isElforAutoScrollLoading.current)
         const endIndex = isElforAutoScrollLoading.current ?
-        filteredOtherEvents.findIndex(ev => ev.id === scrollPos.activities.activityId) :
-        otherPage * itemsPerPage
-        isElforAutoScrollLoading.current = false 
+            filteredOtherEvents.findIndex(ev => ev.id === scrollPos.activities.activityId) :
+            otherPage * itemsPerPage
+        isElforAutoScrollLoading.current = false
         return filteredOtherEvents.slice(0, endIndex);
-    },[filteredOtherEvents, itemsPerPage, otherPage, scrollPos.activities.activityId]);
+    }, [filteredOtherEvents, itemsPerPage, otherPage, scrollPos.activities.activityId]);
     const displayedOtherActivities = getPaginatedOtherActivities();
+
+    const isLoadedScrollEl = scrollPos.activities?.activityId ?
+        displayedOtherActivities.some(ev => ev.id === scrollPos.activities.activityId) :
+        true
 
     const totalOtherPages = other
         ? Math.ceil(filteredOtherEvents.length / itemsPerPage)
@@ -148,7 +162,7 @@ const Activities = () => {
 
     useEffect(() => {
         if (!otherExpand || !hasMore || isLoadingMore) return;
-
+        const itemRef = lastItemRef.current
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting) {
@@ -162,13 +176,13 @@ const Activities = () => {
             }
         );
 
-        if (lastItemRef.current) {
-            observer.observe(lastItemRef.current);
+        if (itemRef) {
+            observer.observe(itemRef);
         }
 
         return () => {
-            if (lastItemRef.current) {
-                observer.unobserve(lastItemRef.current);
+            if (itemRef) {
+                observer.unobserve(itemRef);
             }
         };
     }, [otherExpand, hasMore, isLoadingMore, loadMore]);
@@ -264,54 +278,54 @@ const Activities = () => {
         return () => observer.disconnect();
     }, [displayedOtherActivities, otherExpand]);
 
-    useEffect(() => {
-        if (!otherExpand) return;
-        if (!scrollPos.activities?.activityId)
-            return
-        if (isPagesForAutoScrollNeededLoaded)
-            return
+    // useEffect(() => {
+    //     if (!otherExpand) return;
+    //     if (!scrollPos.activities?.activityId)
+    //         return
+    //     if (isPagesForAutoScrollNeededLoaded)
+    //         return
 
 
-        const observer = new IntersectionObserver(
+    //     const observer = new IntersectionObserver(
 
-            (entries) => {
-                for (let i = 0; i < entries.length; i++) {
-                    const entry = entries[i];
-                    // console.log('entries check')
-                    if (entry.target.dataset.activityId === scrollPos.activities.activityId) {
-                        setTargetScrollElement(entry.target);
-                        observer.disconnect()
-                        
-                        console.log('scr load obs', scrollLoad)
-                        // setScrollPos(prev => {
-                        //     const newPositions = { ...prev }
-                        //     newPositions.activities = {
-                        //         activityId: null,
-                        //         scrollPos: window.scrollY
-                        //     }
-                        //     return newPositions
-                        // })
-                        console.log('el settled')
-                        break;
-                    }
-                }
-            },
-            {
-                root: null,
-                threshold: 1
-            }
-        );
+    //         (entries) => {
+    //             for (let i = 0; i < entries.length; i++) {
+    //                 const entry = entries[i];
+    //                 // console.log('entries check')
+    //                 if (entry.target.dataset.activityId === scrollPos.activities.activityId) {
+    //                     setTargetScrollElement(entry.target);
+    //                     observer.disconnect()
 
-        // Наблюдаем за всеми элементами
-        document.querySelectorAll('[data-activity-id]').forEach(el => {
-            observer.observe(el);
-        });
+    //                     console.log('scr load obs', scrollLoad)
+    //                     // setScrollPos(prev => {
+    //                     //     const newPositions = { ...prev }
+    //                     //     newPositions.activities = {
+    //                     //         activityId: null,
+    //                     //         scrollPos: window.scrollY
+    //                     //     }
+    //                     //     return newPositions
+    //                     // })
+    //                     console.log('el settled')
+    //                     break;
+    //                 }
+    //             }
+    //         },
+    //         {
+    //             root: null,
+    //             threshold: 1
+    //         }
+    //     );
 
-        return () => observer.disconnect();
-    }, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollLoad, scrollPos, setScrollPos]);
+    //     // Наблюдаем за всеми элементами
+    //     document.querySelectorAll('[data-activity-id]').forEach(el => {
+    //         observer.observe(el);
+    //     });
+
+    //     return () => observer.disconnect();
+    // }, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollLoad, scrollPos, setScrollPos]);
 
     const scrollToItem = useCallback((element) => {
-        
+
         setTimeout(() => {
             // const element = document.getElementById(itemId);
             if (element) {
@@ -321,35 +335,30 @@ const Activities = () => {
                     block: 'start'
                 });
             }
-        }, 100)
-        
+        }, 0)
+
     }, []);
 
     useLayoutEffect(() => {
-        // if (isPagesForAutoScrollNeededLoaded) return
-        if (!targetScrollElement && scrollPos.activities?.activityId) {
+        const targetElement = document.getElementById(scrollPos.activities.activityId);
+
+        if (!targetElement && scrollPos.activities?.activityId && !isLoadedScrollEl) {
             loadMore(0);
-            // setIsPagesForAutoScrollNeededLoaded(true)
-        } else if (targetScrollElement && scrollPos.activities?.activityId) {
-            setScrollLoad(false)
-            scrollToItem(targetScrollElement)
+        } else if (targetElement && scrollPos.activities?.activityId && isLoadedScrollEl && !isPagesForAutoScrollNeededLoaded) {
+            targetElement.scrollIntoView({
+                behavior: 'auto',
+                block: 'start'
+            });
             setIsPagesForAutoScrollNeededLoaded(true)
+        } else if (!scrollPos.activities?.activityId) {
+            return
         }
 
-    }, [isPagesForAutoScrollNeededLoaded, loadMore, scrollPos.activities?.activityId, scrollToItem, targetScrollElement])
+    }, [isLoadedScrollEl, isPagesForAutoScrollNeededLoaded, loadMore, scrollPos.activities.activityId])
 
-    // useLayoutEffect(() => {
-    //     if(!targetScrollElement)
-    //         return
+    // console.log('isLoadedScrollEl', isLoadedScrollEl, displayedOtherActivities)
 
-    //         console.log('layout effect')
-    //         scrollToItem(targetScrollElement)
-    //     },[scrollToItem, targetScrollElement])
-
-
-       console.log('scrollLoad', scrollLoad)
-
-    if (isLoading) {
+    if (isLoading || !isLoadedScrollEl) {
         return (
             <div className={styles.container}>
                 <CircularProgress color='008ad1' className={styles.loading} />

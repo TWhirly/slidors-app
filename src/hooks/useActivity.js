@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { DataContext } from '../DataContext.jsx'
 
 export const useActivity = (chat_id) => {
-  
+
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const { name, email, dev } = useContext(DataContext);
@@ -13,12 +13,12 @@ export const useActivity = (chat_id) => {
   const notificationInterval = 1000 * 60 * 30 // за полчаса
 
   useEffect(() => {
-    if(name && email)
+    if (name && email)
       setNameMail(`${name.name} (${email})`)
-  },[email, name])
+  }, [email, name])
 
   const fetchActivity = async () => {
-    // console.log('getActivitiesList chat_id', chat_id)
+    console.log('getActivitiesList chat_id', chat_id)
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -28,17 +28,18 @@ export const useActivity = (chat_id) => {
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       formData,
-        {
+      {
         headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
       }
     );
     const sortedActivity = transformActivitySort(response.data);
     // console.log('sortedActivity', sortedActivity);
+    checkScheduled()
     return (sortedActivity);
   };
-  
 
-   const formatDate = (dateStr) => {
+
+  const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -48,55 +49,55 @@ export const useActivity = (chat_id) => {
 
   const transformActivitySort = (activities) => {
     // console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
-   if (!Array.isArray(activities)) {
-    return { planned: [], other: [] };
-  }
-
-  // Разделяем массив на две группы
-  const planned = [];
-  const other = [];
-
-  activities.forEach(lead => {
-    if (lead.plan && lead.plan.trim() !== '') {
-      planned.push(lead);
-    } else {
-      other.push(lead);
+    if (!Array.isArray(activities)) {
+      return { planned: [], other: [] };
     }
-  });
 
-  // Сортируем массив с plan по дате и времени
-  planned.sort((a, b) => {
-    const aDateTime = createDateTime(a.plan, a.planTime);
-    const bDateTime = createDateTime(b.plan, b.planTime);
-    
-    return aDateTime - bDateTime;
-  });
+    // Разделяем массив на две группы
+    const planned = [];
+    const other = [];
 
-  // Сортируем массив без plan по endDatetime по убыванию
-  other.sort((a, b) => {
-    const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
-    const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
-    return bEnd - aEnd;
-  });
+    activities.forEach(lead => {
+      if (lead.plan && lead.plan.trim() !== '') {
+        planned.push(lead);
+      } else {
+        other.push(lead);
+      }
+    });
 
-  return {
-    planned,
-    other
-  };
-}
+    // Сортируем массив с plan по дате и времени
+    planned.sort((a, b) => {
+      const aDateTime = createDateTime(a.plan, a.planTime);
+      const bDateTime = createDateTime(b.plan, b.planTime);
 
-// Вспомогательная функция для создания полной даты-времени
-function createDateTime(dateStr, timeStr) {
-  const date = new Date(dateStr);
-  
-  if (timeStr && timeStr.trim() !== '') {
-    const [hours, minutes, seconds] = timeStr.split(':').map(Number);
-    date.setHours(hours, minutes, seconds || 0, 0);
-  } else {
-    date.setHours(0, 0, 0, 0);
+      return aDateTime - bDateTime;
+    });
+
+    // Сортируем массив без plan по endDatetime по убыванию
+    other.sort((a, b) => {
+      const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
+      const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
+      return bEnd - aEnd;
+    });
+
+    return {
+      planned,
+      other
+    };
   }
-  
-  return date.getTime();
+
+  // Вспомогательная функция для создания полной даты-времени
+  function createDateTime(dateStr, timeStr) {
+    const date = new Date(dateStr);
+
+    if (timeStr && timeStr.trim() !== '') {
+      const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+      date.setHours(hours, minutes, seconds || 0, 0);
+    } else {
+      date.setHours(0, 0, 0, 0);
+    }
+
+    return date.getTime();
   };
 
   const { data: activity, isLoading, error, isSuccess, isFetching } = useQuery({
@@ -114,17 +115,17 @@ function createDateTime(dateStr, timeStr) {
     queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
       const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
       if (isNewActivity) {
-          unitedActivities.push(activityData)
-      } 
-        if (finalize){
-          // console.log('finalize')
+        unitedActivities.push(activityData)
+      }
+      if (finalize) {
+        // console.log('finalize')
         const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
-        unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
-        }
-        const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
-          unitedActivities[activtyIndex] = activityData
-      
-      return(transformActivitySort(unitedActivities)) 
+        unitedActivities[prevActivityIndex] = { ...unitedActivities[prevActivityIndex], plan: '' }
+      }
+      const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
+      unitedActivities[activtyIndex] = activityData
+
+      return (transformActivitySort(unitedActivities))
     });
   };
 
@@ -142,19 +143,19 @@ function createDateTime(dateStr, timeStr) {
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
         formData,
-          {
-        headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
-      }
+        {
+          headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
+        }
       );
       return response.data;
     },
-onMutate: async (activityData) => {
-      
+    onMutate: async (activityData) => {
+
       const previousActivity = queryClient.getQueryData(['activity']) || [];
-      
+
       // Оптимистичное обновление через функцию
       // optimisticUpdateActivity(activityData, activityData.isNew);
-      
+
       return { previousActivity };
     },
     onError: (error, activityData, context) => {
@@ -164,7 +165,7 @@ onMutate: async (activityData) => {
     },
     onSuccess: (data, activityData) => {
       // Дополнительные действия при успехе
-       !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
+      !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, { fontSize: '0.8rem' });
       // console.log('Activity updated successfully:', data);
       // checkScheduled()
     },
@@ -174,38 +175,39 @@ onMutate: async (activityData) => {
     }
   });
 
-  useEffect(() => {
-    // console.log('activity changes')
-    checkScheduled()
-  },[activity, isFetching])
 
-  const checkScheduled = () => {
-    if (activity) {
-      
-      const nearTimePlanned = activity.planned
-      .filter(a => a.responsible === nameMail)
-      .filter(a => {
-        let timeMs
-        if(a.planTime !== '') {
-          const tA = a.planTime.split(':');
-          timeMs = tA[0]*60*60*1000 + tA[1]*60*1000 + tA[2]*1000
-        } else {
-          timeMs = 0
-        }
-        const dateMs = +(new Date(a.plan))
-        const nowMs = +(new Date())
-        // console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
-        return (nowMs + notificationInterval > timeMs + dateMs)
-      })
+
+  const checkScheduled = useCallback(() => {
+    if(!isSuccess) return
+      console.log('schedule func')
+      const nearTimePlanned = activity?.planned
+        .filter(a => a.responsible === nameMail)
+        .filter(a => {
+          let timeMs
+          if (a.planTime !== '') {
+            const tA = a.planTime.split(':');
+            timeMs = tA[0] * 60 * 60 * 1000 + tA[1] * 60 * 1000 + tA[2] * 1000
+          } else {
+            timeMs = 0
+          }
+          
+          const dateMs = +(new Date(a.plan))
+          const nowMs = getMoscowTimeMs()
+          console.log(`check interval: ${nowMs + notificationInterval}, ${timeMs + dateMs}`)
+          return (nowMs + notificationInterval > timeMs + dateMs && nowMs < timeMs + dateMs)
+        })
       if (nearTimePlanned.length > 0)
-      showNotification('Есть запланированные события', {}, true);
-      // Perform other side effects here
-      // e.g., update a different state, show a toast, etc.
-    }
-  }
+        console.log(nearTimePlanned)
+        showNotification(`${nearTimePlanned[0].purpose} "${nearTimePlanned[0].companyName}" в ${nearTimePlanned[0].planTime.slice(0, 5)}`, {}, true);
+    
+  }, [activity?.planned, isSuccess, nameMail, notificationInterval, showNotification])
 
-  // console.log('activity hook', activity)
-  const test = [1, 2]
+  const getMoscowTimeMs = () => {
+  const now = new Date();
+  const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const moscowMs = utcMs + (3 * 60 * 60 * 1000);
+  return moscowMs;
+}
 
   return {
     activity: activity || [],
@@ -214,7 +216,6 @@ onMutate: async (activityData) => {
     updateActivityAsync: updateActivityMutation.mutateAsync,
     isUpdating: updateActivityMutation.isLoading,
     optimisticUpdateActivity, // Экспортируем для ручного использования
-    test,
     error
   };
 };

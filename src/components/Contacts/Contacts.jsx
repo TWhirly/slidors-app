@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useLayoutEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Contacts.module.css';
@@ -14,16 +14,15 @@ import { useContacts } from '../../hooks/useContacts';
 import { useContactFilters } from '../../hooks/useContactFilters.jsx';
 import { ContactsFilterModal } from './ContactsFilterModal.jsx'
 import { useTelegram } from '../../hooks/useTelegram.js';
+import AvatarGroupWithTooltip from '../Companies/AvatarGroupWithTooltip.jsx';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
     const { email, chat_id, scrollPos, setScrollPos, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
-    const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
-    const regionsWithCompanies = useState([]);
     const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
     const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
     const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
@@ -165,7 +164,6 @@ const Contacts = () => {
         navigate('/')
     },[navigate, setScrollPos])
 
-    // Обработка кнопки "назад" в Telegram
     useEffect(() => {
         if(!tg) return
        
@@ -241,18 +239,11 @@ const Contacts = () => {
                 >
                     <AddIcon />
                 </IconButton>
-                <AvatarGroup
-                    max={5}
-                    direction="row"
-                    spacing={10}
-                    sx={{ ...avatarGroupStyle, '& .MuiAvatarGroup-avatar': avatar('') }}
+                <AvatarGroupWithTooltip
+                    selectedRegion={selectedRegion}
+                    contextRegions={contextRegions}              
                 >
-                    {selectedRegion ? contextRegions.filter((item) => item.region === selectedRegion)[0]?.regionUsers?.map((user) => (
-                        <Avatar sx={avatar(user.name)} alt={user.name} src={user.avatar}>
-                            {`${user.name.split('')[0]}${user.name.split('')[1]}`}
-                        </Avatar>
-                    )) : ''}
-                </AvatarGroup>
+                </AvatarGroupWithTooltip>
             </div>
             <div className={styles.allRegions}>
                 {regionsWithContacts?.filter(region => region.region !== 'noRegion').map((region) => (

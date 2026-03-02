@@ -2,7 +2,9 @@ import styles from '../Companies/Companies.module.css'
 
 export const IconsLine = (props) => {
 
-    return (<div className={styles.checksContainer}>
+    return (<div 
+    className={styles.checksContainer}
+    >
 
         {(props.activity['haveAdv?'] === 'Нет, не хотят') &&
             <><img

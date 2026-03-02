@@ -60,8 +60,9 @@ function ContactDetails() {
   }, [activity, id])
 
   const back = useCallback(() => {
-    navigate(!!from ? from : '/contacts')
-  }, [from, navigate])
+    setFrom(null)
+    navigate(from ?? '/contacts')
+  }, [from, navigate, setFrom])
 
    useEffect(() => {
         if (!tg) return;
@@ -126,7 +127,7 @@ function ContactDetails() {
     <div className={styles.container}>
       <div className={styles.naviPanel}>
         <span className={styles.nameAndIcon}>
-          {getContactFullNmae(contact)}{contact.snv !== '' && <YellowStarIcon className={styles.factoryIcon} />}
+          {getContactFullNmae(contact)}{contact.snv && <YellowStarIcon className={styles.factoryIcon} />}
          
         </span>
         <LongMenu
