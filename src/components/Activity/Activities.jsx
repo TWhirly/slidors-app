@@ -206,6 +206,14 @@ const Activities = () => {
     };
     const handleSelectActivity = (activity) => {
         setFrom('/activities')
+         setScrollPos(prev => {
+            const newPositions = { ...prev }
+            newPositions.activities = {
+                activityId: firstVisibleActivityId,
+                scrollPos: window.scrollY
+            }
+            return newPositions
+        })
         navigate(`/activities/${activity.id}`, {
             state: { activityId: activity.id, path: '/activities' }
         });
@@ -473,7 +481,7 @@ const Activities = () => {
                                 key={index}
                                 className={styles.dataGridContainer}
                                 ref={index === displayedOtherActivities.length - 1 ? lastItemRef : null}
-                                onClick={() => handleSelectActivity(activity)}
+                                
                             >
                                 <div
                                     className={styles.companyPlanDate}
@@ -494,7 +502,9 @@ const Activities = () => {
 
                                 <div className={styles.companyInfo}>
                                     <div className={styles.nameAndIcon}>
-                                        <div className={styles.companyName}>
+                                        <div className={styles.companyName}
+                                        onClick={() => handleSelectActivity(activity)}
+                                        >
                                             {activity.companyName}
                                         </div>
                                         <div className={styles.iconContainer}>
