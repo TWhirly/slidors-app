@@ -6,12 +6,10 @@ import { DataContext } from '../DataContext.jsx'
 
 export const useRegions = (chat_id) => {
   const { dev } = useContext(DataContext)
-  // console.log('dev in useRegions', dev)
-  // const [saving, setIsSaving] = useState(false)
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
-    // console.log('fetchRegions executed');
+    
     const params = {
       chatID: chat_id,
       api: 'getCompanies'
@@ -79,7 +77,7 @@ export const useRegions = (chat_id) => {
         regionTurnover
       };
     });
-  }, []); // ← Пустой массив зависимостей, функция стабильна
+  }, []); 
 
   const optimisticUpdateCompany = useCallback((companyData, isNewCompany = false) => {
 
@@ -89,14 +87,12 @@ export const useRegions = (chat_id) => {
       if (!oldData) return isNewCompany ? [companyData] : [];
 
       if (isNewCompany) {
-        // Возвращаем НОВЫЙ массив с добавленным объектом
         return [...oldData, companyData];
       } else {
-        // Возвращаем НОВЫЙ массив, где заменен только нужный объект
         return oldData.map((company) =>
           company.id === companyData.id
-            ? { ...company, ...companyData } // Создаем новый объект компании
-            : company // Возвращаем старую ссылку на объект, если это не он
+            ? { ...company, ...companyData } 
+            : company 
         );
       }
     });
@@ -125,26 +121,17 @@ export const useRegions = (chat_id) => {
 
       const isNewComapny = companyData.new || false
       queryClient.cancelQueries({ queryKey: ['regions'] });
-      // console.log('onMutate isNew', isNewComapny)
       optimisticUpdateCompany(companyData, isNewComapny)
-      // const previousCompanies = queryClient.getQueryData(['regions']) || [];
-      // return { previousCompanies };
     },
     onError: (error, companyData, context) => {
-      // Откатываем изменения при ошибке
 
       queryClient.setQueryData(['regions'], context.previousCompanies);
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, companyData) => {
-
-      // Дополнительные действия при успехе
       showNotification(`Данные сохранены успешно!`);
-      // queryClient.invalidateQueries({ queryKey: ['regions'] })
-      // console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
-      // Перезапрашиваем данные для синхронизации
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     }
   });
@@ -160,12 +147,10 @@ export const useRegions = (chat_id) => {
 
   return {
     companies: rawData || [],
-    // regionsWithCompanies: companies || [],
     isLoading,
     updateCompany: updateCompanyMutation.mutate,
     updateCompanyAsync: updateCompanyMutation.mutateAsync,
     error,
-    // saving,
     optimisticUpdateCompany,
     transformToRegionsWithCompanies
   };

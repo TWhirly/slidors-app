@@ -107,7 +107,7 @@ export const useActivity = (chat_id) => {
     queryKey: ['activity'],
     queryFn: fetchActivity,
     staleTime: 1000 * 60 * 60,
-    refetchInterval: 1000 * 60 * 1,
+    refetchInterval: 1000 * 60 * 15,
     refetchIntervalInBackground: true
   });
 
