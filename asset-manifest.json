@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/slidors-app/static/css/main.be917ffc.css",
-    "main.js": "/slidors-app/static/js/main.ecff61f1.js",
+    "main.js": "/slidors-app/static/js/main.ff8a9915.js",
     "static/media/background.jpg": "/slidors-app/static/media/background.a4f43ad06fc9318db81c.jpg",
     "static/media/menu-items-logo.png": "/slidors-app/static/media/menu-items-logo.141f532d63ad0fb93716.png",
     "static/media/checkedRed.png": "/slidors-app/static/media/checkedRed.3097c42e8bb8f6b8096c.png",
     "index.html": "/slidors-app/index.html",
     "main.be917ffc.css.map": "/slidors-app/static/css/main.be917ffc.css.map",
-    "main.ecff61f1.js.map": "/slidors-app/static/js/main.ecff61f1.js.map"
+    "main.ff8a9915.js.map": "/slidors-app/static/js/main.ff8a9915.js.map"
   },
   "entrypoints": [
     "static/css/main.be917ffc.css",
-    "static/js/main.ecff61f1.js"
+    "static/js/main.ff8a9915.js"
   ]
 }
