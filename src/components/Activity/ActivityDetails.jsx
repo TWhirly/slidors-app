@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext, act, useCallback } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 import styles from '../Companies/CompanyDetails.module.css';
 import LongMenu from '../Companies/CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
@@ -10,7 +10,7 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 
 const ActivityDetails = () => {
   const navigate = useNavigate();
-  const { state: { activityId: id } } = useLocation();
+  const { state: { activityId: id } , location} = useLocation();
   const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
   const [hasAtLeastOneField, setHasAtLeastOneField] = useState(false);
@@ -65,7 +65,7 @@ const ActivityDetails = () => {
    
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
-      setFrom(`/activities/${activity.id}`)
+      setFrom(location)
       navigate(`/activities/${activity.id}/edit`, { state: { ...activity, path: `/activities/${activity.id}`,new: false } });
     }
     if (selectedOption === 'Завершить') {

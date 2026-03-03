@@ -29,7 +29,7 @@ const CompanyDetails = () => {
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
   const { emails, isContactsMailsLoading } = useEmail(id, null);
   const { companies } = useRegions(chat_id)
-  const { activity, isLoading: isActivityLoading, updateActivity, test} = useActivity(chat_id)
+  const { activity, isLoading: isActivityLoading, updateActivity} = useActivity(chat_id)
   const { email, from, setFrom } = useContext(DataContext)
   console.log('from', from)
   useEffect(() => {

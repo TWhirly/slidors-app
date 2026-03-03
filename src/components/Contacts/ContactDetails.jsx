@@ -17,9 +17,7 @@ function ContactDetails() {
   const { state: {contactId: id } } = useLocation();
   const [contact, setContact] = useState({});
   const [contactActivity, setContactActivity] = useState([])
-  const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
-  const [menuSelection, setMenuSelection] = useState(null);
   const [contactMails, setcontactMails] = useState([])
   const { tg } = useTelegram();
   const { chat_id , from, setFrom } = useContext(DataContext);
@@ -27,10 +25,8 @@ function ContactDetails() {
   const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
   const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
   const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
-  const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
   
-  const { emails, isContactsMailsLoading, error } = useEmail(null, id);
+  const { emails, isContactsMailsLoading } = useEmail(null, id);
   const {activity, isLoading: isActivityLoading} = useActivity(chat_id)
   // tg.BackButton.isVisible = true
   const { contacts } = useContacts(chat_id)
@@ -96,20 +92,6 @@ function ContactDetails() {
     return '7' + cleanNumber;
   };
 
-
-  const formatUrl = (url) => {
-    if (!url) return '';
-
-    // Убираем пробелы
-    let formattedUrl = url.trim();
-
-    // Проверяем наличие протокола
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-      formattedUrl = 'https://' + formattedUrl;
-    }
-
-    return formattedUrl;
-  };
   const getContactFullNmae = (contact) => {
         const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
                     (contact.firstName ? contact.firstName + ' ' : '') + 

@@ -8,7 +8,8 @@ const ActivityPropertiesToolTip = ( {activity} ) => {
                     alignItems: 'center',
                     gap: '8px',
                     justifyContent: 'center',
-                    zIndex: 1000
+                    backgroundColor: '#131313',
+                    zIndex: 10000
                     
                 }
     const imgStyle = {
@@ -177,7 +178,7 @@ const ActivityPropertiesToolTip = ( {activity} ) => {
         }
         >
             <IconsLine
-                // className={styles.checksContainer}
+                className={styles.checksContainer}
                 activity={activity}
             ></IconsLine>
         </ClickTooltip>

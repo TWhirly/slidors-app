@@ -2,17 +2,16 @@ import React, { useState, useEffect, useContext, useRef, useCallback, useLayoutE
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import styles from '../Companies/Companies.module.css';
-import { IconsLine } from './IconsLine.jsx';
 import { FilterModal } from './FilterModal';
-import { avatarGroup } from '../Companies/sx.js';
 import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
-import { useQueryClient } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters';
 import { getEmptyActivity } from './activity.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
+import ActivityPropertiesToolTip from './ActivityPropertiesToolTip.jsx';
+import DescriptionToolTip from './DescriptionToolTip.jsx';
 
 
 const Activities = () => {
@@ -27,8 +26,7 @@ const Activities = () => {
     const [itemsPerPage] = useState(100);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const lastItemRef = useRef(null);
-    const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
-    const [other, setOther] = useState([]);
+    const [other] = useState([]);
     const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error, updateActivity } = useActivity(chat_id);
     const [firstVisibleActivityId, setFirstVisibleActivityId] = useState(null);
@@ -104,10 +102,7 @@ const Activities = () => {
         if (storedOtherExpand !== null) {
             setOtherExpand(storedOtherExpand === 'true');
         }
-        const storedChecked = sessionStorage.getItem('checked');
-        if (storedChecked !== null) {
-            setChecked(storedChecked === 'true');
-        }
+        
     }, []);
 
     const handlePlannedExpand = () => {
@@ -198,12 +193,7 @@ const Activities = () => {
             loadMore();
         }
     }, [hasMore, isLoadingMore, loadMore]);
-
-    const handleChange = (e) => {
-        // const { checked } = e.target;
-        setChecked(!checked);
-        sessionStorage.setItem('checked', !checked);
-    }
+    
 
     const getPurporseColor = (status) => {
 
@@ -277,67 +267,6 @@ const Activities = () => {
 
         return () => observer.disconnect();
     }, [displayedOtherActivities, otherExpand]);
-
-    // useEffect(() => {
-    //     if (!otherExpand) return;
-    //     if (!scrollPos.activities?.activityId)
-    //         return
-    //     if (isPagesForAutoScrollNeededLoaded)
-    //         return
-
-
-    //     const observer = new IntersectionObserver(
-
-    //         (entries) => {
-    //             for (let i = 0; i < entries.length; i++) {
-    //                 const entry = entries[i];
-    //                 // console.log('entries check')
-    //                 if (entry.target.dataset.activityId === scrollPos.activities.activityId) {
-    //                     setTargetScrollElement(entry.target);
-    //                     observer.disconnect()
-
-    //                     console.log('scr load obs', scrollLoad)
-    //                     // setScrollPos(prev => {
-    //                     //     const newPositions = { ...prev }
-    //                     //     newPositions.activities = {
-    //                     //         activityId: null,
-    //                     //         scrollPos: window.scrollY
-    //                     //     }
-    //                     //     return newPositions
-    //                     // })
-    //                     console.log('el settled')
-    //                     break;
-    //                 }
-    //             }
-    //         },
-    //         {
-    //             root: null,
-    //             threshold: 1
-    //         }
-    //     );
-
-    //     // Наблюдаем за всеми элементами
-    //     document.querySelectorAll('[data-activity-id]').forEach(el => {
-    //         observer.observe(el);
-    //     });
-
-    //     return () => observer.disconnect();
-    // }, [displayedOtherActivities, isPagesForAutoScrollNeededLoaded, otherExpand, scrollLoad, scrollPos, setScrollPos]);
-
-    const scrollToItem = useCallback((element) => {
-
-        setTimeout(() => {
-            // const element = document.getElementById(itemId);
-            if (element) {
-                console.log('element found', element)
-                element.scrollIntoView({
-                    behavior: 'auto',
-                    block: 'start'
-                });
-            }
-        }, 0)
-
-    }, []);
 
     useLayoutEffect(() => {
         const targetElement = document.getElementById(scrollPos.activities.activityId);
@@ -450,7 +379,7 @@ const Activities = () => {
                         {filteredPlannedEvents.map((activity, index) => (
                             <div key={index}
                                 className={styles.dataGridContainer}
-                                onClick={() => handleSelectActivity(activity)}
+                                
                             >
                                 <div
                                     className={styles.companyPlanDate}
@@ -466,8 +395,11 @@ const Activities = () => {
                                     }).format(new Date(activity.plan)) + ` ${activity.planTime}`}
                                 </div>
                                 <div className={styles.companyInfo}>
-                                    <div className={styles.nameAndIcon}>
+                                    <div className={styles.nameAndIcon}
+                                    
+                                    >
                                         <div
+                                            onClick={() => handleSelectActivity(activity)}
                                             className={styles.companyName}
                                         >
                                             {activity.companyName}
@@ -477,7 +409,7 @@ const Activities = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <IconsLine activity={activity} />
+                                        <ActivityPropertiesToolTip activity={activity} />
                                     </div>
                                 </div>
                                 <div
@@ -496,7 +428,9 @@ const Activities = () => {
                                         fontSize: '0.7rem'
                                     }}
                                 >
-                                    {activity.description}
+                                    <DescriptionToolTip
+                                        description={activity.description}
+                                    ></DescriptionToolTip>
                                 </div>
                             </div>
                         ))}
@@ -555,7 +489,7 @@ const Activities = () => {
                                         year: 'numeric',
                                         hour: 'numeric',
                                         minute: 'numeric'
-                                    }).format(new Date(activity.endDatetime))} {activity.id}
+                                    }).format(new Date(activity.endDatetime))}
                                 </div>
 
                                 <div className={styles.companyInfo}>
@@ -568,7 +502,7 @@ const Activities = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <IconsLine activity={activity} />
+                                        <ActivityPropertiesToolTip activity={activity} />
                                     </div>
                                 </div>
                                 <div
@@ -587,7 +521,9 @@ const Activities = () => {
                                         fontSize: '0.7rem'
                                     }}
                                 >
-                                    {activity.description}
+                                    <DescriptionToolTip
+                                        description={activity.description}
+                                    ></DescriptionToolTip>
                                 </div>
                             </div>
                         ))}

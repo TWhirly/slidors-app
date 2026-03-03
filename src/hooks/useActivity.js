@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNotification } from '../components/notifications/NotificationContext.jsx';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { DataContext } from '../DataContext.jsx'
+
+
 
 export const useActivity = (chat_id) => {
 
+  const notificated = useRef(false)
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const { name, email, dev } = useContext(DataContext);
@@ -33,8 +36,8 @@ export const useActivity = (chat_id) => {
       }
     );
     const sortedActivity = transformActivitySort(response.data);
-    // console.log('sortedActivity', sortedActivity);
-    checkScheduled()
+    console.log('notificated', notificated);
+    // checkScheduled()
     return (sortedActivity);
   };
 
@@ -104,7 +107,7 @@ export const useActivity = (chat_id) => {
     queryKey: ['activity'],
     queryFn: fetchActivity,
     staleTime: 1000 * 60 * 60,
-    refetchInterval: 1000 * 60 * 15,
+    refetchInterval: 1000 * 60 * 1,
     refetchIntervalInBackground: true
   });
 
@@ -175,9 +178,14 @@ export const useActivity = (chat_id) => {
     }
   });
 
+ 
+
 
 
   const checkScheduled = useCallback(() => {
+    console.log(isSuccess)
+    if (isFetching) return
+    if(notificated.current) return
     if(!isSuccess) return
       console.log('schedule func')
       const nearTimePlanned = activity?.planned
@@ -188,7 +196,7 @@ export const useActivity = (chat_id) => {
             const tA = a.planTime.split(':');
             timeMs = tA[0] * 60 * 60 * 1000 + tA[1] * 60 * 1000 + tA[2] * 1000
           } else {
-            timeMs = 0
+            timeMs = 1000 * 60 * 60 * 11
           }
           
           const dateMs = +(new Date(a.plan))
@@ -197,10 +205,19 @@ export const useActivity = (chat_id) => {
           return (nowMs + notificationInterval > timeMs + dateMs && nowMs < timeMs + dateMs)
         })
       if (nearTimePlanned.length > 0)
-        console.log(nearTimePlanned)
-        showNotification(`${nearTimePlanned[0].purpose} "${nearTimePlanned[0].companyName}" в ${nearTimePlanned[0].planTime.slice(0, 5)}`, {}, true);
-    
-  }, [activity?.planned, isSuccess, nameMail, notificationInterval, showNotification])
+        {
+          const scheduleTime = nearTimePlanned[0].planTime === '' ? 'сегодня' : `в ${nearTimePlanned[0].planTime.slice(0, 5)}`
+        showNotification(`${nearTimePlanned[0]?.purpose ?? ""} "${nearTimePlanned[0]?.companyName?? ""}" ${scheduleTime}`, {}, true);
+        notificated.current = true
+      }
+  }, [activity?.planned, isFetching, isSuccess, nameMail, notificationInterval, showNotification])
+
+  useEffect(() => {
+    if (isFetching) return
+    if(notificated.current) return
+    if(!isSuccess) return
+    checkScheduled()
+  }, [checkScheduled, isFetching, isSuccess])
 
   const getMoscowTimeMs = () => {
   const now = new Date();

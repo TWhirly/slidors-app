@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useLayoutEffect, useCallback } from 'react';
-import { useLocation, useNavigate  } from "react-router-dom";
+import {  useNavigate  } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
 import styles from './Companies.module.css';
@@ -18,14 +18,13 @@ const filterActiveIcon = require('../../icons/filterActive.png')
 
 const Companies = () => {
 
-    const { email, regions: contextRegions, lastVisibleCompanyId, scrollPos, setScrollPos, from, setFrom } = useContext(DataContext);
+    const { email, regions: contextRegions, lastVisibleCompanyId, scrollPos, setScrollPos, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const { tg, chat_id } = useTelegram()
     const firstVisibleId = useRef(null);
     const containerRef = useRef(null);
 
-    console.log('scroll pos in companies', window.scrollY)
 
     useEffect(() => {
         firstVisibleId.current = lastVisibleCompanyId
@@ -137,7 +136,6 @@ const Companies = () => {
         tg.BackButton.onClick(backButton);
         return () => {
             tg.BackButton.offClick(backButton);
-            console.log('return')
         };
     }, [backButton, navigate, setScrollPos, tg]);
 

@@ -1,12 +1,8 @@
-import axios from 'axios';
-import { TextField } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import React, { useState, useEffect, useContext, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import styles from '../Companies/CompanyEditForm.module.css';
 import BasicSelect from '../Companies/Select.jsx'
-import Skeleton from '@mui/material/Skeleton';
 import { DataContext } from '../../DataContext.jsx';
 import { useNotification } from '../notifications/NotificationContext.jsx';
 import { useRegions } from '../../hooks/useRegions.js';
@@ -14,24 +10,19 @@ import { useActivity } from '../../hooks/useActivity.js';
 import { useContacts } from '../../hooks/useContacts.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTelegram } from '../../hooks/useTelegram.js';
-import { useEmail } from '../../hooks/useEmail.js';
-import { debounce, set } from 'lodash';
 import { answers, checkIfInArray, checkIfRequireFieldsFilled } from './activity.js';
-import { getContactIcons } from '../Companies/Companies-helpers.js'
 import CompanyContacts from '../Companies/CompanyContacts.jsx'
-import CompanyMainContacts from '../Companies/CompanyMainContacts.jsx';
 import LongMenu from '../Companies/CompanyDetailMenu.jsx'
 
 const ActivityEditForm = () => {
-    const { state: activity, path } = useLocation();
+    const { state: activity } = useLocation();
     // const { state: { companyId: id, path: returnPath = '/companies' } } = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity, companyWhatsapp: '', companyTelegram: '' });
     const {tg , chat_id} = useTelegram()
-    const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
-    const { regions: contextRegions, statuses,
+    const { regions: contextRegions, 
         activityTypes,
         activityPurposes, namesEmails, from, setFrom } = useContext(DataContext);
     const [regions, setRegions] = useState([]);
@@ -44,9 +35,9 @@ const ActivityEditForm = () => {
     const [contacts, setContacts] = useState([])
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
-    const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
+    const { optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
     const id = activity.id;
-    const { contacts: allContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
+    const { contacts: allContacts } = useContacts(chat_id)
     const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');
     const [header, setHeader] = useState('');
     const [toSubscribe, setToSubscribe] = useState(false)
@@ -163,12 +154,6 @@ const ActivityEditForm = () => {
             setContacts(companyContacts)
         }
     }, [allContacts, formData.companyId]);
-
-    useEffect(() => {
-         // console.log('effect 3')
-        const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
-        setHasChanged(hasChanged);
-    }, [formData, activity]);
 
     useEffect(() => {
         // console.log('effect 5')

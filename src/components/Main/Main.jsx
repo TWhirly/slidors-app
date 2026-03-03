@@ -10,26 +10,22 @@ import { useEmail } from '../../hooks/useEmail.js';
 import styles from './Main.module.css';
 
 export default function PersistentDrawerLeft() {
-  const { chat_id , tg , initData} = useTelegram()
-  const { name, loading, setFrom, scrollPos } = useContext(DataContext);
+  const { chat_id , tg } = useTelegram()
+  const { name, loading } = useContext(DataContext);
   const navigate = useNavigate();
   const { 
       isLoading: isCompaniesLoading
     } = useRegions(chat_id);
-    console.log(scrollPos)
-    // const isContactsLoading = false
-    // const isActivityLoading = false
+    console.log('03 03 2026 3')
 
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
   const { isContactsMailsLoading } = useEmail(chat_id)
 
-  // setFrom('/')
- 
     const initializeBackButton = () => {
       if (!tg) return;
 
-      tg.ready(); // Ensure Telegram WebApp is fully initialized
+      tg.ready();
       tg.BackButton.hide();
     };
 

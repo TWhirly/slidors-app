@@ -7,7 +7,7 @@ const DescriptionToolTip = ({ description }) => {
                 style={{
                     disply: 'flexBox',
                     zIndex: 100,
-
+                    padding: '10px',
                     color: 'white',
                     fontSize: '1rem',
                     backgroundColor: '#131313'

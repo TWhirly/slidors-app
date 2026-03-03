@@ -4,9 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { CircularProgress } from '@mui/material';
 import styles from './Contacts.module.css';
 import { YellowStarIcon } from '../../icons/SVG';
-import Avatar from '@mui/material/Avatar';
-import AvatarGroup from '@mui/material/AvatarGroup';
-import { avatar, avatarGroup } from '../Companies/sx.js';
 import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
@@ -20,7 +17,6 @@ const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
     const { email, chat_id, scrollPos, setScrollPos, setFrom } = useContext(DataContext);
     const navigate = useNavigate();
-    const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
     const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
