@@ -2,10 +2,7 @@ import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTelegram } from './hooks/useTelegram';
 
-import { set } from 'lodash';
-
 export const DataContext = createContext();
-
 export const DataProvider = ({ children }) => {
 
     const [regions, setRegions] = useState([]);
@@ -66,7 +63,6 @@ export const DataProvider = ({ children }) => {
         fetchNames();
 
         const fetchTypesAndStatuses = async () => {
-            // console.log('fetchTypesAndStatuses');
             const params = {
                 chatID: chat_id,
                 api: 'getTypesAndStatuses'
@@ -79,7 +75,6 @@ export const DataProvider = ({ children }) => {
                         headers: { 'Content-Type': dev ? 'application/json' : 'text/plain' }
                     }
                 );
-                // console.log('TS response', response.data);
                 setTypes(response.data.types || []);
                 setStatuses(response.data.statuses || []);
                 setTitles(response.data.titles || []);
@@ -100,7 +95,6 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    // console.log('name in data context', name)
     return (
         <DataContext.Provider value={{
             loading,

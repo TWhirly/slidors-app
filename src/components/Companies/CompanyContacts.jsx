@@ -59,6 +59,7 @@ const CompanyСontacts = (props) => {
                             <div style={contactContainerStyle}>
                                 <div style={contactNameStyle}>{`${contact.fullName || getContactFullNmae(contact)}`}</div>
                                 {props.activity && <input
+                                key={contact.id}
                                 id={contact.id}
                                     type="checkbox"
                                     checked={props.selectedContactId === contact.id}

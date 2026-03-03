@@ -5,6 +5,8 @@ import { avatar, avatarGroup} from './sx'
 
 const AvatarGroupWithTooltip = ({selectedRegion, contextRegions}) => {
     const avatarGroupStyle = avatarGroup();
+    
+    console.log('r users', contextRegions)
     return(
       <ClickTooltip
                     content={
@@ -23,9 +25,9 @@ const AvatarGroupWithTooltip = ({selectedRegion, contextRegions}) => {
                         >
                             {selectedRegion ? contextRegions
                                 .filter((item) => item.region === selectedRegion)[0]
-                                ?.regionUsers?.map((user) => (
+                                ?.regionUsers?.map((user, i) => (
                                     <div
-                                        key={user.name}
+                                        key={i}
                                         style={{
                                             display: 'flex',
                                             flexDirection: 'row',
@@ -55,9 +57,9 @@ const AvatarGroupWithTooltip = ({selectedRegion, contextRegions}) => {
                     >
                         {selectedRegion ? contextRegions
                             .filter((item) => item.region === selectedRegion)[0]
-                            ?.regionUsers?.map((user) => (
+                            ?.regionUsers?.map((user, i) => (
                                 <Avatar
-                                    key={user.name}
+                                    key={i}
                                     sx={avatar(user.name)}
                                     alt={user.name}
                                     src={user.avatar}
