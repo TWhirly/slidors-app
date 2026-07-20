@@ -3,7 +3,7 @@ import { YellowStarIcon } from '../../icons/SVG';
 import { v4 as uuidv4 } from 'uuid';
 
 const tg = window.Telegram.WebApp;
-const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@dev/src/icons/whatsapp.png'
+const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-call.png'
 const whatsappIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@dev/src/icons/whatsapp.png'
 const telegramIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@dev/src/icons/telegram.png'
 
