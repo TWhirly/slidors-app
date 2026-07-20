@@ -58,7 +58,6 @@ export default function PersistentDrawerLeft() {
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
 
-  // if(!isActivityLoading)
     console.log('name', name);
 
   return (
