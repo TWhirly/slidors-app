@@ -34,14 +34,14 @@ const CompanyСontacts = (props) => {
     useEffect(() => {
         if (allContacts) {
             const contacts = allContacts
-            .filter(contact => contact.companyId === props.id)
+                .filter(contact => contact.companyId === props.id)
             setContacts(contacts)
         }
     }, [props.id, allContacts]);
     // console.log('main contacts', contacts)
 
     return (
-        <div style={props.activity ? { marginTop: '-10px', marginLeft: '20px' } : {width: '100%'}} >
+        <div style={props.activity ? { marginTop: '-10px', marginLeft: '20px' } : { width: '100%' }} >
             <div className={styles.companyRowInfo}>
                 <div className={styles.companyRowHeader}>
                     Контакты</div>{contacts && contacts?.length > 0 && <div className={styles.companyRowHeader}>{contacts?.length > 0 ? `\u00A0(${contacts?.length}):` : ':'}</div>}
@@ -58,15 +58,17 @@ const CompanyСontacts = (props) => {
                         <div key={index} className={!props.activity ? styles.contactPerson : styles.activityContactPerson} onClick={props.activity ? () => { return } : () => props.onClick(contact)}>
                             <div style={contactContainerStyle}>
                                 <div style={contactNameStyle}>{`${contact.fullName || getContactFullNmae(contact)}`}</div>
-                                {props.activity && <input
-                                key={contact.id}
-                                id={contact.id}
-                                    type="checkbox"
-                                    checked={props.selectedContactId === contact.id}
-            className={styles.contactCheckbox}
-            onChange={() => props.onChange(contact.id)}
-            onClick={(e) => e.stopPropagation()}
-                                />}
+                                {props.activity && props.onChange &&
+                                    <input
+                                        key={contact.id}
+                                        id={contact.id}
+                                        type="checkbox"
+                                        checked={props.selectedContactId === contact.id}
+                                        className={styles.contactCheckbox}
+                                        onChange={() => props.onChange(contact.id)}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                }
                             </div>
                             <div className={!props.activity ? styles.contactIcons : styles.contactActivityIcons}
                             >{getContactIcons(contact, props.activity)}

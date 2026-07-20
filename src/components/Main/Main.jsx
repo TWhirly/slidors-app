@@ -16,7 +16,7 @@ export default function PersistentDrawerLeft() {
   const { 
       isLoading: isCompaniesLoading
     } = useRegions(chat_id);
-    console.log('03 03 2026 3')
+    console.log('03 03 2026 4')
 
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading} = useActivity(chat_id);
@@ -36,6 +36,8 @@ export default function PersistentDrawerLeft() {
     switch (name) {
       case 'Компании':
         return !isCompaniesLoading;
+        case 'Подписки':
+        return !isCompaniesLoading;
         case 'Контакты':
         return !isContactsLoading;
         case 'События':
@@ -51,6 +53,7 @@ export default function PersistentDrawerLeft() {
     { name: 'Компании', path: '/companies', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Контакты', path: '/contacts', icon: require('../../icons/menu-items-logo.png') },
     { name: 'События', path: '/activities', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Подписки', path: '/subscribes', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },

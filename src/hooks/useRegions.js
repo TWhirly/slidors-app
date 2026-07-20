@@ -141,7 +141,7 @@ export const useRegions = (chat_id) => {
     queryFn: fetchRegions,
     select: (data) => { return data },
     refetchIntervalInBackground: true,
-    staleTime: 1000 * 60 * 60,
+    // staleTime: 1000 * 60 * 60,
     refetchInterval: 1000 * 60 * 15,
   });
 
