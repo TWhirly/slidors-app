@@ -23,7 +23,7 @@ const CompanyDetails = () => {
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
   const [contactMails, setCompanyMails] = useState([]);
   const {tg , chat_id} = useTelegram()
-  const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
+  const emailIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/email-96.png'
   const { emails, isContactsMailsLoading } = useEmail(chat_id);
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity } = useActivity(chat_id)
@@ -144,6 +144,7 @@ const CompanyDetails = () => {
 
         <CompanyMainContacts
           company={company}
+          showChecks={true}
         >
         </CompanyMainContacts>
 

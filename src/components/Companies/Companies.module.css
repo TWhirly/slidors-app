@@ -195,6 +195,7 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
+    justify-content: space-between;
 }
 
 .plannedHeader{
@@ -448,4 +449,67 @@
     margin-top: auto;
     margin-bottom: auto;
     /* margin-right: 10px; */
+}
+
+/* Добавьте в конец файла */
+
+.subscribesContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+    padding-right: 8px;
+}
+
+.subscribeItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.subscribeIcon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+.subscribeCheckbox {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #718096;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #1a202c;
+    flex-shrink: 0;
+}
+
+.subscribeCheckbox:checked {
+    background: #008ad1;
+    border-color: #008ad1;
+}
+
+.subscribeCheckbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.subscribeCheckbox:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.subscribeCheckbox:not(:disabled):hover {
+    border-color: #008ad1;
 }

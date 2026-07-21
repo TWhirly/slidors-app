@@ -47,7 +47,7 @@ export const useCompanyUpdate = (chat_id) => {
       );
     }
   });
-  navigateRef.current(`/companies/`)
+  // navigateRef.current(`/companies/`)
   return(() => {})
   // await queryClient.invalidateQueries({ queryKey: ['regions'] })
   },[saving]);

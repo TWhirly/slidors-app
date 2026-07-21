@@ -23,7 +23,7 @@ export default function PersistentDrawerLeft() {
 
   const { isLoading : isContactsLoading} = useContacts(chat_id);
   const { isLoading : isActivityLoading , activity} = useActivity(chat_id);
-  console.log('initdata', initData)
+  // console.log('initdata', initData)
 
  
     const initializeBackButton = () => {
@@ -53,12 +53,13 @@ export default function PersistentDrawerLeft() {
     { name: 'Компании', path: '/companies', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Контакты', path: '/contacts', icon: require('../../icons/menu-items-logo.png') },
     { name: 'События', path: '/activities', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Подписки', path: '/subscribes', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
   ];
 
-    console.log('name', name);
+    // console.log('name', name);
 
   return (
     <div className={styles.container}>

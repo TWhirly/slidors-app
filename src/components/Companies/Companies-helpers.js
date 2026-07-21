@@ -180,6 +180,8 @@ export const mainContactsIcons = {
     phoneIcon:  'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96-1.png',
     whatsappIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/whatsapp-96.png',
     telegramIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/telegram-96.png',
+    emailIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/email-96.png',
+    maxIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/MAX-96.png'
 }
 
 export const initBackButton = (company, navigate, id) => {

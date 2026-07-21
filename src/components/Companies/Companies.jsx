@@ -63,7 +63,7 @@ const Companies = () => {
     error 
   } = useRegions(chat_id);
 
-console.log('companiez', companies)
+// console.log('companiez', companies)
 
     const {
         filters,

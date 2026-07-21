@@ -1,49 +1,41 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
-import { useQuery , useQueryClient} from '@tanstack/react-query';
 import { DataContext } from '../../DataContext.jsx';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
-import axios from 'axios';
 import { useEmail } from '../../hooks/useEmail';
 import { YellowStarIcon } from '../../icons/SVG.js'; // Import necessary icons
 import LongMenu from './CompanyDetailMenu';
-import { useNotification } from '../notifications/NotificationContext.jsx';
-import { replace } from 'lodash';
 import { useContacts } from '../../hooks/useContacts';
 import { useActivity } from '../../hooks/useActivity.js';
+import { mainContactsIcons } from '../Companies/Companies-helpers.js';
 
 function ContactDetails() {
 
-  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
-  const { state: {contactId: id ,  path = '/contacts' , activityId } } = useLocation();
+  const { state: { contactId: id, path = '/contacts', activityId } } = useLocation();
   const [contact, setContact] = useState({});
   const [contactActivity, setContactActivity] = useState([])
-  const [loadingMail, setLoadingMail] = useState(true);
   const [expanded, setExpanded] = useState(false);
-  const [menuSelection, setMenuSelection] = useState(null);
   const [contactMails, setcontactMails] = useState([])
   const tg = window.Telegram.WebApp;
   // const params = new URLSearchParams(window.Telegram.WebApp.initData);
-  const {  chat_id } = useContext(DataContext);
-  const phoneIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a'
-  const whatsappIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197'
-  const telegramIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
-  const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
-  const phoneHandledIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone-handle.png?alt=media&token=e754ec6a-8384-4e5b-9a62-e3c20a37bd27'
-  const educatedIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Feducated.png?alt=media&token=7144be3f-148b-4ab3-8f31-cd876467bf61'
-  
-  const { emails, isContactsMailsLoading, error } = useEmail(null, id);
-  const {activity, isLoading: isActivityLoading} = useActivity(chat_id)
+  const { chat_id } = useContext(DataContext);
+  const phoneIcon = mainContactsIcons.phoneIcon
+  const whatsappIcon = mainContactsIcons.whatsappIcon
+  const telegramIcon = mainContactsIcons.telegramIcon
+  const emailIcon = mainContactsIcons.emailIcon
+
+  const { emails, isContactsMailsLoading } = useEmail(null, id);
+  const { activity, isLoading: isActivityLoading } = useActivity(chat_id)
   tg.BackButton.isVisible = true
   console.log('id', id);
   const { contacts } = useContacts(chat_id)
   console.log('ActivityID', activity);
 
   useEffect(() => {
-    if(!emails)
+    if (!emails)
       return
     console.log('emails', emails)
     const mails = emails.filter(item => item.contact === id)
@@ -51,7 +43,7 @@ function ContactDetails() {
   }, [emails, id])
 
   useEffect(() => {
-    if(contacts){
+    if (contacts) {
       const contact = contacts.find((contact) => contact.id === id);
       if (contact) {
         setContact(contact);
@@ -60,22 +52,12 @@ function ContactDetails() {
   }, [contacts, id]);
 
   useEffect(() => {
-    if(activity && !isActivityLoading){
+    if (activity && !isActivityLoading) {
       console.log('contact activity', activity)
       const contactActivity = activity.other.filter(a => a.contactId === id);
-    setContactActivity(contactActivity)
+      setContactActivity(contactActivity)
     }
   }, [activity, id, isActivityLoading])
-  
-
-  // console.log('contactMails from queryData',  queryClient.getQueryData(['emails', null, id, false]))
-  // console.log('contactMails', contactMails);
-
-  
-
-  
-
-  
 
   useEffect(() => {
     const initializeBackButton = () => {
@@ -84,8 +66,8 @@ function ContactDetails() {
       tg.ready(); // Ensure Telegram WebApp is fully initialized
       tg.BackButton.isVisible = true;
       tg.BackButton.show();
-     tg.BackButton.onClick(() => navigate(path || '/contacts/', 
-        {state: {companyId : contact.companyId, contactId: contact.id, activityId}}));
+      tg.BackButton.onClick(() => navigate(path || '/contacts/',
+        { state: { companyId: contact.companyId, contactId: contact.id, activityId } }));
     };
 
     initializeBackButton();
@@ -95,15 +77,15 @@ function ContactDetails() {
     };
   }, [activityId, contact.companyId, contact.id, navigate, path, tg]);
 
-  // console.log('company', company);
-
   const handleMenuSelection = (selectedOption) => {
     if (selectedOption === 'Редактировать') {
       navigate(`/contacts/${contact.id}/edit`, {
-            state: {...contact,
-            path: `/contacts/${id}`, prevComponent : contact, new: false, contactId: contact.id},
-            
-        });
+        state: {
+          ...contact,
+          path: `/contacts/${id}`, prevComponent: contact, new: false, contactId: contact.id
+        },
+
+      });
     }
   };
 
@@ -119,34 +101,16 @@ function ContactDetails() {
   };
 
 
-  const formatUrl = (url) => {
-    if (!url) return '';
-
-    // Убираем пробелы
-    let formattedUrl = url.trim();
-
-    // Проверяем наличие протокола
-    if (!formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
-      formattedUrl = 'https://' + formattedUrl;
+  const getContactFullNmae = (contact) => {
+    const fullName = (contact.lastName ? contact.lastName + ' ' : '') +
+      (contact.firstName ? contact.firstName + ' ' : '') +
+      (contact.surname ? contact.surname + ' ' : '')
+    if (fullName === '') {
+      return contact.companyName
     }
-
-    return formattedUrl;
+    return fullName
   };
 
- 
-
-  const getContactFullNmae = (contact) => {
-        const fullName = (contact.lastName ? contact.lastName + ' ' : '') + 
-                    (contact.firstName ? contact.firstName + ' ' : '') + 
-                    (contact.surname ? contact.surname + ' ' : '')
-                    if (fullName === '') {
-                        return contact.companyName}
-                        return fullName
-    };
-
-
-
- 
 
   console.log('contactActivity', contactActivity)
 
@@ -159,7 +123,7 @@ function ContactDetails() {
       <div className={styles.naviPanel}>
         <span className={styles.nameAndIcon}>
           {getContactFullNmae(contact)}{contact.snv !== '' && <YellowStarIcon className={styles.factoryIcon} />}
-         
+
         </span>
         <LongMenu
           onSelect={handleMenuSelection}
@@ -168,18 +132,18 @@ function ContactDetails() {
       <div className={styles.CompanyDetails}>
         <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Компания:</div>{contact.companyName}</div>
         {contact.lastName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Фамилия:</div>{contact.lastName}</div>
+          <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Фамилия:</div>{contact.lastName}</div>
         }
         {contact.firstName &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Имя:</div>{contact.firstName}</div>
+          <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Имя:</div>{contact.firstName}</div>
         }
         {contact.surname &&
           <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Отчество:</div>{contact.surname}</div>
         }
         {contact.title &&
-        <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Должность:</div>{contact.title}</div>
+          <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Должность:</div>{contact.title}</div>
         }
-        
+
         {contact.phone1 && (
           <div
             className={styles.companyMainContacts}
@@ -204,7 +168,7 @@ function ContactDetails() {
           >
             <img src={whatsappIcon} className={styles.contactPhone} alt="WhatsApp icon" />
             <div className={styles.companyRowVal}>{contact.whatsapp}</div>
-           
+
           </div>
 
 
@@ -216,16 +180,16 @@ function ContactDetails() {
           >
             <img src={telegramIcon} className={styles.contactPhone} alt="Phone icon" />
             <div className={styles.companyRowVal}>{contact.telegram}</div>
-           
+
           </div>)}
-        
-        
+
+
         <div className={styles.contactsMails}>
           <div className={styles.companyRowInfo} id='mail'>
-          <div className={styles.companyRowHeader}>
-            
-            Адреса электронной почты
-          </div>
+            <div className={styles.companyRowHeader}>
+
+              Адреса электронной почты
+            </div>
           </div>
           {
             !isContactsMailsLoading ? (
@@ -250,13 +214,13 @@ function ContactDetails() {
             )
           }
         </div>
-        
+
         <div className={styles.contactsMails}>
           <div className={styles.companyRowInfo}>
-          <div className={styles.companyRowHeader}>
-            События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
-            {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
-          </div>
+            <div className={styles.companyRowHeader}>
+              События {contactActivity?.length > 0 ? `(${contactActivity?.length}):` : ''}
+              {contactActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setExpanded(!expanded)}>{expanded ? '▲' : '▼'}</div>}
+            </div>
           </div>
           {
             !isActivityLoading ? (
@@ -268,9 +232,9 @@ function ContactDetails() {
                         {activity.startDatetime ? new Date(activity.startDatetime).toLocaleDateString() + ' ' : ''}
                         {activity.purpose}
                       </div>
-                       <div>
-                           {activity.description}
-                        </div>
+                      <div>
+                        {activity.description}
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -288,7 +252,7 @@ function ContactDetails() {
             )
           }
         </div>
-        
+
         {contact.note && (
           <div className={styles.companyDescriptionRowInfo}>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Примечание:</div></div>

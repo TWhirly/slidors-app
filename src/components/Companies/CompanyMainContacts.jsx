@@ -2,10 +2,11 @@ import styles from './CompanyDetails.module.css';
 import { mainContactsIcons , formatNumber } from './Companies-helpers.js'
 
 const CompanyMainContacts = (props) => {
-
+    console.log('props', props)
     const tg = window.Telegram.WebApp;
     const company = props.company;
-
+    const showChecks = props.showChecks || true;
+    
     console.log('company main contacts', company)
 
     return (
@@ -40,7 +41,7 @@ const CompanyMainContacts = (props) => {
                            {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
                     </div>
                     <div>
-                      {company.wa !== 0 && (
+                      {company.wa !== 0 && props.showChecks &&(
                         <img
                           src={require('../../icons/checkedRed.png')}
                           alt="переработчик"
@@ -63,7 +64,7 @@ const CompanyMainContacts = (props) => {
                         {props.activity && (<div className={styles.companyRowVal}>{company.fullName}</div>)}
                     </div>
                     <div>
-                      {company.tg !== 0 && (
+                      {company.tg !== 0 && (props.showChecks) &&(
                         <img
                           src={require('../../icons/checkedRed.png')}
                           alt="переработчик"

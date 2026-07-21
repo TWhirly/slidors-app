@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 
 export const useContactFilters = (contacts) => {
-  console.log('contacts hook', contacts)
-  console.log('local storage contact filters', localStorage.getItem('contactFilters'))
+  // console.log('contacts hook', contacts)
+  // console.log('local storage contact filters', localStorage.getItem('contactFilters'))
   const [filters, setFilters] = useState(localStorage.getItem('contactFilters') ? JSON.parse(localStorage.getItem('contactFilters')) : {
     snv: false,
     company: '',

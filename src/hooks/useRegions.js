@@ -52,7 +52,10 @@ export const useRegions = (chat_id) => {
           url: company.url,
           logo: company.logo,
           firm: company.firm,
-          turnover: +company.turnover || 0
+          turnover: +company.turnover || 0,
+          wa_subscribe: !!company.wa_subscribe, 
+          tg_subscribe: !!company.tg_subscribe,
+          max_subscribe: !!company.max_subscribe
       });
     });
 

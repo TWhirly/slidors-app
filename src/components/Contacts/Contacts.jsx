@@ -24,11 +24,9 @@ const Contacts = () => {
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
     const [regionsWithCompanies, setRegionsWithConatcts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const phoneIcon = mainContactsIcons.phoneIcon
     const whatsappIcon = mainContactsIcons.whatsappIcon
     const telegramIcon = mainContactsIcons.telegramIcon
-    const emailIcon = 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fmail.png?alt=media&token=983b34be-ca52-4b77-9577-ff4c5b26806c'
     const { contacts, transformToRegionsWithContacts, isLoading, error } = useContacts(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
@@ -74,14 +72,7 @@ const Contacts = () => {
 
 
     const tg = window.Telegram.WebApp;
-    // const params = new URLSearchParams(window.Telegram.WebApp.initData);
-    // const user = JSON.parse(params.get('user'));
-    // const chat_id = user.id;
-
-    // tg.BackButton.show();
-    // console.log(email, 'email');
-
-
+   
     useEffect(() => {
         console.log('savedSelectedRegion')
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
@@ -90,12 +81,6 @@ const Contacts = () => {
             setSelectedRegion(savedSelectedRegion); // Restore selected region
         }
     }, []);
-
-    // useEffect(() => {
-
-    // }, [selectedRegion]);
-
-    // Функция для получения регионов
 
     const handleRegionClick = async (regionId) => {
         // setLoadingRegion(regionId);
@@ -158,17 +143,12 @@ const Contacts = () => {
         return '7' + cleanNumber;
     };
 
-    // Обработка кнопки "назад" в Telegram
     useEffect(() => {
-        // const tg = window.Telegram?.WebApp;
-        // if (!tg) return;
-
         tg.BackButton.show();
         tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
 
         return () => {
             tg.BackButton.offClick();
-            //   tg.BackButton.hide(); // Опционально: скрыть кнопку при размонтировании
         };
     }, [navigate, tg.BackButton]);
 
