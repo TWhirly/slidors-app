@@ -3,7 +3,7 @@ import { YellowStarIcon } from '../../icons/SVG';
 import { v4 as uuidv4 } from 'uuid';
 
 const tg = window.Telegram.WebApp;
-const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96.png'
+const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96-1.png'
 const whatsappIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/whatsapp-96.png'
 const telegramIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/telegram-96.png'
 
@@ -177,7 +177,7 @@ export const formatNumber = (number) => {
 };
 
 export const mainContactsIcons = {
-    phoneIcon:  'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96.png',
+    phoneIcon:  'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96-1.png',
     whatsappIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/whatsapp-96.png',
     telegramIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/telegram-96.png',
 }
