@@ -3,9 +3,9 @@ import { YellowStarIcon } from '../../icons/SVG';
 import { v4 as uuidv4 } from 'uuid';
 
 const tg = window.Telegram.WebApp;
-const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-call-color.png'
-const whatsappIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@dev/src/icons/whatsapp.png'
-const telegramIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@dev/src/icons/telegram.png'
+const phoneIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96.png'
+const whatsappIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/whatsapp-96.png'
+const telegramIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/telegram-96.png'
 
 export const checkIcons = {
     red: require('../../icons/checkedRed.png'),
@@ -177,9 +177,9 @@ export const formatNumber = (number) => {
 };
 
 export const mainContactsIcons = {
-    phoneIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fphone.png?alt=media&token=67cd5388-7950-4ee2-b840-0d492f0fc03a',
-    whatsappIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Fwhatsapp.png?alt=media&token=b682eae2-d563-45e7-96ef-d68c272d6197',
-    telegramIcon: 'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2Ftelegram.png?alt=media&token=ab7b246a-3b04-41d7-bc8c-f34a31042b45'
+    phoneIcon:  'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/phone-96.png',
+    whatsappIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/whatsapp-96.png',
+    telegramIcon: 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/telegram-96.png',
 }
 
 export const initBackButton = (company, navigate, id) => {
