@@ -18,7 +18,7 @@ export const getCompanyTypeIcon = (type) => {
         case 'переработчик':
             return (
                 <img
-                    src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%9F%D0%B5%D1%80%D0%B5%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%87%D0%B8%D0%BA.png?alt=media&token=f4eb6919-adf9-40aa-9b72-a81212be7fba'}
+                    src={'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/recycler.png'}
                     alt="переработчик"
                     fill="#008ad1"
                     className={styles.factoryIcon}
@@ -27,7 +27,7 @@ export const getCompanyTypeIcon = (type) => {
         case 'дистрибьютор':
             return (
                 <img
-                    src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%8C%D1%8E%D1%82%D0%BE%D1%80.png?alt=media&token=89daba2b-628b-4abe-ad43-b6e49ebc2e65'}
+                    src={'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/distributor.png'}
                     alt="дистрибьютор"
                     fill="#008ad1"
                     className={styles.factoryIcon}
@@ -36,7 +36,7 @@ export const getCompanyTypeIcon = (type) => {
         case 'дилер':
             return (
                 <img
-                    src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%94%D0%B8%D0%BB%D0%B5%D1%80.png?alt=media&token=6b1f83ff-da70-4d7f-a191-eb391e8eeb35'}
+                    src={'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/dealer.png'}
                     alt="Дилер"
                     fill="#008ad1"
                     className={styles.factoryIcon}
@@ -45,7 +45,7 @@ export const getCompanyTypeIcon = (type) => {
         case 'смешанный':
             return (
                 <img
-                    src={'https://firebasestorage.googleapis.com/v0/b/gsr-v1.appspot.com/o/icons%2F%D0%A1%D0%BC%D0%B5%D1%88%D0%B0%D0%BD%D1%8B%D0%B9.png?alt=media&token=d41d243e-8ca4-474a-9b00-61bc25ce46af'}
+                    src={'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/mixed.png'}
                     alt="Смешанный"
                     fill="#008ad1"
                     className={styles.factoryIcon}
