@@ -55,6 +55,7 @@
     height: 2rem;
     padding: 0 0;
     margin-bottom: 0;
+    border: none;
     border-radius: 50%;
     background-color: var(--tg-theme-button-color);
     color: var(--tg-theme-button-text-color);
@@ -309,4 +310,11 @@
   cursor: pointer;
   transition: all 0.2s;
   background: #1a202c;
+}
+
+.statusSelectButton{
+    margin-right: 1rem;
+    display: flex;
+    
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition for hover effect */
 }

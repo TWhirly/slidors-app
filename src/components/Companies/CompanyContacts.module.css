@@ -180,3 +180,23 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+/* Добавьте в конец файла CompanyDetails.module.css */
+
+.menuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
+
+.statusDisplay {
+    font-size: 1.2rem;
+    line-height: 1;
+    min-width: 24px;
+    text-align: center;
+    cursor: pointer;
+    color: white;
+}

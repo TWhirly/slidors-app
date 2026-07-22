@@ -4,58 +4,61 @@ export const useCompanyFilters = (companies) => {
   // console.log('companies in hook', companies)
   // console.log('local storage company filters', localStorage.getItem('companyFilters'))
   const transformToRegionsWithCompanies = useCallback((regionRows) => {
-      if (!regionRows) return [];
-      
-      const companiesByRegion = {};
-      regionRows.forEach(company => {
-        if (!companiesByRegion[company.region]) {
-          companiesByRegion[company.region] = [];
-        }
-        companiesByRegion[company.region].push({
-          id: company.id,
-            name: company.name,
-            type: company.type,
-            status: company.status,
-            handled: company.handled,
-            wa: company.wa,
-            tg: company.tg,
-            city: company.city,
-            address: company.address,
-            region: company.region,
-            description: company.description,
-            phone1: company.phone1,
-            phone2: company.phone2,
-            manager: company.manager,
-            whatsapp: company.whatsapp,
-            telegram: company.telegram,
-            recyclers: company.recyclers,
-            tt: company.tt,
-            dealers: company.dealers,
-            url: company.url,
-            logo: company.logo,
-            firm: company.firm,
-            turnover: +company.turnover || 0
-        });
+    if (!regionRows) return [];
+
+    const companiesByRegion = {};
+    regionRows.forEach(company => {
+      if (!companiesByRegion[company.region]) {
+        companiesByRegion[company.region] = [];
+      }
+      companiesByRegion[company.region].push({
+        id: company.id,
+        name: company.name,
+        type: company.type,
+        status: company.status,
+        handled: company.handled,
+        wa: company.wa,
+        tg: company.tg,
+        city: company.city,
+        address: company.address,
+        region: company.region,
+        description: company.description,
+        phone1: company.phone1,
+        phone2: company.phone2,
+        manager: company.manager,
+        whatsapp: company.whatsapp,
+        telegram: company.telegram,
+        recyclers: company.recyclers,
+        tt: company.tt,
+        dealers: company.dealers,
+        url: company.url,
+        logo: company.logo,
+        firm: company.firm,
+        turnover: +company.turnover || 0,
+        wa_subscribe: company.wa_subscribe,
+        tg_subscribe: company.tg_subscribe,
+        max_subscribe: company.max_subscribe
       });
-  
-      return Object.entries(companiesByRegion).map(([region, companies]) => {
-        const sortedCompanies = companies.sort((a, b) => 
-          a.name.localeCompare(b.name)
-        );
-        
-        const regionTurnover = companies.reduce(
-          (sum, company) => sum + (Math.round(company.turnover)),
-          0
-        );
-  
-        return {
-          region,
-          companies: sortedCompanies,
-          company_count: companies.length,
-          regionTurnover
-        };
-      });
-    },[]);
+    });
+
+    return Object.entries(companiesByRegion).map(([region, companies]) => {
+      const sortedCompanies = companies.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      const regionTurnover = companies.reduce(
+        (sum, company) => sum + (Math.round(company.turnover)),
+        0
+      );
+
+      return {
+        region,
+        companies: sortedCompanies,
+        company_count: companies.length,
+        regionTurnover
+      };
+    });
+  }, []);
   const [filters, setFilters] = useState(localStorage.getItem('companyFilters') ? JSON.parse(localStorage.getItem('companyFilters')) : {
     name: '',
     type: [],
@@ -70,7 +73,7 @@ export const useCompanyFilters = (companies) => {
   const filteredCompanies = useMemo(() => {
     if (!companies || !filters) return [];
     const filteredFlatCompanies = companies.filter(company => {
-     
+
       if (filters.region.length > 0 &&
         !filters.region.includes(company.region)) {
         return false;
@@ -96,13 +99,13 @@ export const useCompanyFilters = (companies) => {
         return false;
       }
 
-      if (filters.handled?.includes('Проработан') && 
-        !company.handled ) {
+      if (filters.handled?.includes('Проработан') &&
+        !company.handled) {
         return false
       }
 
-      if (filters.handled?.includes('Не проработан') && 
-        company.handled ) {
+      if (filters.handled?.includes('Не проработан') &&
+        company.handled) {
         return false
       }
 
@@ -116,7 +119,7 @@ export const useCompanyFilters = (companies) => {
     return transformToRegionsWithCompanies(filteredFlatCompanies)
   }, [companies, filters, transformToRegionsWithCompanies]);
 
-  
+
   const avialableRegions = useMemo(() => {
     const set = new Set(companies.map(company => company.region));
     return Array.from(set)
@@ -149,7 +152,7 @@ export const useCompanyFilters = (companies) => {
   }, [companies]
   );
 
-   const avialableCities = useMemo(() => {
+  const avialableCities = useMemo(() => {
     const set = new Set(companies.map(company => company.city));
     return Array.from(set)
       .filter(city => city !== '')
@@ -159,27 +162,27 @@ export const useCompanyFilters = (companies) => {
 
   const regionCities = useMemo(() => {
     const obj = companies.reduce((acc, company) => {
-      if(company.city === '')
+      if (company.city === '')
         return acc
       if (!acc[company.region]) {
         acc[company.region] = [company.city]
+        return acc
+      }
+      if (!acc[company.region].includes(company.city)) {
+        acc[company.region].push(company.city)
+      }
       return acc
-    } 
-        if (!acc[company.region].includes(company.city)) {
-            acc[company.region].push(company.city)
-        }
-       return acc 
     }, {})
     return obj
   }, [companies])
 
-  const avialableHandle =  ['Проработан', 'Не проработан']
-  
+  const avialableHandle = ['Проработан', 'Не проработан']
+
 
   console.log('region cities in hook', regionCities)
 
-  
-  
+
+
   return {
     filters,
     setFilters,

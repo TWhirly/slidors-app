@@ -15,18 +15,41 @@ import { useCompanyUpdate } from '../../hooks/useCompanyUpdate.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
 import { checkIcons, getCompanyTypeIcon, mainContactsIcons, getEmptyCompany } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
+import SubsctibesDetailMenu from './SubsctibesDetailMenu.jsx';
 
 import CompanyMainСontacts from './CompanyMainContacts.jsx';
-const filterIcon = require('../../icons/filter.png')
-const filterActiveIcon = require('../../icons/filterActive.png')
+const filterIcon = require('../../icons/filter.png');
+const filterActiveIcon = require('../../icons/filterActive.png');
 
-// Заглушки для иконок мессенджеров (замените на свои пути)
-const whatsappIcon = '../../icons/whatsapp.png';
-const telegramIcon = '../../icons/telegram.png';
-const maxIcon = '../../icons/max.png';
+// Статусы подписки
+const SUBSCRIPTION_STATUSES = {
+    NOT_SUBSCRIBED: 'Не подписан',
+    SUBSCRIBED: 'Подписан',
+    LEAVE_GROUP: 'Вышел',
+    NOT_IN_MESSENGER: 'Нет в мессенджере',
+    INVITATION_SENT: 'Отправлено приглашение',
+     
+};
+
+// Эмодзи для статусов
+const STATUS_EMOJIS = {
+    [SUBSCRIPTION_STATUSES.NOT_SUBSCRIBED]: '🟨',
+    [SUBSCRIPTION_STATUSES.LEAVE_GROUP]: '🙅',
+    [SUBSCRIPTION_STATUSES.SUBSCRIBED]: '✅',
+    [SUBSCRIPTION_STATUSES.NOT_IN_MESSENGER]: '❌',
+    [SUBSCRIPTION_STATUSES.INVITATION_SENT]: '📨'
+};
+
+// Описания для подсказки
+const STATUS_TOOLTIP = [
+    { emoji: '🟨', label: 'Не подписан' },
+    { emoji: '✅', label: 'Подписан' },
+    { emoji: '🙅', label: 'Вышел' },
+    { emoji: '❌', label: 'Нет в мессенджере' },
+    { emoji: '📨', label: 'Отправлено приглашение' }
+];
 
 const Subscribes = () => {
-
     const { email, regions: contextRegions } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -36,13 +59,14 @@ const Subscribes = () => {
     const [companyHasContacts, setCompanyHasContacts] = useState(false);
     const [companySubscribes, setCompanySubscribes] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
+    const [showTooltip, setShowTooltip] = useState(false);
     const { tg, chat_id, showButton } = useTelegram();
     const { optimisticUpdateCompany, upload, saving } = useCompanyUpdate(chat_id);
     const uploadRef = useRef(upload);
     const formDataRef = useRef(null);
-    const maxIcon = mainContactsIcons.maxIcon
-    const whatsappIcon = mainContactsIcons.whatsappIcon
-    const telegramIcon = mainContactsIcons.telegramIcon
+    const maxIcon = mainContactsIcons.maxIcon;
+    const whatsappIcon = mainContactsIcons.whatsappIcon;
+    const telegramIcon = mainContactsIcons.telegramIcon;
 
     const id = location.state?.companyId || null;
 
@@ -66,12 +90,11 @@ const Subscribes = () => {
         console.log('Saving');
         const currentFormData = formDataRef.current;
         
-        // Добавляем данные о подписках в данные компании
         if (currentFormData && companySubscribes[currentFormData.id]) {
             const subscribes = companySubscribes[currentFormData.id];
-            currentFormData.wa_subscribe = subscribes.wa_subscribe || false;
-            currentFormData.tg_subscribe = subscribes.tg_subscribe || false;
-            currentFormData.max_subscribe = subscribes.max_subscribe || false;
+            currentFormData.wa_subscribe = subscribes.wa_subscribe || '';
+            currentFormData.tg_subscribe = subscribes.tg_subscribe || '';
+            currentFormData.max_subscribe = subscribes.max_subscribe || '';
         }
         
         try {
@@ -81,6 +104,7 @@ const Subscribes = () => {
             console.error('Save failed:', error);
         }
     }, [companySubscribes]);
+    console.log('comp subscr', companySubscribes)
 
     const scrollToSection = (sectionId, offset) => {
         const element = document.getElementById(sectionId);
@@ -166,7 +190,6 @@ const Subscribes = () => {
         setCompanyHasContacts(company.phone1?.length + company.phone2?.length + company.whatsapp?.length + company.telegram?.length > 0);
         
         if (selectedCompany === company.id) {
-            // Если компания сворачивается и есть изменения - сохраняем
             if (hasChanges) {
                 handleSave();
             }
@@ -174,13 +197,12 @@ const Subscribes = () => {
             return;
         }
         
-        // Инициализируем состояние подписок для компании
         setCompanySubscribes(prev => ({
             ...prev,
             [company.id]: {
-                wa_subscribe: company.wa_subscribe || false,
-                tg_subscribe: company.tg_subscribe || false,
-                max_subscribe: company.max_subscribe || false
+                wa_subscribe: company.wa_subscribe || '',
+                tg_subscribe: company.tg_subscribe || '',
+                max_subscribe: company.max_subscribe || ''
             }
         }));
         
@@ -206,7 +228,6 @@ const Subscribes = () => {
     };
 
     const collapseRegion = () => {
-        // Если есть изменения при сворачивании региона - сохраняем
         if (hasChanges && selectedCompany) {
             handleSave();
         }
@@ -219,43 +240,65 @@ const Subscribes = () => {
         navigate(`/companies/new/edit`, { state: emptyCompany });
     };
 
-    useEffect(() => {
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return;
-        tg.BackButton.onClick(() => {
-            // Сохраняем изменения перед уходом
-            if (hasChanges) {
-                handleSave();
-            }
-            navigate(('/'), { replace: true });
-        });
-        return () => {
-            tg.BackButton.offClick();
-        };
-    }, [navigate, hasChanges, handleSave]);
+    const handleTooltipToggle = () => {
+        setShowTooltip(!showTooltip);
+    };
 
-    // Сохраняем при сворачивании приложения или уходе со страницы
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden && hasChanges) {
-                handleSave();
-            }
-        };
+    const handleTooltipClose = () => {
+        setShowTooltip(false);
+    };
 
-        const handleBeforeUnload = () => {
-            if (hasChanges) {
-                handleSave();
-            }
-        };
+    // Получение эмодзи для статуса
+    const getStatusEmoji = (status) => {
+        return STATUS_EMOJIS[status] || '⬜';
+    };
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('beforeunload', handleBeforeUnload);
+    // useEffect(() => {
+    //     const tg = window.Telegram?.WebApp;
+    //     if (!tg) return;
+    //     tg.BackButton.onClick(() => {
+    //         if (hasChanges) {
+    //             handleSave();
+    //         }
+    //         navigate(('/'), { replace: true });
+    //     });
+    //     return () => {
+    //         tg.BackButton.offClick();
+    //     };
+    // }, [navigate, hasChanges, handleSave]);
 
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, [hasChanges, handleSave]);
+    // useEffect(() => {
+    //     const handleVisibilityChange = () => {
+    //         if (document.hidden && hasChanges) {
+    //             handleSave();
+    //         }
+    //     };
+
+    //     const handleBeforeUnload = () => {
+    //         if (hasChanges) {
+    //             handleSave();
+    //         }
+    //     };
+
+    //     const handleClickOutside = (e) => {
+    //         if (showTooltip) {
+    //             const tooltipElement = document.getElementById('tooltip-container');
+    //             if (tooltipElement && !tooltipElement.contains(e.target)) {
+    //                 setShowTooltip(false);
+    //             }
+    //         }
+    //     };
+
+    //     document.addEventListener('visibilitychange', handleVisibilityChange);
+    //     window.addEventListener('beforeunload', handleBeforeUnload);
+    //     document.addEventListener('click', handleClickOutside);
+
+    //     return () => {
+    //         document.removeEventListener('visibilitychange', handleVisibilityChange);
+    //         window.removeEventListener('beforeunload', handleBeforeUnload);
+    //         document.removeEventListener('click', handleClickOutside);
+    //     };
+    // }, [hasChanges, handleSave, showTooltip]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -285,7 +328,7 @@ const Subscribes = () => {
     }
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container} onClick={handleTooltipClose}>
             <div className={styles.naviPanel}>
                 <div className={selectedRegion ? styles.companyNamePanelExpanded : styles.companyNamePanel}
                     onClick={collapseRegion}>
@@ -310,18 +353,34 @@ const Subscribes = () => {
                     </div>
                 </div>
 
-                <IconButton
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddCompany();
-                    }}
-                    sx={{
-                        color: 'white',
-                        marginRight: '1rem'
-                    }}
-                >
-                    <AddIcon />
-                </IconButton>
+                {/* Кнопка подсказки вместо AddIcon */}
+                <div className={styles.tooltipWrapper} id="tooltip-container">
+                    <IconButton
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleTooltipToggle();
+                        }}
+                        sx={{
+                            color: 'white',
+                            marginRight: '1rem',
+                            fontSize: '1.5rem',
+                            padding: '0.3rem'
+                        }}
+                    >
+                        ?
+                    </IconButton>
+                    {showTooltip && (
+                        <div className={styles.tooltipContent}>
+                            {STATUS_TOOLTIP.map((item, index) => (
+                                <div key={index} className={styles.tooltipItem}>
+                                    <span className={styles.tooltipEmoji}>{item.emoji}</span>
+                                    <span className={styles.tooltipLabel}>— {item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 <AvatarGroup
                     max={5}
                     direction="row"
@@ -371,9 +430,9 @@ const Subscribes = () => {
                                         id={company.id}
                                     >
                                         <div className={styles.companyInfo}>
-                                            <div className={styles.nameAndIcon}>
+                                            <div className={styles.nameAndIcon}
+                                            onClick={() => handleCompanyClick(company)}>
                                                 <div
-                                                    onClick={() => handleCompanyClick(company)}
                                                     className={styles.companyName}
                                                 >
                                                     {company.name}
@@ -392,17 +451,22 @@ const Subscribes = () => {
                                                         alt="WhatsApp" 
                                                         className={styles.subscribeIcon}
                                                     />
-                                                    <input
-                                                        type="checkbox"
-                                                        className={styles.subscribeCheckbox}
-                                                        checked={companySubscribes[company.id]?.wa_subscribe || false}
-                                                        onChange={(e) => handleSubscribeChange(
-                                                            company.id, 
-                                                            'wa_subscribe', 
-                                                            e.target.checked
-                                                        )}
-                                                        disabled={selectedCompany !== company.id}
-                                                    />
+                                                    {selectedCompany === company.id ? (
+                                                        <SubsctibesDetailMenu
+                                                            onSelect={(value) => handleSubscribeChange(
+                                                                company.id,
+                                                                'wa_subscribe',
+                                                                value
+                                                            )}
+                                                            
+                                                            options={Object.values(SUBSCRIPTION_STATUSES)}
+                                                            currentValue={companySubscribes[company.id]?.wa_subscribe || ''}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.statusDisplay}>
+                                                            {getStatusEmoji(company?.wa_subscribe || '')}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Telegram */}
@@ -412,17 +476,21 @@ const Subscribes = () => {
                                                         alt="Telegram" 
                                                         className={styles.subscribeIcon}
                                                     />
-                                                    <input
-                                                        type="checkbox"
-                                                        className={styles.subscribeCheckbox}
-                                                        checked={companySubscribes[company.id]?.tg_subscribe || false}
-                                                        onChange={(e) => handleSubscribeChange(
-                                                            company.id, 
-                                                            'tg_subscribe', 
-                                                            e.target.checked
-                                                        )}
-                                                        disabled={selectedCompany !== company.id}
-                                                    />
+                                                    {selectedCompany === company.id ? (
+                                                        <SubsctibesDetailMenu
+                                                            onSelect={(value) => handleSubscribeChange(
+                                                                company.id,
+                                                                'tg_subscribe',
+                                                                value
+                                                            )}
+                                                            options={Object.values(SUBSCRIPTION_STATUSES)}
+                                                            currentValue={companySubscribes[company.id]?.tg_subscribe || ''}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.statusDisplay}>
+                                                            {getStatusEmoji(company?.tg_subscribe || '')}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Max */}
@@ -432,17 +500,21 @@ const Subscribes = () => {
                                                         alt="Max" 
                                                         className={styles.subscribeIcon}
                                                     />
-                                                    <input
-                                                        type="checkbox"
-                                                        className={styles.subscribeCheckbox}
-                                                        checked={companySubscribes[company.id]?.max_subscribe || false}
-                                                        onChange={(e) => handleSubscribeChange(
-                                                            company.id, 
-                                                            'max_subscribe', 
-                                                            e.target.checked
-                                                        )}
-                                                        disabled={selectedCompany !== company.id}
-                                                    />
+                                                    {selectedCompany === company.id ? (
+                                                        <SubsctibesDetailMenu
+                                                            onSelect={(value) => handleSubscribeChange(
+                                                                company.id,
+                                                                'max_subscribe',
+                                                                value
+                                                            )}
+                                                            options={Object.values(SUBSCRIPTION_STATUSES)}
+                                                            currentValue={companySubscribes[company.id]?.max_subscribe || ''}
+                                                        />
+                                                    ) : (
+                                                        <div className={styles.statusDisplay}>
+                                                            {getStatusEmoji(company?.max_subscribe || '')}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

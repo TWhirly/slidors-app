@@ -513,3 +513,80 @@
 .subscribeCheckbox:not(:disabled):hover {
     border-color: #008ad1;
 }
+
+/* Добавьте в конец файла */
+
+.subscribesContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+    padding-right: 8px;
+}
+
+.subscribeItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.subscribeIcon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+.statusDisplay {
+    font-size: 1.2rem;
+    line-height: 1;
+    min-width: 24px;
+    text-align: center;
+    cursor: default;
+    color: white;
+}
+
+/* Стили для подсказки */
+.tooltipWrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+}
+
+.tooltipContent {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: var(--bgColor, #1a1a2e);
+    border: 1px solid var(--borderColor, #2d2d44);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 180px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    background-color: #1a202c;
+}
+
+.tooltipItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    color: white;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.tooltipEmoji {
+    font-size: 1.1rem;
+    min-width: 24px;
+    text-align: center;
+}
+
+.tooltipLabel {
+    color: #c0c0c0;
+}
