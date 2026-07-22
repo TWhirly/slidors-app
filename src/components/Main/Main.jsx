@@ -40,6 +40,8 @@ export default function PersistentDrawerLeft() {
     switch (name) {
       case 'Компании':
         return !isCompaniesLoading;
+        case 'Подписки':
+        return !isCompaniesLoading;
         case 'Контакты':
         return !isContactsLoading;
         case 'События':

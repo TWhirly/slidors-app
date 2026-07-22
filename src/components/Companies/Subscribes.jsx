@@ -253,52 +253,52 @@ const Subscribes = () => {
         return STATUS_EMOJIS[status] || '⬜';
     };
 
-    // useEffect(() => {
-    //     const tg = window.Telegram?.WebApp;
-    //     if (!tg) return;
-    //     tg.BackButton.onClick(() => {
-    //         if (hasChanges) {
-    //             handleSave();
-    //         }
-    //         navigate(('/'), { replace: true });
-    //     });
-    //     return () => {
-    //         tg.BackButton.offClick();
-    //     };
-    // }, [navigate, hasChanges, handleSave]);
+    useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        tg.BackButton.onClick(() => {
+            if (hasChanges) {
+                handleSave();
+            }
+            navigate(('/'), { replace: true });
+        });
+        return () => {
+            tg.BackButton.offClick();
+        };
+    }, [navigate, hasChanges, handleSave]);
 
-    // useEffect(() => {
-    //     const handleVisibilityChange = () => {
-    //         if (document.hidden && hasChanges) {
-    //             handleSave();
-    //         }
-    //     };
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden && hasChanges) {
+                handleSave();
+            }
+        };
 
-    //     const handleBeforeUnload = () => {
-    //         if (hasChanges) {
-    //             handleSave();
-    //         }
-    //     };
+        const handleBeforeUnload = () => {
+            if (hasChanges) {
+                handleSave();
+            }
+        };
 
-    //     const handleClickOutside = (e) => {
-    //         if (showTooltip) {
-    //             const tooltipElement = document.getElementById('tooltip-container');
-    //             if (tooltipElement && !tooltipElement.contains(e.target)) {
-    //                 setShowTooltip(false);
-    //             }
-    //         }
-    //     };
+        const handleClickOutside = (e) => {
+            if (showTooltip) {
+                const tooltipElement = document.getElementById('tooltip-container');
+                if (tooltipElement && !tooltipElement.contains(e.target)) {
+                    setShowTooltip(false);
+                }
+            }
+        };
 
-    //     document.addEventListener('visibilitychange', handleVisibilityChange);
-    //     window.addEventListener('beforeunload', handleBeforeUnload);
-    //     document.addEventListener('click', handleClickOutside);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        document.addEventListener('click', handleClickOutside);
 
-    //     return () => {
-    //         document.removeEventListener('visibilitychange', handleVisibilityChange);
-    //         window.removeEventListener('beforeunload', handleBeforeUnload);
-    //         document.removeEventListener('click', handleClickOutside);
-    //     };
-    // }, [hasChanges, handleSave, showTooltip]);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [hasChanges, handleSave, showTooltip]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
