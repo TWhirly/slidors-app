@@ -32,7 +32,7 @@ export const DataProvider = ({ children }) => {
         try {
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
+                process.env.REACT_APP_DEV ? params : JSON.stringify(params)
             );
             setName(response.data || {});
             setEmail(response.data.email || '');
@@ -52,7 +52,7 @@ export const DataProvider = ({ children }) => {
         try {
             const response = await axios.post(
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                JSON.stringify(params)
+                process.env.REACT_APP_DEV ? params : JSON.stringify(params)
             );
             console.log('TS response', response.data);
             setTypes(response.data.types || []);

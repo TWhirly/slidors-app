@@ -17,7 +17,7 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     const formData = JSON.stringify(params);
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
+      process.env.REACT_APP_DEV ? params : formData,
     );
     console.log('emails fetch', response.data)
     return response.data || [];

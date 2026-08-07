@@ -15,7 +15,7 @@ export const useRegions = (chat_id) => {
     };
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      JSON.stringify(params),
+      process.env.REACT_APP_DEV ? params : JSON.stringify(params),
     );
     return (response.data);
   };

@@ -88,7 +88,7 @@ const Subscribes = () => {
 
     const handleSave = useCallback(() => {
         console.log('Saving');
-        const currentFormData = formDataRef.current;
+        const currentFormData = {...formDataRef.current, updateSubscribes: true};
         
         if (currentFormData && companySubscribes[currentFormData.id]) {
             const subscribes = companySubscribes[currentFormData.id];
@@ -98,13 +98,13 @@ const Subscribes = () => {
         }
         
         try {
+            console.log('currentFormData1', currentFormData)
             uploadRef.current(currentFormData);
             setHasChanges(false);
         } catch (error) {
             console.error('Save failed:', error);
         }
     }, [companySubscribes]);
-    console.log('comp subscr', companySubscribes)
 
     const scrollToSection = (sectionId, offset) => {
         const element = document.getElementById(sectionId);

@@ -26,7 +26,7 @@ export const useActivity = (chat_id) => {
     const formData = JSON.stringify(params);
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
+      process.env.REACT_APP_DEV ? params : formData,
     );
     const sortedActivity = transformActivitySort(response.data);
     // console.log('sortedActivity', sortedActivity);
@@ -137,7 +137,7 @@ function createDateTime(dateStr, timeStr) {
       const formData = JSON.stringify(params);
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
+        process.env.REACT_APP_DEV ? params : formData,
       );
       return response.data;
     },

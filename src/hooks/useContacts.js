@@ -17,7 +17,7 @@ export const useContacts = (chat_id) => {
     const formData = JSON.stringify(params);
     const response = await axios.post(
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      formData,
+      process.env.REACT_APP_DEV ? params : formData,
     );
     console.log('contacts from server', response.data)
     return (response.data);
@@ -104,7 +104,7 @@ export const useContacts = (chat_id) => {
       const formData = JSON.stringify(params);
       const response = await axios.post(
         process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        formData,
+        process.env.REACT_APP_DEV ? params : formData,
       );
       return response.data;
     },

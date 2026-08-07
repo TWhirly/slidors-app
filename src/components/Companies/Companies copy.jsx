@@ -59,7 +59,7 @@ const Companies = () => {
         const formData = JSON.stringify(params);
         const response = await axios.post(
             process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            formData,
+            process.env.REACT_APP_DEV ? params : formData,
         );
         return response.data;
     };
