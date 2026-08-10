@@ -17,7 +17,7 @@ export const useActivity = (chat_id) => {
   },[email, name])
 
   const fetchActivity = async () => {
-    console.log('getActivitiesList chat_id', chat_id)
+    // console.log('getActivitiesList chat_id', chat_id)
     const params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -168,7 +168,7 @@ onMutate: async (activityData) => {
   });
 
   useEffect(() => {
-    console.log('activity changes')
+    // console.log('activity changes')
     checkScheduled()
   },[activity, isFetching])
 
@@ -187,7 +187,7 @@ onMutate: async (activityData) => {
         }
         const dateMs = +(new Date(a.plan))
         const nowMs = +(new Date())
-        console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
+        // console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
         return (nowMs + notificationInterval > timeMs + dateMs)
       })
       if (nearTimePlanned.length > 0)

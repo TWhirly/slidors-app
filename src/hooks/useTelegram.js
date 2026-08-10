@@ -35,7 +35,7 @@ export function useTelegram() {
       onClick,
       offClick
     } = params;
-    console.log('params', params)
+    // console.log('params', params)
      mainButton.offClick();
     mainButton.setText(text);
     mainButton.setParams({

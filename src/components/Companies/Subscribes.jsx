@@ -28,7 +28,7 @@ const SUBSCRIPTION_STATUSES = {
     LEAVE_GROUP: 'Вышел',
     NOT_IN_MESSENGER: 'Нет в мессенджере',
     INVITATION_SENT: 'Отправлено приглашение',
-     
+
 };
 
 // Эмодзи для статусов
@@ -50,7 +50,7 @@ const STATUS_TOOLTIP = [
 ];
 
 const Subscribes = () => {
-    const { email, regions: contextRegions } = useContext(DataContext);
+    const { email, name,  regions: contextRegions } = useContext(DataContext);
     const navigate = useNavigate();
     const location = useLocation();
     const avatarGroupStyle = avatarGroup();
@@ -69,9 +69,8 @@ const Subscribes = () => {
     const telegramIcon = mainContactsIcons.telegramIcon;
 
     const id = location.state?.companyId || null;
-
+    
     const ifcompanyHasContacts = (company) => {
-        console.log(' if has', company.phone1?.length + company.phone2?.length + company.whatsapp?.length + company.telegram?.length > 0);
         return setCompanyHasContacts(company.phone1?.length + company.phone2?.length + company.whatsapp?.length + company.telegram?.length > 0);
     };
 
@@ -82,23 +81,29 @@ const Subscribes = () => {
             text: '1',
             isActive: false,
             isVisible: false,
-            onClick: () => {},
+            onClick: () => { },
         });
     }, [showButton]);
 
     const handleSave = useCallback(() => {
-        console.log('Saving');
-        const currentFormData = {...formDataRef.current, updateSubscribes: true};
-        
+        console.log('Saving', new Date());
+        const saveTime = new Date();
+        const currentFormData = {
+            ...formDataRef.current,
+            updateSubscribes: true,
+            activityTime: saveTime,
+            managerName: name.name,
+            managerEmail: name.email
+        };
+
         if (currentFormData && companySubscribes[currentFormData.id]) {
             const subscribes = companySubscribes[currentFormData.id];
             currentFormData.wa_subscribe = subscribes.wa_subscribe || '';
             currentFormData.tg_subscribe = subscribes.tg_subscribe || '';
             currentFormData.max_subscribe = subscribes.max_subscribe || '';
         }
-        
+
         try {
-            console.log('currentFormData1', currentFormData)
             uploadRef.current(currentFormData);
             setHasChanges(false);
         } catch (error) {
@@ -122,10 +127,10 @@ const Subscribes = () => {
         });
     };
 
-    const { 
-        companies,      
-        isLoading, 
-        error 
+    const {
+        companies,
+        isLoading,
+        error
     } = useRegions(chat_id);
 
     const {
@@ -185,10 +190,10 @@ const Subscribes = () => {
     };
 
     const handleCompanyClick = (company) => {
-        formDataRef.current = {...company};
-        
+        formDataRef.current = { ...company };
+
         setCompanyHasContacts(company.phone1?.length + company.phone2?.length + company.whatsapp?.length + company.telegram?.length > 0);
-        
+
         if (selectedCompany === company.id) {
             if (hasChanges) {
                 handleSave();
@@ -196,7 +201,7 @@ const Subscribes = () => {
             setSelectedCompany(null);
             return;
         }
-        
+
         setCompanySubscribes(prev => ({
             ...prev,
             [company.id]: {
@@ -205,7 +210,7 @@ const Subscribes = () => {
                 max_subscribe: company.max_subscribe || ''
             }
         }));
-        
+
         setSelectedCompany(company.id);
         setHasChanges(false);
     };
@@ -306,8 +311,8 @@ const Subscribes = () => {
         }, 300);
         return () => clearTimeout(timer);
     }, [id, filteredCompanies]);
-    
-    console.log('filteredCompanies', filteredCompanies);
+
+    // console.log('filteredCompanies', filteredCompanies);
 
     if (isLoading) {
         return (
@@ -431,7 +436,7 @@ const Subscribes = () => {
                                     >
                                         <div className={styles.companyInfo}>
                                             <div className={styles.nameAndIcon}
-                                            onClick={() => handleCompanyClick(company)}>
+                                                onClick={() => handleCompanyClick(company)}>
                                                 <div
                                                     className={styles.companyName}
                                                 >
@@ -441,14 +446,14 @@ const Subscribes = () => {
                                                     {getCompanyTypeIcon(company.type)}
                                                 </div>
                                             </div>
-                                            
+
                                             {/* Секция с чекбоксами подписок */}
                                             <div className={styles.subscribesContainer}>
                                                 {/* WhatsApp */}
                                                 <div className={styles.subscribeItem}>
-                                                    <img 
-                                                        src={whatsappIcon} 
-                                                        alt="WhatsApp" 
+                                                    <img
+                                                        src={whatsappIcon}
+                                                        alt="WhatsApp"
                                                         className={styles.subscribeIcon}
                                                     />
                                                     {selectedCompany === company.id ? (
@@ -458,7 +463,7 @@ const Subscribes = () => {
                                                                 'wa_subscribe',
                                                                 value
                                                             )}
-                                                            
+
                                                             options={Object.values(SUBSCRIPTION_STATUSES)}
                                                             currentValue={companySubscribes[company.id]?.wa_subscribe || ''}
                                                         />
@@ -471,9 +476,9 @@ const Subscribes = () => {
 
                                                 {/* Telegram */}
                                                 <div className={styles.subscribeItem}>
-                                                    <img 
-                                                        src={telegramIcon} 
-                                                        alt="Telegram" 
+                                                    <img
+                                                        src={telegramIcon}
+                                                        alt="Telegram"
                                                         className={styles.subscribeIcon}
                                                     />
                                                     {selectedCompany === company.id ? (
@@ -495,9 +500,9 @@ const Subscribes = () => {
 
                                                 {/* Max */}
                                                 <div className={styles.subscribeItem}>
-                                                    <img 
-                                                        src={maxIcon} 
-                                                        alt="Max" 
+                                                    <img
+                                                        src={maxIcon}
+                                                        alt="Max"
                                                         className={styles.subscribeIcon}
                                                     />
                                                     {selectedCompany === company.id ? (
@@ -518,7 +523,7 @@ const Subscribes = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         {selectedCompany === company.id && companyHasContacts &&
                                             <CompanyMainСontacts
                                                 company={company}

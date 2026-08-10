@@ -38,7 +38,7 @@ function App() {
   const { tg } = useTelegram();
   // window.Telegram.WebApp.expand();
   window.Telegram.WebApp.disableVerticalSwipes()
-  console.log('init param ', window.Telegram.WebApp)
+  // console.log('init param ', window.Telegram.WebApp)
   tg.MainButton.hide()
   tg.MainButton.setParams({
     text: `Отправить`

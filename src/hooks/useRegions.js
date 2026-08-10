@@ -4,7 +4,7 @@ import { useNotification } from '../components/notifications/NotificationContext
 import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
-  console.log('useRegions hook')
+  // console.log('useRegions hook')
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {

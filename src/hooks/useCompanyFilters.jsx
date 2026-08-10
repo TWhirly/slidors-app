@@ -179,7 +179,7 @@ export const useCompanyFilters = (companies) => {
   const avialableHandle = ['Проработан', 'Не проработан']
 
 
-  console.log('region cities in hook', regionCities)
+  // console.log('region cities in hook', regionCities)
 
 
 

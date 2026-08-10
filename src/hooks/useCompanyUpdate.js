@@ -8,7 +8,6 @@ export const useCompanyUpdate = (chat_id) => {
   const navigate = useNavigate();
   const navigateRef = useRef(navigate)
   const [saving, setIsSaving] = useState(false)
-  console.log('useCompanyUpdate hook', saving)
   const { showNotification } = useNotification();
   const showNotificationRef = useRef(showNotification)
   const queryClient = useQueryClient();
@@ -32,7 +31,7 @@ export const useCompanyUpdate = (chat_id) => {
   const oldData = await queryClientRef.current.getQueryData(['regions']);
   await queryClientRef.current.setQueryData(['regions'], () => {
     
-    console.log('old data', oldData)
+    
     if (!oldData) return isNewCompany ? [companyData] : [];
 
     if (isNewCompany) {
@@ -40,10 +39,16 @@ export const useCompanyUpdate = (chat_id) => {
       return [...oldData, companyData];
     } else {
       // Возвращаем НОВЫЙ массив, где заменен только нужный объект
-      return oldData.map((company) => 
-        company.id === companyData.id 
-          ? { ...company, ...companyData } // Создаем новый объект компании
-          : company // Возвращаем старую ссылку на объект, если это не он
+      
+      return oldData.map((company) => {
+        if(company.id === companyData.id){
+          const newCompanyData = { ...company, ...companyData }
+          delete newCompanyData.updateSubscribes
+          return newCompanyData
+         } // Создаем новый объект компании
+        else {
+          return company // Возвращаем старую ссылку на объект, если это не он
+      }}
       );
     }
   });

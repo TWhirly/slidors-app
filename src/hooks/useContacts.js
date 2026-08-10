@@ -19,7 +19,7 @@ export const useContacts = (chat_id) => {
       process.env.REACT_APP_GOOGLE_SHEETS_URL,
       process.env.REACT_APP_DEV ? params : formData,
     );
-    console.log('contacts from server', response.data)
+    // console.log('contacts from server', response.data)
     return (response.data);
   };
 

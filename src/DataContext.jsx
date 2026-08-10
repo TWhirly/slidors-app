@@ -54,7 +54,7 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 process.env.REACT_APP_DEV ? params : JSON.stringify(params)
             );
-            console.log('TS response', response.data);
+            // console.log('TS response', response.data);
             setTypes(response.data.types || []);
             setStatuses(response.data.statuses || []);
             setTitles(response.data.titles || []);
@@ -80,7 +80,6 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    console.log('name in data context', name)
     return (
         <DataContext.Provider value={{
             loading,
