@@ -45,7 +45,7 @@ const ActivityEditForm = () => {
     const formDataRef = useRef(formData);
     const { showNotification } = useNotification();
     const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
-    const id = activity.id;
+    const id = activity.id || null;
     const { contacts: allContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
     const [selectedContactId, setSelectedContactId] = useState(activity.contactId || '');
     const [header, setHeader] = useState('');
@@ -54,7 +54,7 @@ const ActivityEditForm = () => {
     console.log('activityEdit', activity);
 
     
-     const handleSave  =  () => {
+     const handleSave = useCallback(() => {
         console.log('allowSave', allowSave)
         const currentFormData = formDataRef.current;
         const isNewActivity = activity?.new === true;
@@ -88,7 +88,7 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }
+    })
 
     useEffect(() => {
         console.log('effect 1')
@@ -134,7 +134,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg]);
+    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));
