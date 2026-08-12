@@ -28,7 +28,7 @@ const ActivityEditForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [formData, setFormData] = useState({ ...activity, companyWhatsapp: '', companyTelegram: '' });
-    const {tg , chat_id} = useTelegram()
+    const { tg, chat_id } = useTelegram()
     const [hasChanged, setHasChanged] = useState(false);
     const [allowSave, setAllowSave] = useState(false);
     const { regions: contextRegions, statuses,
@@ -39,6 +39,7 @@ const ActivityEditForm = () => {
     const [cities, setCities] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [isElobaration, setIsElobaration] = useState(false);
+    const [isSnvElobaration, setIsSnvElobaration] = useState(false)
     const [isPlanned, setIsPlanned] = useState(false);
     const [company, setCompany] = useState({ id: null })
     const [contacts, setContacts] = useState([])
@@ -53,8 +54,8 @@ const ActivityEditForm = () => {
 
     console.log('activityEdit', activity);
 
-    
-     const handleSave = useCallback(() => {
+
+    const handleSave = useCallback(() => {
         console.log('allowSave', allowSave)
         const currentFormData = formDataRef.current;
         const isNewActivity = activity?.new === true;
@@ -116,7 +117,7 @@ const ActivityEditForm = () => {
         tg.setBottomBarColor("#131313");
         tg.MainButton.show();
         tg.MainButton.onClick(handleSave);
-         if (checkIfRequireFieldsFilled(formData)) {
+        if (checkIfRequireFieldsFilled(formData)) {
             formDataRef.current = formData;
             setAllowSave(true);
             tg.MainButton.setText('Сохранить');
@@ -134,7 +135,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, handleSave, id, navigate, queryClient, showNotification, tg, updateActivity]);
+    }, [activity, formData, id, navigate, queryClient, showNotification, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));
@@ -163,7 +164,7 @@ const ActivityEditForm = () => {
     }, [allContacts, formData.companyId]);
 
     useEffect(() => {
-         console.log('effect 3')
+        console.log('effect 3')
         const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
         setHasChanged(hasChanged);
     }, [formData, activity]);
@@ -183,9 +184,9 @@ const ActivityEditForm = () => {
                 .map(company => company.city))
             const cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
             setCities(cities)
-            
+
         }
-      
+
     }, [allCompanies, formData.region]);
 
     useEffect(() => {
@@ -231,13 +232,14 @@ const ActivityEditForm = () => {
 
     useEffect(() => {
         setIsElobaration(formData.purpose === 'Проработка');
+        setIsSnvElobaration(formData.purpose === 'Проработка СНВ');
     }, [formData.purpose]);
 
     useEffect(() => {
         setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
         console.log('subscribe effect')
-    
-        
+
+
     }, [formData])
 
     useEffect(() => {
@@ -275,8 +277,8 @@ const ActivityEditForm = () => {
     };
 
 
-   
-   
+
+
 
     const handleCheck = (id) => {
         console.log('Selected contact ID:', id);
@@ -435,8 +437,44 @@ const ActivityEditForm = () => {
                         label="Подписаны ли на группу?"
                     />
 
+                    <BasicSelect
+                        require
+                        className={styles.formGroup}
+                        type="text"
+                        name="isOnSite?"
+                        list={answers['isOnSite?']}
+                        value={formData['isOnSite?'] || ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, 'isOnSite?': value }))}
+                        label="Есть ли карточка компании на сайте?"
+                    />
+
                 </>}
-                {toSubscribe && <>
+                {isSnvElobaration}
+                {isSnvElobaration && <>
+                    <BasicSelect
+                        require
+                        className={styles.formGroup}
+                        type="text"
+                        name="specialization"
+                        value={formData.specialization || ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, specialization: value }))}
+                        label="Специализация"
+                        rows="3"
+                    />
+
+                    <BasicSelect
+                        require
+                        className={styles.formGroup}
+                        type="text"
+                        name="company_importance"
+                        value={formData.company_importance || ''}
+                        onChange={(value) => setFormData(prev => ({ ...prev, company_importance: value }))}
+                        label="Значимость компании (какой вопрос был при звонке)"
+                        rows="3"
+                    />
+                    
+                </>}
+                {toSubscribe && !isSnvElobaration && <>
                     <BasicSelect
                         require={formData['subscribed?'].trim() === 'Подписать' && formData.companyWhatsapp === '' && formData.companyTelegram === ''}
                         className={styles.formGroup}
@@ -461,7 +499,7 @@ const ActivityEditForm = () => {
 
 
 
-                <BasicSelect
+                {!isSnvElobaration && <BasicSelect
                     className={styles.formGroup}
                     type="date"
                     noPlaceholder
@@ -469,7 +507,7 @@ const ActivityEditForm = () => {
                     value={formData.plan || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, plan: value }))}
                     label="Запланировать"
-                />
+                />}
 
                 {isPlanned && <BasicSelect
                     className={styles.formGroup}
@@ -502,7 +540,7 @@ const ActivityEditForm = () => {
                     name="description"
                     value={formData.description || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
-                    label="Описание"
+                    label={isSnvElobaration ? "О чем договорились" : "Описание"}
                     rows="3"
                 />
 

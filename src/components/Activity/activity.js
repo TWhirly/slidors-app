@@ -88,6 +88,9 @@ const advAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, 
 const sampleAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, не хотят', 'Да, хотят еще']
 const eduAnswers = ['Нет, не хотят', 'Нет, хотят', 'Есть, не хотят', 'Да, хотят еще']
 const subscribeAnswers = ['Нет, не хотят', 'Подписать', 'Подписаны', 'Удалить компанию', 'Нет мобильного']
+const isOnSiteAnswers = ['Да', 'Нет']
 
-export const answers = { status: statusAnswers, 'haveAdv?': advAnswers, 'haveSample?': sampleAnswers, 'haveTrainig?': eduAnswers, 'subscribed?': subscribeAnswers }
+export const answers = { status: statusAnswers, 'haveAdv?': advAnswers, 
+    'haveSample?': sampleAnswers, 'haveTrainig?': eduAnswers,
+     'subscribed?': subscribeAnswers, 'isOnSite?': isOnSiteAnswers }
 
