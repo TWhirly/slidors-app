@@ -89,7 +89,7 @@ const ActivityEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    })
+    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity])
 
     useEffect(() => {
         console.log('effect 1')
