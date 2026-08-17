@@ -398,11 +398,12 @@ const BasicSelect = (props) => {
                         </div>
                     )}
                     {filteredList.length > 0 ? (
-                        filteredList.map((name) => (
+                        filteredList.map((name, idx) => (
                             <MenuItem
                                 disabled={props.disabled}
                                 name={'name'}
-                                key={typeof name === 'string' ? name : name.id}
+                                // key={typeof name === 'string' ? name : name.id}
+                                key={idx}
                                 value={!props.useObjects ? name : name.name}
                                 onClick={() => handleItemClick(!props.useObjects ? name : name.id, typeof name === 'string' ? name : name.name)}
                                 autoFocus={false}

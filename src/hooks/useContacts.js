@@ -9,16 +9,26 @@ export const useContacts = (chat_id) => {
 
   const fetchContacts = async () => {
     console.log('getContactsList')
-    const params = {
+     const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+    let params = {
       name: 'Ваше имя',
       chatID: chat_id,
       api: 'getContactsList'
     };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      process.env.REACT_APP_DEV ? params : formData,
-    );
+    params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
     // console.log('contacts from server', response.data)
     return (response.data);
   };
@@ -49,7 +59,7 @@ export const useContacts = (chat_id) => {
     console.log('contacts by region', contactsByRegion)
 
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
-      console.log('reg', contacts)
+      // console.log('reg', contacts)
       const sortedContacts = contacts.sort((a, b) => 
         a.fullName.localeCompare(b.fullName)
       );
@@ -95,17 +105,27 @@ export const useContacts = (chat_id) => {
   const updateContactMutation = useMutation({
     mutationFn: async (contactData) => {
       console.log('mutationFn, contact', contactData);
-      const params = {
+      const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+      let params = {
         name: 'Ваше имя',
         chatID: chat_id,
         api: 'updateContact',
         contact: contactData
       };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        process.env.REACT_APP_DEV ? params : formData,
-      );
+      params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+     const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
       return response.data;
     },
     onMutate: async (contactData) => {

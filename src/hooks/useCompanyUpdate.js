@@ -15,7 +15,7 @@ export const useCompanyUpdate = (chat_id) => {
 
   useEffect(() => {
     navigateRef.current = navigate
-    showNotificationRef.current = showNotification
+     showNotificationRef.current = showNotification
     queryClientRef.current = queryClient
   },[])
  
@@ -61,28 +61,44 @@ export const useCompanyUpdate = (chat_id) => {
 
   useEffect(() => {
     optimisticUpdateCompanyRef.current = optimisticUpdateCompany
-  })
+  }, [optimisticUpdateCompany])
 
     const upload = useCallback(async (companyData) => {
       await optimisticUpdateCompanyRef.current(companyData)
+       const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+			
       setIsSaving(true)
       console.log('upload')
-      const params = {
+      let params = {
         name: 'Ваше имя',
         chatID: chat_id,
         api: 'updateCompany',
         company: companyData
       };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        process.env.REACT_APP_DEV ? params : formData,
-      )
+      params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+      try{
+  const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
       setIsSaving(false);
       showNotificationRef.current(`Данные сохранены успешно!`);
       console.log('response', response)
       await queryClientRef.current.invalidateQueries({ queryKey: ['regions'] })
       return response.data;
+              }
+              catch(err) {
+                console.error(err)
+              }
     },[chat_id])
     
 //   const {

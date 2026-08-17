@@ -19,6 +19,7 @@ export const NotificationProvider = ({ children }) => {
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
   };
+  console.log('notification', notification)
 
   return (
     <NotificationContext.Provider value={{ showNotification, hideNotification }}

@@ -17,20 +17,34 @@ export const useActivity = (chat_id) => {
   },[email, name])
 
   const fetchActivity = async () => {
-    // console.log('getActivitiesList chat_id', chat_id)
-    const params = {
+     const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+    let params = {
       name: 'Ваше имя',
       chatID: chat_id,
       api: 'getActivitiesList'
     };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      process.env.REACT_APP_DEV ? params : formData,
-    );
+    params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+    try{
+ const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
     const sortedActivity = transformActivitySort(response.data);
     // console.log('sortedActivity', sortedActivity);
     return (sortedActivity);
+              }
+              catch(error) {
+                console.error(error)
+              }
   };
   
 
@@ -98,8 +112,8 @@ function createDateTime(dateStr, timeStr) {
   const { data: activity, isLoading, error, isSuccess, isFetching } = useQuery({
     queryKey: ['activity'],
     queryFn: fetchActivity,
-    staleTime: 1000 * 60 * 0.5,
-    refetchInterval: 1000 * 60 * 1,
+    staleTime: 1000 * 60 * 30,
+    refetchInterval: 1000 * 60 * 50,
     refetchIntervalInBackground: true
   });
 
@@ -128,19 +142,36 @@ function createDateTime(dateStr, timeStr) {
     mutationFn: async (activityData) => {
       // console.log('mutationFn, contact', activityData);
       console.log('updateActivity')
-      const params = {
+       const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+      let params = {
         name: 'Ваше имя',
         chatID: chat_id,
         api: 'updateActivity',
         activity: activityData
       };
-      const formData = JSON.stringify(params);
-      const response = await axios.post(
-        process.env.REACT_APP_GOOGLE_SHEETS_URL,
-        process.env.REACT_APP_DEV ? params : formData,
-      );
+      params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+      try{
+   const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
       return response.data;
-    },
+    }
+    catch(err)
+    {
+      console.error(err)
+    }
+  }
+    ,
 onMutate: async (activityData) => {
       
       const previousActivity = queryClient.getQueryData(['activity']) || [];
@@ -156,6 +187,7 @@ onMutate: async (activityData) => {
       console.error('Failed to update contact:', error);
     },
     onSuccess: (data, activityData) => {
+      console.log(activityData)
       // Дополнительные действия при успехе
        !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
       console.log('Activity updated successfully:', data);
@@ -168,11 +200,7 @@ onMutate: async (activityData) => {
   });
 
   useEffect(() => {
-    // console.log('activity changes')
-    checkScheduled()
-  },[activity, isFetching])
-
-  const checkScheduled = () => {
+    const checkScheduled = () => {
     if (activity) {
       
       const nearTimePlanned = activity.planned
@@ -196,6 +224,11 @@ onMutate: async (activityData) => {
       // e.g., update a different state, show a toast, etc.
     }
   }
+    // console.log('activity changes')
+    checkScheduled()
+  },[activity, isFetching, nameMail, notificationInterval, showNotification])
+
+  
 
   // console.log('activity hook', activity)
   const test = [1, 2]

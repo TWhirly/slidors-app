@@ -9,16 +9,26 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
 
   const fetchMail = async () => {
     if (isNewContact) return [{ id: uuidv4(), mail: '' }];
-    const params = {
+     const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+    let params = {
       name: 'Ваше имя',
       chatID: chat_id,
       api: 'getEmailsbyRegions'
     };
-    const formData = JSON.stringify(params);
-    const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      process.env.REACT_APP_DEV ? params : formData,
-    );
+    params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+  const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
     console.log('emails fetch', response.data)
     return response.data || [];
   }

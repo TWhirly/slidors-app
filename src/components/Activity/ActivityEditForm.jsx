@@ -44,7 +44,6 @@ const ActivityEditForm = () => {
     const [company, setCompany] = useState({ id: null })
     const [contacts, setContacts] = useState([])
     const formDataRef = useRef(formData);
-    const { showNotification } = useNotification();
     const { activity: activities, optimisticUpdateActivity, updateActivity } = useActivity(chat_id);
     const id = activity.id || null;
     const { contacts: allContacts, isLoading: isContactsLoading, contactsLoadingError: contactsError } = useContacts(chat_id)
@@ -82,14 +81,14 @@ const ActivityEditForm = () => {
                 },
                 onError: (error) => {
                     console.log('Company update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // showNotification(`Ошибка при сохранении: ${error.message}`, false);
                     // Автоматический откат через onError в мутации
                 }
             });
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, showNotification, tg, updateActivity])
+    }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, tg, updateActivity])
 
     useEffect(() => {
         console.log('effect 1')
@@ -100,7 +99,7 @@ const ActivityEditForm = () => {
                 },
                 onError: (error) => {
                     console.error('Company update failed:', error);
-                    showNotification(`Ошибка при сохранении: ${error.message}`, false);
+                    // showNotification(`Ошибка при сохранении: ${error.message}`, false);
                 }
             });
             navigate(activity.path || `/activities/`, { state: { activityId: !!formData.finalize ? formData.finalize : id, companyId: activity.companyId } });
@@ -135,7 +134,7 @@ const ActivityEditForm = () => {
                 tg.MainButton.hide();
             }
         };
-    }, [activity, formData, id, navigate, queryClient, showNotification, tg, updateActivity]);
+    }, [activity, formData, handleSave, id, navigate, queryClient, tg, updateActivity]);
 
     useEffect(() => {
         setFormData(prev => ({ ...prev, contactId: selectedContactId }));
@@ -194,15 +193,20 @@ const ActivityEditForm = () => {
         const currentFormDataRegion = formData.region;
         if (currentFormDataRegion && currentFormDataRegion.length > 0 && allCompanies) {
             let names = []
-            names = allCompanies.reduce((acc, company) => {
-                if (!acc.includes(company.name) && company.name.length > 0 && !formData.city) {
-                    acc.push({ name: company.name, id: company.id });
-                }
-                if (!acc.includes(company.name) && company.name.length > 0 && formData.city?.length > 0 && company.city === formData.city) {
-                    acc.push({ name: company.name, id: company.id });
-                }
-                return acc;
-            }, []);
+            // names = allCompanies.reduce((acc, company) => {
+            //     if (!acc.includes(company.name) && company.name.length > 0 && !formData.city) {
+            //         acc.push({ name: company.name, id: company.id });
+            //     }
+            //     if (!acc.includes(company.name) && company.name.length > 0 && formData.city?.length > 0 && company.city === formData.city) {
+            //         acc.push({ name: company.name, id: company.id });
+            //     }
+            //     return acc;
+            // }, []);
+            if(formData.city?.length > 0){
+            names = allCompanies.filter(company => company.region === currentFormDataRegion && company.city === formData.city)
+            } else {
+                names = allCompanies.filter(company => company.region === currentFormDataRegion)
+            }
             setCompanies(names);
         }
         if (currentFormDataRegion && currentFormDataRegion.length > 0 && formData.companyId !== '' && allCompanies) {
@@ -340,10 +344,12 @@ const ActivityEditForm = () => {
                 />
 
                 <BasicSelect
+                    useObjects
                     require
                     className={styles.formGroup}
                     searchable
-                    list={companies.map(item => item.name)}
+                    // list={companies.map(item => item.name)}
+                    list={companies}
                     name="companyName"
                     value={formData.companyName || []}
                     onChange={(value) => setFormData(prev => ({ ...prev, companyName: value, companyId: companies?.find(item => item.name === value)?.id || '' }))}

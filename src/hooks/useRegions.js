@@ -1,21 +1,34 @@
 import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import { useNotification } from '../components/notifications/NotificationContext.jsx';
 import { useCallback } from 'react';
 
 export const useRegions = (chat_id) => {
   // console.log('useRegions hook')
-  const { showNotification } = useNotification();
   const queryClient = useQueryClient();
   const fetchRegions = async () => {
+
+     const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+
     console.log('fetchRegions executed');
-    const params = {
+    let params = {
       chatID: chat_id,
       api: 'getCompanies'
     };
+
+    params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+
     const response = await axios.post(
-      process.env.REACT_APP_GOOGLE_SHEETS_URL,
-      process.env.REACT_APP_DEV ? params : JSON.stringify(params),
+      apiUrl,
+      params,
+      headers
     );
     return (response.data);
   };
@@ -98,53 +111,11 @@ export const useRegions = (chat_id) => {
   });
 },[queryClient]);
     
-  // const updateCompanyMutation = useMutation({
-   
-  //   mutationFn: async (companyData) => {
-      
-  //     console.log('update fetch', companyData)
-  //     const params = {
-  //       name: 'Ваше имя',
-  //       chatID: chat_id,
-  //       api: 'updateCompany',
-  //       company: companyData
-  //     };
-  //     const formData = JSON.stringify(params);
-  //     const response = await axios.post(
-  //       process.env.REACT_APP_GOOGLE_SHEETS_URL,
-  //       formData,
-  //     );
-  //     return response.data;
-  //   },
-  //   onMutate: async (companyData) => {
-  //     console.log('mutation')
-  //     await queryClient.cancelQueries({ queryKey: ['regions'] });
-  //     optimisticUpdateCompany(companyData);
-  //     const previousCompanies = queryClient.getQueryData(['regions']) || [];
-  //     return { previousCompanies };
-  //   },
-  //   onError: (error, companyData, context) => {
-     
-  //     queryClient.setQueryData(['regions'], context.previousCompanies);
-  //     console.error('Failed to update contact:', error);
-  //   },
-  //   onSuccess: (data, companyData) => {
-  //     // Дополнительные действия при успехе
-  //     showNotification(`Данные сохранены успешно!`);
-  //     queryClient.invalidateQueries({ queryKey: ['regions'] })
-  //     console.log('Contact updated successfully:', data);
-  //   },
-  //   onSettled: () => {
-  //     // Перезапрашиваем данные для синхронизации
-  //     // queryClient.invalidateQueries({ queryKey: ['regions'] });
-  //   }
-  // });
-
-  const { data: rawData, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['regions'], // ← Убедитесь, что ключ стабилен
     queryFn: fetchRegions,
     staleTime: 1000 * 60 * 30,
-    select: (data) => {return data},
+    // select: (data) => {return data},
     // refetchIntervalInBackground: true,
     // refetchOnWindowFocus: false,
     refetchInterval: 1000 * 60 * 50,
@@ -152,7 +123,7 @@ export const useRegions = (chat_id) => {
   });
 
   return {
-    companies: rawData || [],
+    companies: data || [],
     // regionsWithCompanies: companies || [],
     isLoading,
     error,

@@ -7,7 +7,7 @@ import { set } from 'lodash';
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-    
+
     const [regions, setRegions] = useState([]);
     const [types, setTypes] = useState([]);
     const [statuses, setStatuses] = useState([]);
@@ -18,53 +18,68 @@ export const DataProvider = ({ children }) => {
     const [name, setName] = useState({});
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(true);
-    const { chat_id , tg } = useTelegram()
+    const { chat_id, tg } = useTelegram()
 
     useEffect(() => {
-        if(!chat_id)
+        if (!chat_id)
             return
+        console.log(process.env.REACT_APP_DEV)
+        const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+
         const fetchNames = async () => {
-        const params = {
-            name: 'Ваше имя',
-            chatID: chat_id,
-            api: 'getName'
+            let params = {
+                name: 'Ваше имя',
+                chatID: chat_id,
+                api: 'getName'
+            };
+            params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+            try {
+                console.log('is dev', typeof(process.env.REACT_APP_DEV))
+               const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
+                setName(response.data || {});
+                setEmail(response.data.email || '');
+                setRegions(response.data.regions || []);
+                setNamesEmails(response.data.userNamesMails || []);
+
+            } catch (error) {
+                console.error('Error fetching regions:', error);
+            }
         };
-        try {
-            const response = await axios.post(
-                process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                process.env.REACT_APP_DEV ? params : JSON.stringify(params)
-            );
-            setName(response.data || {});
-            setEmail(response.data.email || '');
-            setRegions(response.data.regions || []);
-            setNamesEmails(response.data.userNamesMails || []);
-            
-        } catch (error) {
-            console.error('Error fetching regions:', error);
-        }
-    };
-    const fetchTypesAndStatuses = async () => {
-        // console.log('fetchTypesAndStatuses');
-        const params = {
-            chatID: chat_id,
-            api: 'getTypesAndStatuses'
+        const fetchTypesAndStatuses = async () => {
+            // console.log('fetchTypesAndStatuses');
+            let params = {
+                chatID: chat_id,
+                api: 'getTypesAndStatuses'
+            };
+             params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
+            try {
+                const response = await axios.post(
+                    apiUrl,
+                    params,
+                    headers
+                );
+                // console.log('TS response', response.data);
+                setTypes(response.data.types || []);
+                setStatuses(response.data.statuses || []);
+                setTitles(response.data.titles || []);
+                setActivityPurposes(response.data.activityPurposes || []);
+                setActivityTypes(response.data.activityTypes || []);
+
+            } catch (error) {
+                console.error('Error fetching types and statuses:', error);
+            }
         };
-        try {
-            const response = await axios.post(
-                process.env.REACT_APP_GOOGLE_SHEETS_URL,
-                process.env.REACT_APP_DEV ? params : JSON.stringify(params)
-            );
-            // console.log('TS response', response.data);
-            setTypes(response.data.types || []);
-            setStatuses(response.data.statuses || []);
-            setTitles(response.data.titles || []);
-            setActivityPurposes(response.data.activityPurposes || []);
-            setActivityTypes(response.data.activityTypes || []);
-            
-        } catch (error) {
-            console.error('Error fetching types and statuses:', error);
-        }
-    };
         fetchNames();
         fetchTypesAndStatuses();
         Promise.all([fetchNames(), fetchTypesAndStatuses()]).then(() => {
@@ -72,7 +87,7 @@ export const DataProvider = ({ children }) => {
         });
     }, [chat_id]);
 
-    const provided = {cnt: 0};
+    const provided = { cnt: 0 };
 
     useEffect(() => {
         if (loading) {
@@ -80,6 +95,7 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
+    console.log('name', types)
     return (
         <DataContext.Provider value={{
             loading,
@@ -94,7 +110,7 @@ export const DataProvider = ({ children }) => {
             namesEmails,
             email,
             provided
-            
+
         }}>
             {children}
         </DataContext.Provider>

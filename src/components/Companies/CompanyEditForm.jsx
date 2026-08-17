@@ -61,6 +61,7 @@ const CompanyEditForm = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
+        navigate('/companies')
     }, [])
 
     const handleSaveRef = useRef(handleSave)
@@ -69,7 +70,7 @@ const CompanyEditForm = () => {
         console.log('useEffect wo dep array')
         handleSaveRef.current = handleSave
         uploadRef.current = upload
-    },[])
+    },[handleSave, upload])
 
     const updateCities = (region) => { 
         console.log('effect 4')

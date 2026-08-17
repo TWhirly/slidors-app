@@ -50,16 +50,27 @@ const Companies = () => {
 
     // Функция для получения регионов
     const fetchRegions = async () => {
+
+        const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
+
+        const headers = process.env.REACT_APP_DEV === "1" ?
+            {
+                'Content-Type': 'application/json'
+            } :
+            {
+                'Content-Type': 'text/plain'
+            }
+
         console.log('fetchRegions')
         const params = {
             name: 'Ваше имя',
             chatID: chat_id,
             api: 'getCompanies'
         };
-        const formData = JSON.stringify(params);
         const response = await axios.post(
-            process.env.REACT_APP_GOOGLE_SHEETS_URL,
-            process.env.REACT_APP_DEV ? params : formData,
+            apiUrl,
+            params,
+            headers
         );
         return response.data;
     };
