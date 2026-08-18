@@ -1,5 +1,4 @@
-// context/NotificationContext.js
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useCallback } from 'react';
 import NotificationPanel from '../notifications/NotificationPanel.jsx';
 const NotificationContext = createContext();
 
@@ -8,13 +7,13 @@ export const NotificationProvider = ({ children }) => {
     show: false,
     message: '',
     style: {}
-    });
+  });
 
-  const showNotification = (message, style, manualClose) => {
+  const showNotification = useCallback((message, style, manualClose) => {
     setNotification({ show: true, message, style, manualClose });
-  };
+  }, []);
 
-  
+
 
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
@@ -26,11 +25,11 @@ export const NotificationProvider = ({ children }) => {
     >
       {children}
       <NotificationPanel
-        style={notification.style} 
-        show={notification.show} 
+        style={notification.style}
+        show={notification.show}
         message={notification.message}
         onHide={hideNotification}
-        manualClose={notification.manualClose} 
+        manualClose={notification.manualClose}
       />
     </NotificationContext.Provider>
   );

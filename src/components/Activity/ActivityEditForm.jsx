@@ -175,18 +175,12 @@ const ActivityEditForm = () => {
         setRegions(regions);
     }, [contextRegions]);
 
-    useEffect(() => {
-        console.log('effect 6')
-        const currentFormDataRegion = formData.region;
-        if (currentFormDataRegion && allCompanies) {
-            const citiesSet = new Set(allCompanies.filter(company => company.region === currentFormDataRegion)
-                .map(company => company.city))
-            const cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
-            setCities(cities)
+    // useEffect(() => {
+    //     console.log('effect 6')
+    //     const currentFormDataRegion = formData.region;
+        
 
-        }
-
-    }, [allCompanies, formData.region]);
+    // }, [allCompanies, formData.region]);
 
     useEffect(() => {
         console.log('effect 7')
@@ -212,6 +206,13 @@ const ActivityEditForm = () => {
         if (currentFormDataRegion && currentFormDataRegion.length > 0 && formData.companyId !== '' && allCompanies) {
             const company = allCompanies.find(item => item.id === formData.companyId)
             setCompany(company)
+        }
+        if (currentFormDataRegion && allCompanies) {
+            const citiesSet = new Set(allCompanies.filter(company => company.region === currentFormDataRegion)
+                .map(company => company.city))
+            const cities = Array.from(citiesSet).sort((a, b) => a.toLowerCase().localeCompare(b, 'ru'))
+            setCities(cities)
+
         }
     }, [allCompanies, formData.city, formData.companyId, formData.region])
 

@@ -76,6 +76,8 @@ const Subscribes = () => {
 
     tg.BackButton.show();
 
+    useEffect(() => { uploadRef.current = upload }, [upload]);
+
     useEffect(() => {
         showButton({
             text: '1',
@@ -109,7 +111,7 @@ const Subscribes = () => {
         } catch (error) {
             console.error('Save failed:', error);
         }
-    }, [companySubscribes]);
+    }, [companySubscribes, name.email, name.name]);
 
     const scrollToSection = (sectionId, offset) => {
         const element = document.getElementById(sectionId);
