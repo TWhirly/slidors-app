@@ -127,6 +127,9 @@ const ActivityEditForm = () => {
             tg.MainButton.disable(); // Отключить кнопку
         }
         initBackButton();
+        const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
+        setHasChanged(hasChanged);
+        setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
         return () => {
             if (tg) {
                 tg.BackButton.offClick(handleBackButton); // ✅ Очищаем конкретный обработчик
@@ -161,12 +164,6 @@ const ActivityEditForm = () => {
             setContacts(companyContacts)
         }
     }, [allContacts, formData.companyId]);
-
-    useEffect(() => {
-        console.log('effect 3')
-        const hasChanged = Object.keys(formData).some((key) => formData[key] !== activity[key]);
-        setHasChanged(hasChanged);
-    }, [formData, activity]);
 
     useEffect(() => {
         // console.log('effect 5')
@@ -239,13 +236,6 @@ const ActivityEditForm = () => {
         setIsElobaration(formData.purpose === 'Проработка');
         setIsSnvElobaration(formData.purpose === 'Проработка СНВ');
     }, [formData.purpose]);
-
-    useEffect(() => {
-        setToSubscribe(formData['subscribed?'] === 'Подписать' ? true : false)
-        console.log('subscribe effect')
-
-
-    }, [formData])
 
     useEffect(() => {
         setIsPlanned(formData.plan?.length > 0);

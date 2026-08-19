@@ -260,19 +260,19 @@ const Subscribes = () => {
         return STATUS_EMOJIS[status] || '⬜';
     };
 
-    useEffect(() => {
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return;
-        tg.BackButton.onClick(() => {
-            if (hasChanges) {
-                handleSave();
-            }
-            navigate(('/'), { replace: true });
-        });
-        return () => {
-            tg.BackButton.offClick();
-        };
-    }, [navigate, hasChanges, handleSave]);
+    // useEffect(() => {
+    //     const tg = window.Telegram?.WebApp;
+    //     if (!tg) return;
+    //     tg.BackButton.onClick(() => {
+    //         if (hasChanges) {
+    //             handleSave();
+    //         }
+    //         navigate(('/'), { replace: true });
+    //     });
+    //     return () => {
+    //         tg.BackButton.offClick();
+    //     };
+    // }, [navigate, hasChanges, handleSave]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {

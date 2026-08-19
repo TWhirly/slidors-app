@@ -205,7 +205,7 @@ const ActivityDetails = () => {
     });
   };
 
-  // console.log('activity', activity)
+  console.log('activity', activity)
   // console.log('tg.BackButton.onClick', tg.BackButton.onClick())
 
   if (!activity) {
@@ -255,7 +255,35 @@ const ActivityDetails = () => {
           </div>
         )}
 
-        {activity.description && (<div className={styles.companyDescriptionRowInfo}><div className={styles.companyDescriptionRowInfo}><div className={styles.companyRowHeader}>Описание:</div></div><div className={styles.companyDescriptionRowVal}>{activity.description}</div></div>)}
+        {activity.specialization && (
+          <div className={styles.companyDescriptionRowInfo}>
+            <div className={styles.companyDescriptionRowInfo}>
+              <div className={styles.companyRowHeader}>Специализация:
+              </div>
+            </div>
+            <div className={styles.companyDescriptionRowVal}>{activity.specialization}
+            </div>
+          </div>)}
+
+          {activity.company_importance && (
+          <div className={styles.companyDescriptionRowInfo}>
+            <div className={styles.companyDescriptionRowInfo}>
+              <div className={styles.companyRowHeader}>Значимость компании (какой вопрос был при звонке):
+              </div>
+            </div>
+            <div className={styles.companyDescriptionRowVal}>{activity.company_importance}
+            </div>
+          </div>)}
+
+        {activity.description && (
+          <div className={styles.companyDescriptionRowInfo}>
+            <div className={styles.companyDescriptionRowInfo}>
+              <div className={styles.companyRowHeader}>{activity.purpose === 'Проработка СНВ' ? 'О чём договорились:' : 'Описание:'}
+              </div>
+            </div>
+            <div className={styles.companyDescriptionRowVal}>{activity.description}
+            </div>
+          </div>)}
         {activity.responsible && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Ответственный:</div><div className={styles.companyRowVal}>{activity.responsible}</div></div>)}
         {activity.manager && (<div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Менеджер:</div><div className={styles.companyRowVal}>{activity.manager}</div></div>)}
       </div>

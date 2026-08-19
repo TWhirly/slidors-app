@@ -17,6 +17,8 @@ import ActivityDetails from './components/Activity/ActivityDetails';
 import ActivityEditForm from './components/Activity/ActivityEditForm';
 import Contacts from './components/Contacts/Contacts';
 import Subscribes from './components/Companies/Subscribes.jsx';
+import ReportsMenu from './components/Reports/ReportsMenu.jsx';
+import SnvManager from './components/Reports/SnvManager.jsx';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -104,6 +106,8 @@ function App() {
             <Route path="/activities" element={<Activities />} />
             <Route path="/activities/:id" element={<ActivityDetails />} />
             <Route path="/empty/" element={<EmptyComponent />} />
+            <Route path="/reports" element={<ReportsMenu />} />
+            <Route path="/reports/snvManager" element={<SnvManager />} />
           </Routes>
         </div>
       </DataProvider>

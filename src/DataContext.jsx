@@ -23,7 +23,6 @@ export const DataProvider = ({ children }) => {
     useEffect(() => {
         if (!chat_id)
             return
-        console.log(process.env.REACT_APP_DEV)
         const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
         const headers = process.env.REACT_APP_DEV === "1" ?
             {
@@ -41,7 +40,6 @@ export const DataProvider = ({ children }) => {
             };
             params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
             try {
-                console.log('is dev', typeof(process.env.REACT_APP_DEV))
                const response = await axios.post(
                     apiUrl,
                     params,
@@ -95,7 +93,7 @@ export const DataProvider = ({ children }) => {
             tg.BackButton.hide();
         }
     }, [loading, tg]);
-    console.log('name', types)
+    // console.log('name', types)
     return (
         <DataContext.Provider value={{
             loading,

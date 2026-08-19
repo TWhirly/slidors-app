@@ -58,7 +58,7 @@ export default function PersistentDrawerLeft() {
     { name: 'Подписки', path: '/subscribes', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Задачи', path: '/', icon: require('../../icons/menu-items-logo.png') },
     { name: 'Пользователи', path: '/', icon: require('../../icons/menu-items-logo.png') },
-    { name: 'Отчеты', path: '/', icon: require('../../icons/menu-items-logo.png') },
+    { name: 'Отчеты', path: '/reports', icon: require('../../icons/menu-items-logo.png') },
   ];
 
     // console.log('name', name);

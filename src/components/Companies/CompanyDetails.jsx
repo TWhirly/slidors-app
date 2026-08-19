@@ -9,7 +9,7 @@ import { useRegions } from '../../hooks/useRegions.js';
 import { useActivity } from '../../hooks/useActivity.js';
 import { getEmptyActivity } from '../Activity/activity.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
-import { getCompanyTypeIcon , getEmptyContact , formatUrl } from './Companies-helpers.js';
+import { getCompanyTypeIcon, getEmptyContact, formatUrl } from './Companies-helpers.js';
 import CompanyСontacts from './CompanyContacts.jsx'
 import CompanyMainContacts from './CompanyMainContacts.jsx'
 
@@ -22,7 +22,7 @@ const CompanyDetails = () => {
   const [companyActivity, setCompanyActivity] = useState([])
   const [companyPlannedActivity, setCompanyPlannedActivity] = useState([])
   const [contactMails, setCompanyMails] = useState([]);
-  const {tg , chat_id} = useTelegram()
+  const { tg, chat_id } = useTelegram()
   const emailIcon = 'https://cdn.jsdelivr.net/gh/TWhirly/slidors-app@master/src/icons/email-96.png'
   const { emails, isContactsMailsLoading } = useEmail(chat_id);
   const { companies } = useRegions(chat_id)
@@ -38,7 +38,7 @@ const CompanyDetails = () => {
   }, [companies, id]);
 
   useEffect(() => {
-    if(!emails)
+    if (!emails)
       return
     console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
@@ -67,14 +67,14 @@ const CompanyDetails = () => {
   }, [id, navigate, returnPath, tg]);
 
   useEffect(() => {
-    if (activity.planned && activity.planned.length > 0){
+    if (activity.planned && activity.planned.length > 0) {
       setCompanyPlannedActivity(activity.planned.reduce((acc, activity) => {
         if (activity.plan !== '' && activity.companyId === id)
           acc.push(activity)
         return acc
       }, []))
     }
-    if (activity.other && activity.other.length > 0){
+    if (activity.other && activity.other.length > 0) {
       setCompanyActivity(activity.other.reduce((acc, activity) => {
         if (activity.plan === '' && activity.companyId === id)
           acc.push(activity)
@@ -96,7 +96,7 @@ const CompanyDetails = () => {
 
     if (selectedOption === 'Добавить событие') {
       const emptyActivity = getEmptyActivity(email, id, company.name, company.region, company.city)
-      updateActivity({...emptyActivity, new: true})
+      updateActivity({ ...emptyActivity, new: true })
       navigate(`/activities/new/edit`, { state: { ...emptyActivity, path: `/companies/${id}`, prevComponent: company, new: true } });
     }
   };
@@ -187,8 +187,8 @@ const CompanyDetails = () => {
           {companyPlannedActivity?.length > 0 && !isActivityLoading ?
             (<div>
               <div className={styles.companyRowHeader}>{activity.length > 0 ? `\u00A0(${activity.length}):` : ':'}
-              {companyPlannedActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setPlannedExpanded(!plannedExpanded)}>{expanded ? '▲' : '▼'}</div>}
-            </div>
+                {companyPlannedActivity?.length > 3 && <div className={styles.buttonArrow} onClick={() => setPlannedExpanded(!plannedExpanded)}>{expanded ? '▲' : '▼'}</div>}
+              </div>
             </div>) :
             ''}
         </div>
@@ -200,7 +200,7 @@ const CompanyDetails = () => {
                   <div key={index} className={styles.contactItem}>
                     <div className={styles.activityRowVal}>{activity.plan ? new Date(activity.plan).toLocaleDateString() + ' ' : ''}
                       {activity.purpose} </div>
-                      <div>{activity.description}</div>
+                    <div>{activity.description}</div>
                   </div>
                 ))}
               </div>) : 'нет'
@@ -223,11 +223,11 @@ const CompanyDetails = () => {
           !isActivityLoading ? (
             companyActivity?.length > 0 ? (
               <div className={styles.contactItem}>
-                {companyActivity?.filter((item, index) => (expanded ? index  : index < 3)).map((activity, index) => (
+                {companyActivity?.filter((item, index) => (expanded ? index : index < 3)).map((activity, index) => (
                   <div key={index} className={styles.contactItem}>
                     <div className={styles.activityRowVal}>{activity.endDatetime ? new Date(activity.endDatetime).toLocaleDateString() + ' ' : ''}
                       {activity.purpose}</div>
-                       <div>{activity.description}</div>
+                    <div>{activity.description}</div>
                   </div>
                 ))}
               </div>) : 'нет'

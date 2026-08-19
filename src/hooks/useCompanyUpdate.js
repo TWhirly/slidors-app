@@ -97,7 +97,7 @@ export const useCompanyUpdate = (chat_id) => {
         headers
       );
       setIsSaving(false);
-      showNotificationRef.current(`Данные сохранены успешно!`);
+      
       console.log('response', response)
       await queryClientRef.current.invalidateQueries({ queryKey: ['regions'] })
       return response.data;
@@ -108,8 +108,9 @@ export const useCompanyUpdate = (chat_id) => {
     finally {
       uploadingRef.current = false;
       setIsSaving(false);
+      showNotificationRef.current(`Данные сохранены успешно!`);
     }
-  }, [chat_id])
+  }, [chat_id, saving])
 
   return {
     upload,
