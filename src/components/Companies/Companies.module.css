@@ -590,3 +590,7 @@
 .tooltipLabel {
     color: #c0c0c0;
 }
+
+.snvQuestion {
+    color: var(--tg-theme-section-header-text-color)
+}
