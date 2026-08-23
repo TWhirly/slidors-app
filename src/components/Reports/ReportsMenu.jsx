@@ -25,7 +25,7 @@ const ReportsMenu = () => {
 
     const menuItems = [
         {name: 'Менеджер СНВ', route: 'snvManager'},
-        {name: 'Подписки', route: ''}
+        {name: 'Подписки', route: 'subscribesReport'}
     ]
 
   

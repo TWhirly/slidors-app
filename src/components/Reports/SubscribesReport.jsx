@@ -7,7 +7,7 @@ import { SnvFilter } from './SnvFilter.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useActivity } from '../../hooks/useActivity.js';
-import { useEventFilters } from '../../hooks/useEventFilters';
+import { useEventFilters } from '../../hooks/useEventFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
 
 const COLORS = {
@@ -19,7 +19,7 @@ const COLORS = {
 };
 
 
-const SnvManager = () => {
+const SubscribesReport = () => {
     const navigate = useNavigate();
     const [managerExpand, setManegerExpand] = useState([]);
     const [snvEvents, setSnvEvents] = useState({})
@@ -34,7 +34,7 @@ const SnvManager = () => {
             return
         if(!Array.isArray(activity.other))
             return
-        setSnvEvents({ other: activity.other.filter(a => a.purpose === 'Проработка СНВ'), planned: [] })
+        setSnvEvents({ other: activity.other.filter(a => a.purpose === 'Подписка'), planned: [] })
 
     }, [activity])
 
@@ -52,13 +52,31 @@ const SnvManager = () => {
         avialableTypes
     } = useEventFilters(snvEvents || { planned: [], other: [] });
 
-    useEffect(() => {
-        const managerGrouppedEvents = filteredOtherEvents.reduce((acc, event) => {
+    const SubscribeChanges = (props) => {
+        // console.log('c', changes)
+        return(
+        Object.entries(props.children).map(([messenger, change]) => {
+            const names = {'wa': 'WhatsApp', 'tg': 'Telegram', 'max': 'Max'}
+            console.log('messenger', messenger)
+            console.log('change', change)
+            return(
+                <div>
+                    {names[messenger]}: {change[0]} ➡️ {change[1]}
+                </div>
+            )
+        })
+    )
+    }
 
+    useEffect(() => {
+        if(!Array.isArray(filteredOtherEvents))
+            return
+        const managerGrouppedEvents = filteredOtherEvents.reduce((acc, event) => {
+            console.log(event)
             if (!acc[event.manager]) {
-                acc[event.manager] = [event]
+                acc[event.manager] = [{...event, subscribeChanges: JSON.parse(event.subsribe_changes)}]
             } else {
-                acc[event.manager].push(event)
+                acc[event.manager].push({...event, subscribeChanges: JSON.parse(event.subsribe_changes)})
             }
             return acc
         }, {})
@@ -118,6 +136,8 @@ const SnvManager = () => {
         };
     }, [navigate]);
 
+    console.log(managerGrouppedEvents)
+
     if (isLoading) {
         return (
             <div className={styles.container}>
@@ -140,7 +160,7 @@ const SnvManager = () => {
     <div className={styles.container}>
         <div className={styles.naviPanel}>
             <div className={styles.companyNamePanel}>
-                Отчёт — Менеджер СНВ 
+                Отчёт — Подписки
             </div>
 
             <div className={styles.filterButton}>
@@ -213,28 +233,14 @@ const SnvManager = () => {
                                             </div>
                                         </div>
                                         
-                                        {activity.specialization && (
+                                        {activity.subscribeChanges && (
                                             <div className={styles.companyDescriptionRow}>
-                                                <span className={styles.snvQuestion}>Специализация:</span>
-                                                <span className={styles.companyDescriptionRowVal}>{activity.specialization}</span>
+                                                <span className={styles.snvQuestion}>Изменение статусов подписок:</span>
+                                                <SubscribeChanges className={styles.companyDescriptionRowVal}>{activity.subscribeChanges}</SubscribeChanges>
                                             </div>
                                         )}
 
-                                        {activity.company_importance && (
-                                            <div className={styles.companyDescriptionRow}>
-                                                <span className={styles.snvQuestion}>Значимость компании:</span>
-                                                <span className={styles.companyDescriptionRowVal}>{activity.company_importance}</span>
-                                            </div>
-                                        )}
-
-                                        {activity.description && (
-                                            <div className={styles.companyDescriptionRow}>
-                                                <span className={styles.snvQuestion}>
-                                                    {activity.purpose === 'Проработка СНВ' ? 'О чём договорились:' : 'Описание:'}
-                                                </span>
-                                                <span className={styles.companyDescriptionRowVal}>{activity.description}</span>
-                                            </div>
-                                        )}
+                                        
                                     </div>
                                 ))}
                             </div>
@@ -259,4 +265,4 @@ const SnvManager = () => {
 );
 };
 
-export default SnvManager;
+export default SubscribesReport;

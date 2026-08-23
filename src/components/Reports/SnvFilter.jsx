@@ -1,6 +1,6 @@
 ﻿// FilterModal.jsx
-import React, { useState } from 'react';
-import styles from './FilterModal.module.css';
+import React, { useState, useEffect } from 'react';
+import styles from '../Activity/FilterModal.module.css';
 
 export const SnvFilter = ({
   isOpen,
@@ -14,15 +14,59 @@ export const SnvFilter = ({
   avialableTypes
 }) => {
 
-  if (!isOpen) return null;
+       
 
+  if (!isOpen) return null;
+    
   const updateFilter = (key, value) => {
     console.log('filters', filters)
-    const newFilters = { ...filters, [key]: value };
+    let newFilters
+    if (key === 'specificDate') {
+      // При установке specificDate - очищаем dateRange
+      newFilters = { 
+        ...filters, 
+        specificDate: value, 
+        dateRange: { from: '', to: '' } // Используем пустые строки, а не null
+      };
+    } else if (key === 'dateRange') {
+      // При изменении dateRange - очищаем specificDate
+      newFilters = { 
+        ...filters, 
+        dateRange: value,
+        specificDate: '' 
+      };
+    } else {
+      newFilters = { ...filters, [key]: value };
+    }
     onFiltersChange(newFilters);
     localStorage.setItem('eventFilters', JSON.stringify(newFilters));
   };
   console.log('avialableRegions', avialableRegions)
+
+  const handleSpecificDateChange = (e) => {
+    const value = e.target.value;
+    updateFilter('specificDate', value);
+  };
+
+  // Обработчик для dateRange.from
+  const handleDateFromChange = (e) => {
+    const value = e.target.value;
+    updateFilter('dateRange', {
+      ...filters.dateRange,
+      from: value
+    });
+  };
+
+  // Обработчик для dateRange.to
+  const handleDateToChange = (e) => {
+    const value = e.target.value;
+    updateFilter('dateRange', {
+      ...filters.dateRange,
+      to: value
+    });
+  };
+
+
 
   return (
     <div className={styles.mainContainer}>
@@ -40,18 +84,33 @@ export const SnvFilter = ({
         {/* Содержимое фильтра */}
         <div className={styles.filtersContent}>
 
+
+             <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>За дату</label>
+            <div className={styles.dateGrid}>
+              <div className={styles.dateBox}>
+                <input
+                  type="date"
+                  value={filters.specificDate}
+                  onChange={handleSpecificDateChange}
+                  className={styles.dateInput}
+                  placeholder="Дата"
+                />
+              </div>
+              
+            </div>
+          </div>
+            
+
              {/* Фильтр по дате */}
           <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Период</label>
+            <label className={styles.filterLabel}>За период</label>
             <div className={styles.dateGrid}>
               <div className={styles.dateBox}>
                 <input
                   type="date"
                   value={filters.dateRange.from}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    from: e.target.value
-                  })}
+                  onChange={handleDateFromChange}
                   className={styles.dateInput}
                   placeholder="Дата начала"
                 />
@@ -60,10 +119,7 @@ export const SnvFilter = ({
                 <input
                   type="date"
                   value={filters.dateRange.to}
-                  onChange={(e) => updateFilter('dateRange', {
-                    ...filters.dateRange,
-                    to: e.target.value
-                  })}
+                  onChange={handleDateToChange}
                   className={styles.dateInput}
                   placeholder="Дата окончания"
                 />
@@ -131,72 +187,10 @@ export const SnvFilter = ({
           </div>
 
           {/* Выбор статусов */}
-          <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Работают ли с системой Слайдорс?</label>
-            <div className={styles.checkboxList}>
-              {avialableStatuses.map(status => (
-                <label key={status} className={styles.checkboxItem}>
-                  <input
-                    type="checkbox"
-                    checked={filters.status.includes(status)}
-                    onChange={(e) => {
-                      const newStatuses = e.target.checked
-                        ? [...filters.status, status]
-                        : filters.status.filter(c => c !== status);
-                      updateFilter('status', newStatuses);
-                    }}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>{status}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+          
 
           {/* Выбор целей */}
-          <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Цели</label>
-            <div className={styles.checkboxList}>
-              {avialablePurposes.map(purpose => (
-                <label key={purpose} className={styles.checkboxItem}>
-                  <input
-                    type="checkbox"
-                    checked={filters.purpose.includes(purpose)}
-                    onChange={(e) => {
-                      const newPurposes = e.target.checked
-                        ? [...filters.purpose, purpose]
-                        : filters.purpose.filter(c => c !== purpose);
-                      updateFilter('purpose', newPurposes);
-                    }}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>{purpose}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.filterSection}>
-            <label className={styles.filterLabel}>Типы</label>
-            <div className={styles.checkboxList}>
-              {avialableTypes.map(type => (
-                <label key={type} className={styles.checkboxItem}>
-                  <input
-                    type="checkbox"
-                    checked={filters.type.includes(type)}
-                    onChange={(e) => {
-                      const newPurposes = e.target.checked
-                        ? [...filters.type, type]
-                        : filters.type.filter(c => c !== type);
-                      updateFilter('type', newPurposes);
-                    }}
-                    className={styles.checkboxInput}
-                  />
-                  <span className={styles.checkboxLabel}>{type}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+       
           
        
         </div>

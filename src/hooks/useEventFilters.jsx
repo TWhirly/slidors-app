@@ -1,5 +1,5 @@
 // useEventFilters.js
-import { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext, useEffect } from 'react';
 import { DataContext } from '../DataContext.jsx';
 
 export const useEventFilters = (events) => {
@@ -13,10 +13,11 @@ export const useEventFilters = (events) => {
     manager: [],
     region: [],
     type: [],
-    dateRange: { from: '', to: '' }
+    dateRange: { from: '', to: '' },
+    specificDate: ''
   });
 
-  
+
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
@@ -119,7 +120,9 @@ export const useEventFilters = (events) => {
     //       !filters.tags.some(tag => event.tags.includes(tag))) {
     //     return false;
     //   }
-
+      if(filters.specificDate && formatDate(event.endDatetime) !== filters.specificDate){
+        return false
+      }
       // Фильтр по дате
       if (filters.dateRange?.from && formatDate(event.endDatetime) < filters.dateRange.from) {
         return false;
