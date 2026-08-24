@@ -24,6 +24,8 @@ const SubscribesReport = () => {
     const [managerExpand, setManegerExpand] = useState([]);
     const [snvEvents, setSnvEvents] = useState({})
     const [managerGrouppedEvents, setManagerGrouppedEvents] = useState([])
+    const [uniqueManagerCompanies, setuniqueManagerCompanies] = useState({})
+    const [managerChannelsSummary, setManagerChannelsSummary] = useState({})
     const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error } = useActivity(chat_id);
     const filterIcon = require('../../icons/filter.png')
@@ -51,14 +53,11 @@ const SubscribesReport = () => {
         avialableRegions,
         avialableTypes
     } = useEventFilters(snvEvents || { planned: [], other: [] });
-
+    const names = {'wa': 'WhatsApp', 'tg': 'Telegram', 'max': 'Max'}
     const SubscribeChanges = (props) => {
         // console.log('c', changes)
         return(
         Object.entries(props.children).map(([messenger, change]) => {
-            const names = {'wa': 'WhatsApp', 'tg': 'Telegram', 'max': 'Max'}
-            console.log('messenger', messenger)
-            console.log('change', change)
             return(
                 <div>
                     {names[messenger]}: {change[0]} ➡️ {change[1]}
@@ -80,7 +79,27 @@ const SubscribesReport = () => {
             }
             return acc
         }, {})
+        const uniqueManagerCompanies = filteredOtherEvents.reduce((acc, event) => {
+            if(!acc[event.manager]) {
+                acc[event.manager] = [event.companyId]
+            } else if (!acc[event.manager].includes(event.companyId)) {
+                acc[event.manager] = [...acc[event.manager], event.companyId]
+            }
+            return acc
+        }, {})
+        const managerChannelsSummary = filteredOtherEvents.reduce((acc, event) => {
+            if(!acc[event.manager]) {
+                acc[event.manager] = {'wa': 0, 'tg': 0, 'max': 0}
+            }
+            const subscribeChanges = JSON.parse(event.subsribe_changes)
+            Object.keys(subscribeChanges).forEach(msngr => {
+                acc[event.manager][msngr] +=1
+            })
+            return acc
+        }, [])
         setManagerGrouppedEvents(managerGrouppedEvents)
+        setuniqueManagerCompanies(uniqueManagerCompanies)
+        setManagerChannelsSummary(managerChannelsSummary)
     }, [filteredOtherEvents])
 
     const activeFiltersCount = [
@@ -136,7 +155,7 @@ const SubscribesReport = () => {
         };
     }, [navigate]);
 
-    console.log(managerGrouppedEvents)
+    console.log(managerChannelsSummary)
 
     if (isLoading) {
         return (
@@ -193,6 +212,11 @@ const SubscribesReport = () => {
         <div className={styles.eventsContainer}>
             {Object.entries(managerGrouppedEvents).map(([manager, events]) => {
                 const eventsAmount = events.length
+                const subscribeChannelsAmount = events.reduce((acc, event) => {
+                        acc+=Object.keys(event.subscribeChanges).length
+                        return acc
+                }, 0
+                )
                 const isExpanded = managerExpand.includes(manager)
                 
                 return (
@@ -201,12 +225,25 @@ const SubscribesReport = () => {
                             className={styles.plannedHeader}
                             onClick={() => handleManagerExpand(manager)}
                         >
-                            <span>{manager} ({eventsAmount})</span>
+                            <span>{manager} ({eventsAmount}/{subscribeChannelsAmount})</span>
                             <div className={`${styles.regionButtonArrow} ${isExpanded ? styles.arrowExpanded : ''}`} />
                         </div>
 
                         {isExpanded && (
                             <div className={styles.eventsList}>
+                                <div
+                                className={styles.dataGridContainer}
+                                >
+                                <div className={styles.companyDescriptionRow}>
+                                                <span className={styles.snvQuestion}>Статистика по менеджеру:</span>
+                                                <span className={styles.companyDescriptionRowVal}>Обработано компаний: {uniqueManagerCompanies[manager].length}</span>
+                                                {Object.entries(managerChannelsSummary[manager]).map(([ch, count]) => {
+                                                    return (
+                                                       <span className={styles.companyDescriptionRowVal}>Изменений статусов по каналу {names[ch]}: {count}</span> 
+                                                    )
+                                                })}
+                                            </div>
+                                            </div>
                                 {events.map((activity, index) => (
                                     <div
                                         key={index}
