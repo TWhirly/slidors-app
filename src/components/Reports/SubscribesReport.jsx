@@ -24,6 +24,7 @@ const SubscribesReport = () => {
     const [managerExpand, setManegerExpand] = useState([]);
     const [snvEvents, setSnvEvents] = useState({})
     const [managerGrouppedEvents, setManagerGrouppedEvents] = useState([])
+    const [regionGrouppedEvents, setRegionGrouppedEvents] = useState([])
     const [uniqueManagerCompanies, setuniqueManagerCompanies] = useState({})
     const [managerChannelsSummary, setManagerChannelsSummary] = useState({})
     const { tg, chat_id } = useTelegram()

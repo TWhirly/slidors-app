@@ -14,7 +14,8 @@ export const useEventFilters = (events) => {
     region: [],
     type: [],
     dateRange: { from: '', to: '' },
-    specificDate: ''
+    specificDate: '',
+    groupBy: ''
   });
 
 
@@ -185,6 +186,10 @@ export const useEventFilters = (events) => {
     [events]
   );
 
+  const avialableEventsGroupping = useMemo(() => {
+    return ([{key: 'region', name: 'По региону'}, {key: 'manager', name: 'По менеджеру'}])
+  },[])
+
   
 
   return {
@@ -198,6 +203,7 @@ export const useEventFilters = (events) => {
     avialablePurposes,
     avialableRegions,
     avialableManagers,
-    avialableTypes
+    avialableTypes,
+    avialableEventsGroupping
   };
 };

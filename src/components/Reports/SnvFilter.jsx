@@ -11,7 +11,8 @@ export const SnvFilter = ({
   avialablePurposes,
   avialableRegions,
   avialableManagers,
-  avialableTypes
+  avialableTypes,
+  avialableEventsGroupping
 }) => {
 
        
@@ -41,7 +42,7 @@ export const SnvFilter = ({
     onFiltersChange(newFilters);
     localStorage.setItem('eventFilters', JSON.stringify(newFilters));
   };
-  console.log('avialableRegions', avialableRegions)
+  console.log('avialableRegions', avialableEventsGroupping)
 
   const handleSpecificDateChange = (e) => {
     const value = e.target.value;
@@ -83,6 +84,29 @@ export const SnvFilter = ({
 
         {/* Содержимое фильтра */}
         <div className={styles.filtersContent}>
+
+             {/* Группировка */}
+        <div className={styles.filterSection}>
+            <label className={styles.filterLabel}>Группировка</label>
+            <div className={styles.checkboxList}>
+              {avialableEventsGroupping.map(groupBy => (
+                 <label key={groupBy.key} className={styles.checkboxItem}>
+                  <input
+                    type="checkbox"
+                    checked={filters.region.includes(groupBy.key)}
+                    onChange={(e) => {
+                      const newRegions = e.target.checked
+                        ? [...filters.groupBy, groupBy.key]
+                        : filters.groupBy.filter(c => c !== groupBy.key);
+                      updateFilter('region', newRegions);
+                    }}
+                    className={styles.checkboxInput}
+                  />
+                  <span className={styles.checkboxLabel}>{groupBy.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
 
              <div className={styles.filterSection}>

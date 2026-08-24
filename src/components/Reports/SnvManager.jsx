@@ -49,7 +49,8 @@ const SnvManager = () => {
         avialablePurposes,
         avialableManagers,
         avialableRegions,
-        avialableTypes
+        avialableTypes,
+        avialableEventsGroupping
     } = useEventFilters(snvEvents || { planned: [], other: [] });
 
     useEffect(() => {
@@ -254,6 +255,7 @@ const SnvManager = () => {
             avialableRegions={avialableRegions}
             avialableManagers={avialableManagers}
             avialableTypes={avialableTypes}
+            avialableEventsGroupping={avialableEventsGroupping}
         />}
     </div>
 );
