@@ -91,6 +91,8 @@ const ActivityEditForm = () => {
     }, [activity.id, activity.new, activity.path, allowSave, formData.companyId, id, navigate, optimisticUpdateActivity, queryClient, tg, updateActivity])
 
     useEffect(() => {
+        if(!activity || tg)
+            return
         console.log('effect 1')
         const handleBackButton = () => {
             updateActivity({ ...activity, delete: activity.new }, {
@@ -153,8 +155,10 @@ const ActivityEditForm = () => {
     }, [activity.finalize, activity.new])
 
     useEffect(() => {
+        if(!allContacts)
+            return
         console.log('effect 2')
-        if (allContacts) {
+        
             const companyContacts = allContacts.reduce((acc, contact) => {
                 if (contact.companyId === formData.companyId && !checkIfInArray(acc, contact)) {
                     acc.push(contact);
@@ -162,7 +166,7 @@ const ActivityEditForm = () => {
                 return acc;
             }, []);
             setContacts(companyContacts)
-        }
+        
     }, [allContacts, formData.companyId]);
 
     useEffect(() => {
@@ -180,6 +184,8 @@ const ActivityEditForm = () => {
     // }, [allCompanies, formData.region]);
 
     useEffect(() => {
+        if(!allCompanies)
+            return
         console.log('effect 7')
         const currentFormDataRegion = formData.region;
         if (currentFormDataRegion && currentFormDataRegion.length > 0 && allCompanies) {
@@ -292,10 +298,10 @@ const ActivityEditForm = () => {
     if (!activity) {
         return <div className={styles.container}>Событие не найдено</div>;
     }
-    console.log('toSubscribe', toSubscribe);
-    console.log('formData', formData);
-    console.log('hasChanged', hasChanged)
-    console.log('allowSave', allowSave)
+    // console.log('toSubscribe', toSubscribe);
+    // console.log('formData', formData);
+    // console.log('hasChanged', hasChanged)
+    // console.log('allowSave', allowSave)
 
     return (
         <div className={styles.container}>

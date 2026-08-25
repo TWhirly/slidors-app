@@ -187,7 +187,7 @@ export const useEventFilters = (events) => {
   );
 
   const avialableEventsGroupping = useMemo(() => {
-    return ([{key: 'region', name: 'По региону'}, {key: 'manager', name: 'По менеджеру'}])
+    return ([{key: 'region', name: 'по региону'}, {key: 'manager', name: 'по менеджеру'}])
   },[])
 
   

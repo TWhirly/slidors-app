@@ -23,7 +23,8 @@ const SnvManager = () => {
     const navigate = useNavigate();
     const [managerExpand, setManegerExpand] = useState([]);
     const [snvEvents, setSnvEvents] = useState({})
-    const [managerGrouppedEvents, setManagerGrouppedEvents] = useState([])
+    const [grouppedEvents, setGrouppedEvents] = useState([])
+    const [groupingDependField, setGroupingDependField] = useState('')
     const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error } = useActivity(chat_id);
     const filterIcon = require('../../icons/filter.png')
@@ -54,17 +55,25 @@ const SnvManager = () => {
     } = useEventFilters(snvEvents || { planned: [], other: [] });
 
     useEffect(() => {
-        const managerGrouppedEvents = filteredOtherEvents.reduce((acc, event) => {
+        const groupingfield = filters.groupBy || 'manager'
+        const grouppedEvents = filteredOtherEvents.reduce((acc, event) => {
 
-            if (!acc[event.manager]) {
-                acc[event.manager] = [event]
+            if (!acc[event[groupingfield]]) {
+                acc[event[groupingfield]] = [event]
             } else {
-                acc[event.manager].push(event)
+                acc[event[groupingfield]].push(event)
             }
             return acc
         }, {})
-        setManagerGrouppedEvents(managerGrouppedEvents)
-    }, [filteredOtherEvents])
+        setGrouppedEvents(grouppedEvents)
+    }, [filteredOtherEvents, filters.groupBy])
+
+    useEffect(() => {
+        if(!filters.groupBy)
+            return
+        const field = filters.groupBy === 'region' ? 'manager' : 'region'
+        setGroupingDependField(field)
+    }, [filters.groupBy])
 
     const activeFiltersCount = [
         filters.searchText ? 1 : 0,
@@ -172,17 +181,17 @@ const SnvManager = () => {
         </div>
 
         <div className={styles.eventsContainer}>
-            {Object.entries(managerGrouppedEvents).map(([manager, events]) => {
+            {Object.entries(grouppedEvents).map(([groupField, events]) => {
                 const eventsAmount = events.length
-                const isExpanded = managerExpand.includes(manager)
+                const isExpanded = managerExpand.includes(groupField)
                 
                 return (
-                    <div key={manager} className={styles.managerGroup}>
+                    <div key={groupField} className={styles.managerGroup}>
                         <div
                             className={styles.plannedHeader}
-                            onClick={() => handleManagerExpand(manager)}
+                            onClick={() => handleManagerExpand(groupField)}
                         >
-                            <span>{manager} ({eventsAmount})</span>
+                            <span>{groupField} ({eventsAmount})</span>
                             <div className={`${styles.regionButtonArrow} ${isExpanded ? styles.arrowExpanded : ''}`} />
                         </div>
 
@@ -201,6 +210,10 @@ const SnvManager = () => {
                                                 hour: 'numeric',
                                                 minute: 'numeric'
                                             }).format(new Date(activity.endDatetime))}
+                                        </div>
+
+                                        <div className={styles.companyPlanDate}>
+                                            {activity[groupingDependField]}
                                         </div>
 
                                         <div className={styles.companyInfo}>

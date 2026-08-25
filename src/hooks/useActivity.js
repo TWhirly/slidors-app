@@ -113,7 +113,7 @@ function createDateTime(dateStr, timeStr) {
     queryKey: ['activity'],
     queryFn: fetchActivity,
     staleTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 50,
+    refetchInterval: 1000 * 60 * 25,
     refetchIntervalInBackground: true
   });
 

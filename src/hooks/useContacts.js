@@ -80,7 +80,7 @@ const response = await axios.post(
     queryKey: ['contacts'],
     queryFn: fetchContacts,
     staleTime: 1000 * 60 * 30,
-    refetchInterval: 1000 * 60 * 50,
+    refetchInterval: 1000 * 60 * 25,
     refetchIntervalInBackground: true
   });
 

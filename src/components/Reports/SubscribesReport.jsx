@@ -9,6 +9,8 @@ import IconButton from '@mui/material/IconButton';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
+import filterIcon from '../../icons/filter.png'
+import filterActiveIcon from '../../icons/filter.png'
 
 const COLORS = {
     primary: '#008ad1',      // Основной цвет (заголовки, акценты)
@@ -23,14 +25,14 @@ const SubscribesReport = () => {
     const navigate = useNavigate();
     const [managerExpand, setManegerExpand] = useState([]);
     const [snvEvents, setSnvEvents] = useState({})
-    const [managerGrouppedEvents, setManagerGrouppedEvents] = useState([])
-    const [regionGrouppedEvents, setRegionGrouppedEvents] = useState([])
-    const [uniqueManagerCompanies, setuniqueManagerCompanies] = useState({})
-    const [managerChannelsSummary, setManagerChannelsSummary] = useState({})
+    const [grouppedEvents, setgGrouppedEvents] = useState([])
+    const [grouppingDependField, setGroupingDependField] = useState('')
+    const [uniqueGroupCompanies, setuniqueGroupCompanies] = useState({})
+    const [groupChannelsSummary, setGroupChannelsSummary] = useState({})
     const { tg, chat_id } = useTelegram()
     const { activity, isLoading, error } = useActivity(chat_id);
-    const filterIcon = require('../../icons/filter.png')
-    const filterActiveIcon = require('../../icons/filterActive.png')
+    // const filterIcon = require('../../icons/filter.png')
+    // const filterActiveIcon = require('../../icons/filterActive.png')
    
     useEffect(() => {
         if (!activity)
@@ -52,7 +54,8 @@ const SubscribesReport = () => {
         avialablePurposes,
         avialableManagers,
         avialableRegions,
-        avialableTypes
+        avialableTypes,
+        avialableEventsGroupping
     } = useEventFilters(snvEvents || { planned: [], other: [] });
     const names = {'wa': 'WhatsApp', 'tg': 'Telegram', 'max': 'Max'}
     const SubscribeChanges = (props) => {
@@ -68,40 +71,51 @@ const SubscribesReport = () => {
     )
     }
 
+     useEffect(() => {
+            if(!filters.groupBy)
+                return
+            const field = filters.groupBy === 'region' ? 'manager' : 'region'
+            setGroupingDependField(field)
+        }, [filters.groupBy])
+
     useEffect(() => {
         if(!Array.isArray(filteredOtherEvents))
             return
-        const managerGrouppedEvents = filteredOtherEvents.reduce((acc, event) => {
-            console.log(event)
-            if (!acc[event.manager]) {
-                acc[event.manager] = [{...event, subscribeChanges: JSON.parse(event.subsribe_changes)}]
+        const groupingfield = filters.groupBy || 'manager'
+        const grouppedEvents = filteredOtherEvents.reduce((acc, event) => {
+            // console.log(event)
+            if (!acc[event[groupingfield]]) {
+                acc[event[groupingfield]] = [{...event, subscribeChanges: JSON.parse(event.subsribe_changes)}]
             } else {
-                acc[event.manager].push({...event, subscribeChanges: JSON.parse(event.subsribe_changes)})
+                acc[event[groupingfield]].push({...event, subscribeChanges: JSON.parse(event.subsribe_changes)})
             }
             return acc
         }, {})
-        const uniqueManagerCompanies = filteredOtherEvents.reduce((acc, event) => {
-            if(!acc[event.manager]) {
-                acc[event.manager] = [event.companyId]
-            } else if (!acc[event.manager].includes(event.companyId)) {
-                acc[event.manager] = [...acc[event.manager], event.companyId]
+        const uniqueGroupCompanies = filteredOtherEvents.reduce((acc, event) => {
+            if(!acc[event[groupingfield]]) {
+                acc[event[groupingfield]] = [event.companyId]
+            } else if (!acc[event[groupingfield]].includes(event.companyId)) {
+                acc[event[groupingfield]] = [...acc[event[groupingfield]], event.companyId]
             }
             return acc
         }, {})
-        const managerChannelsSummary = filteredOtherEvents.reduce((acc, event) => {
-            if(!acc[event.manager]) {
-                acc[event.manager] = {'wa': 0, 'tg': 0, 'max': 0}
+        const groupChannelsSummary = filteredOtherEvents.reduce((acc, event) => {
+            if(!acc[event[groupingfield]]) {
+                acc[event[groupingfield]] = {'wa': 0, 'tg': 0, 'max': 0, total: 0}
             }
             const subscribeChanges = JSON.parse(event.subsribe_changes)
-            Object.keys(subscribeChanges).forEach(msngr => {
-                acc[event.manager][msngr] +=1
+            Object.entries(subscribeChanges).forEach(([msngr, status]) => {
+                if(status[1] === 'Подписан' || status[1] === 'Отправлено приглашение'){
+                acc[event[groupingfield]][msngr] +=1
+                acc[event[groupingfield]]['total'] +=1
+                }
             })
             return acc
         }, [])
-        setManagerGrouppedEvents(managerGrouppedEvents)
-        setuniqueManagerCompanies(uniqueManagerCompanies)
-        setManagerChannelsSummary(managerChannelsSummary)
-    }, [filteredOtherEvents])
+        setgGrouppedEvents(grouppedEvents)
+        setuniqueGroupCompanies(uniqueGroupCompanies)
+        setGroupChannelsSummary(groupChannelsSummary)
+    }, [filteredOtherEvents, filters.groupBy])
 
     const activeFiltersCount = [
         filters.searchText ? 1 : 0,
@@ -155,8 +169,8 @@ const SubscribesReport = () => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
-
-    console.log(managerChannelsSummary)
+    console.log(uniqueGroupCompanies, filters.groupBy)
+    
 
     if (isLoading) {
         return (
@@ -199,34 +213,26 @@ const SubscribesReport = () => {
                 </div>
             </div>
             
-            <IconButton
-                onClick={() => {}}
-                sx={{
-                    color: 'white',
-                    marginRight: '1rem'
-                }}
-            >
-                <AddIcon />
-            </IconButton>
+            
         </div>
 
         <div className={styles.eventsContainer}>
-            {Object.entries(managerGrouppedEvents).map(([manager, events]) => {
+            {Object.entries(grouppedEvents).map(([groupingField, events]) => {
                 const eventsAmount = events.length
                 const subscribeChannelsAmount = events.reduce((acc, event) => {
                         acc+=Object.keys(event.subscribeChanges).length
                         return acc
                 }, 0
                 )
-                const isExpanded = managerExpand.includes(manager)
+                const isExpanded = managerExpand.includes(groupingField)
                 
                 return (
-                    <div key={manager} className={styles.managerGroup}>
+                    <div key={groupingField} className={styles.managerGroup}>
                         <div
                             className={styles.plannedHeader}
-                            onClick={() => handleManagerExpand(manager)}
+                            onClick={() => handleManagerExpand(groupingField)}
                         >
-                            <span>{manager} ({eventsAmount}/{subscribeChannelsAmount})</span>
+                            <span>{groupingField} ({eventsAmount}/{groupChannelsSummary[groupingField]['total']})</span>
                             <div className={`${styles.regionButtonArrow} ${isExpanded ? styles.arrowExpanded : ''}`} />
                         </div>
 
@@ -236,11 +242,12 @@ const SubscribesReport = () => {
                                 className={styles.dataGridContainer}
                                 >
                                 <div className={styles.companyDescriptionRow}>
-                                                <span className={styles.snvQuestion}>Статистика по менеджеру:</span>
-                                                <span className={styles.companyDescriptionRowVal}>Обработано компаний: {uniqueManagerCompanies[manager].length}</span>
-                                                {Object.entries(managerChannelsSummary[manager]).map(([ch, count]) => {
+                                                <span className={styles.snvQuestion}>Статистика {avialableEventsGroupping.find(a => a.key === filters.groupBy).name || ''}:</span>
+                                                <span className={styles.companyDescriptionRowVal}>Обработано компаний: {uniqueGroupCompanies[groupingField].length}</span>
+                                                <span className={styles.companyDescriptionRowVal}>Всего подписок: {groupChannelsSummary[groupingField]['total']}</span>
+                                                {Object.entries(groupChannelsSummary[groupingField]).filter(s => s[0] !== 'total').map(([ch, count]) => {
                                                     return (
-                                                       <span className={styles.companyDescriptionRowVal}>Изменений статусов по каналу {names[ch]}: {count}</span> 
+                                                       <span className={styles.companyDescriptionRowVal}>Подписок на канал {names[ch]}: {count}</span> 
                                                     )
                                                 })}
                                             </div>
@@ -258,6 +265,10 @@ const SubscribesReport = () => {
                                                 hour: 'numeric',
                                                 minute: 'numeric'
                                             }).format(new Date(activity.endDatetime))}
+                                        </div>
+
+                                        <div className={styles.companyPlanDate}>
+                                            {activity[grouppingDependField]}
                                         </div>
 
                                         <div className={styles.companyInfo}>
@@ -298,6 +309,7 @@ const SubscribesReport = () => {
             avialableRegions={avialableRegions}
             avialableManagers={avialableManagers}
             avialableTypes={avialableTypes}
+            avialableEventsGroupping={avialableEventsGroupping}
         />}
     </div>
 );

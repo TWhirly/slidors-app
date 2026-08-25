@@ -9,26 +9,11 @@ const ReportsMenu = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {tg , chat_id, showButton} = useTelegram()
-
-
     tg.BackButton.show();
-
-    useEffect(() => {
-        showButton({
-            text: '1',
-            // color: '#31b545',
-            isActive: false,
-            isVisible: false,
-            onClick: () => {},
-        });
-    }, [showButton])
-
     const menuItems = [
         {name: 'Менеджер СНВ', route: 'snvManager'},
         {name: 'Подписки', route: 'subscribesReport'}
     ]
-
-  
 
     const handleSelectItem = (item) => {
         navigate(`/reports/${item.route}`, {
@@ -44,7 +29,7 @@ const ReportsMenu = () => {
         return () => {
             tg.BackButton.offClick();
         };
-    }, [navigate]);
+    }, [navigate, tg]);
 
 
     return (

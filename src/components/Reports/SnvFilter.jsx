@@ -93,12 +93,12 @@ export const SnvFilter = ({
                  <label key={groupBy.key} className={styles.checkboxItem}>
                   <input
                     type="checkbox"
-                    checked={filters.region.includes(groupBy.key)}
+                    checked={filters.groupBy === groupBy.key}
                     onChange={(e) => {
-                      const newRegions = e.target.checked
-                        ? [...filters.groupBy, groupBy.key]
-                        : filters.groupBy.filter(c => c !== groupBy.key);
-                      updateFilter('region', newRegions);
+                      const newGroupping = e.target.value
+                        // ? {...filters.groupBy = groupBy.key}
+                        // : filters.groupBy.filter(c => c !== groupBy.key);
+                      updateFilter('groupBy', groupBy.key);
                     }}
                     className={styles.checkboxInput}
                   />

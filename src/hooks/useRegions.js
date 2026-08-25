@@ -116,10 +116,10 @@ export const useRegions = (chat_id) => {
     queryFn: fetchRegions,
     staleTime: 1000 * 60 * 30,
     // select: (data) => {return data},
-    // refetchIntervalInBackground: true,
+    refetchIntervalInBackground: true,
     // refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 50,
-    cacheTime: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 25,
+    // cacheTime: 1000 * 60 * 60,
   });
 
   return {
