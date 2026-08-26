@@ -190,6 +190,71 @@ const SubscribesReport = () => {
         );
     }
 
+    // Компонент карточки с активными фильтрами
+    const FilterCard = () => {
+        const hasActiveFilters = activeFiltersCount > 0;
+        if (!hasActiveFilters) return null;
+
+        const formatDateDisplay = (dateStr) => {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return Intl.DateTimeFormat('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }).format(date);
+        };
+
+        return (
+            <div className={styles.filterCard}>
+                <div className={styles.filterCardTitle}>Выбранные фильтры:</div>
+                
+                {/* Дата/период - всегда первой строкой */}
+                {filters.specificDate && (
+                    <div className={styles.filterCardRow}>
+                        <span className={styles.filterCardLabel}>Дата:</span>
+                        <span className={styles.filterCardValue}>{formatDateDisplay(filters.specificDate)}</span>
+                    </div>
+                )}
+                
+                {(filters.dateRange.from || filters.dateRange.to) && (
+                    <div className={styles.filterCardRow}>
+                        <span className={styles.filterCardLabel}>Период:</span>
+                        <span className={styles.filterCardValue}>
+                            {filters.dateRange.from && formatDateDisplay(filters.dateRange.from)}
+                            {filters.dateRange.from && filters.dateRange.to && ' — '}
+                            {filters.dateRange.to && formatDateDisplay(filters.dateRange.to)}
+                        </span>
+                    </div>
+                )}
+
+                {/* Регионы */}
+                {filters.region.length > 0 && (
+                    <div className={styles.filterCardRow}>
+                        <span className={styles.filterCardLabel}>Регионы:</span>
+                        <span className={styles.filterCardValue}>{filters.region.join(', ')}</span>
+                    </div>
+                )}
+
+                {/* Менеджеры */}
+                {filters.manager.length > 0 && (
+                    <div className={styles.filterCardRow}>
+                        <span className={styles.filterCardLabel}>Менеджеры:</span>
+                        <span className={styles.filterCardValue}>{filters.manager.join(', ')}</span>
+                    </div>
+                )}
+
+                {/* Компания */}
+                {filters.searchText && (
+                    <div className={styles.filterCardRow}>
+                        <span className={styles.filterCardLabel}>Компания:</span>
+                        <span className={styles.filterCardValue}>{filters.searchText}</span>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
    return (
     <div className={styles.container}>
         <div className={styles.naviPanel}>
@@ -216,7 +281,14 @@ const SubscribesReport = () => {
             
         </div>
 
-        <div className={styles.eventsContainer}>
+        {/* Фиксированная карточка с фильтрами */}
+        {activeFiltersCount > 0 && (
+            <div className={styles.filterCardWrapper}>
+                <FilterCard />
+            </div>
+        )}
+
+        <div className={`${styles.eventsContainer} ${activeFiltersCount > 0 ? styles.eventsContainerWithFilters : ''}`}>
             {Object.entries(grouppedEvents).map(([groupingField, events]) => {
                 const eventsAmount = events.length
                 const subscribeChannelsAmount = events.reduce((acc, event) => {

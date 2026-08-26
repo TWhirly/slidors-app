@@ -15,7 +15,7 @@ export const useEventFilters = (events) => {
     type: [],
     dateRange: { from: '', to: '' },
     specificDate: '',
-    groupBy: ''
+    groupBy: 'manager'
   });
 
 
