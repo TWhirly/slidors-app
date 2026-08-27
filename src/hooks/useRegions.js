@@ -121,7 +121,7 @@ export const useRegions = (chat_id) => {
     refetchInterval: 1000 * 60 * 25,
     // cacheTime: 1000 * 60 * 60,
   });
-
+// console.log('companies hhok', data)
   return {
     companies: data || [],
     // regionsWithCompanies: companies || [],
