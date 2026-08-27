@@ -20,6 +20,7 @@ import Subscribes from './components/Companies/Subscribes.jsx';
 import ReportsMenu from './components/Reports/ReportsMenu.jsx';
 import SnvManager from './components/Reports/SnvManager.jsx';
 import SubscribesReport from './components/Reports/SubscribesReport.jsx';
+import DailyReport from './components/Reports/DailyReport.jsx';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -110,6 +111,7 @@ function App() {
             <Route path="/reports" element={<ReportsMenu />} />
             <Route path="/reports/snvManager" element={<SnvManager />} />
             <Route path="/reports/subscribesReport" element={<SubscribesReport />} />
+            <Route path="/reports/dailyReport" element={<DailyReport />} />
           </Routes>
         </div>
       </DataProvider>

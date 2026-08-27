@@ -11,6 +11,7 @@ const ReportsMenu = () => {
     const {tg , chat_id, showButton} = useTelegram()
     tg.BackButton.show();
     const menuItems = [
+        {name: 'Ежедневный отчёт', route: 'dailyReport'},
         {name: 'Менеджер СНВ', route: 'snvManager'},
         {name: 'Подписки', route: 'subscribesReport'}
     ]

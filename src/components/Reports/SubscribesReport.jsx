@@ -169,7 +169,7 @@ const SubscribesReport = () => {
             tg.BackButton.offClick();
         };
     }, [navigate]);
-    console.log(uniqueGroupCompanies, filters.groupBy)
+    console.log(uniqueGroupCompanies, filters)
     
 
     if (isLoading) {
@@ -382,6 +382,7 @@ const SubscribesReport = () => {
             avialableManagers={avialableManagers}
             avialableTypes={avialableTypes}
             avialableEventsGroupping={avialableEventsGroupping}
+            disabled={{}}
         />}
     </div>
 );

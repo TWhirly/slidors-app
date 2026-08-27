@@ -2,9 +2,11 @@
 import { useState, useMemo, useContext, useEffect } from 'react';
 import { DataContext } from '../DataContext.jsx';
 
-export const useEventFilters = (events) => {
+export const useEventFilters = (events, isDailyReport = false) => {
   const { email } = useContext(DataContext);
-  //  console.log('events', events)
+  // const today = (new Date()).toISOString().split('T')[0]
+  const today = '2026-08-22'
+    console.log('today', today)
   const [filters, setFilters] = useState(localStorage.getItem('eventFilters') ? JSON.parse(localStorage.getItem('eventFilters')) : {
     searchText: '',
     purpose: [],
@@ -14,7 +16,7 @@ export const useEventFilters = (events) => {
     region: [],
     type: [],
     dateRange: { from: '', to: '' },
-    specificDate: '',
+    specificDate: isDailyReport ? today : '',
     groupBy: 'manager'
   });
 

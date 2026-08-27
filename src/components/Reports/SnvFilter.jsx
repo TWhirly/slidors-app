@@ -12,7 +12,8 @@ export const SnvFilter = ({
   avialableRegions,
   avialableManagers,
   avialableTypes,
-  avialableEventsGroupping
+  avialableEventsGroupping,
+  disabled
 }) => {
 
        
@@ -86,6 +87,7 @@ export const SnvFilter = ({
         <div className={styles.filtersContent}>
 
              {/* Группировка */}
+             { !disabled.groupping &&
         <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Группировка</label>
             <div className={styles.checkboxList}>
@@ -106,7 +108,7 @@ export const SnvFilter = ({
                 </label>
               ))}
             </div>
-          </div>
+          </div>}
 
 
              <div className={styles.filterSection}>
@@ -152,6 +154,7 @@ export const SnvFilter = ({
           </div>
 
         {/* Регион */}
+        { disabled.regions && (
         <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Регионы</label>
             <div className={styles.checkboxList}>
@@ -172,10 +175,9 @@ export const SnvFilter = ({
                 </label>
               ))}
             </div>
-          </div>
+          </div> )}
 
-
-        {/* Менеджер */}
+              {disabled.managers &&
          <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Менеджеры</label>
             <div className={styles.checkboxList}>
@@ -196,9 +198,8 @@ export const SnvFilter = ({
                 </label>
               ))}
             </div>
-          </div>
-
-          {/* Поиск по тексту */}
+          </div> }
+              { disabled.searchText &&
           <div className={styles.filterSection}>
             <label className={styles.filterLabel}>Компания</label>
             <input
@@ -208,12 +209,9 @@ export const SnvFilter = ({
               placeholder="Введите название или часть названия компании..."
               className={styles.textInput}
             />
-          </div>
+          </div>}
 
-          {/* Выбор статусов */}
-          
 
-          {/* Выбор целей */}
        
           
        

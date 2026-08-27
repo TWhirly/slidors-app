@@ -52,7 +52,7 @@ const SnvManager = () => {
         avialableRegions,
         avialableTypes,
         avialableEventsGroupping
-    } = useEventFilters(snvEvents || { planned: [], other: [] });
+    } = useEventFilters(snvEvents || { planned: [], other: [] }, true);
 
     useEffect(() => {
         const groupingfield = filters.groupBy || 'manager'
@@ -233,16 +233,6 @@ const SnvManager = () => {
                     {activeFiltersCount === 0 ? "ㅤ" : `✕`}
                 </div>
             </div>
-            
-            <IconButton
-                onClick={() => {}}
-                sx={{
-                    color: 'white',
-                    marginRight: '1rem'
-                }}
-            >
-                <AddIcon />
-            </IconButton>
         </div>
 
         {/* Фиксированная карточка с фильтрами */}
@@ -341,6 +331,7 @@ const SnvManager = () => {
             avialableManagers={avialableManagers}
             avialableTypes={avialableTypes}
             avialableEventsGroupping={avialableEventsGroupping}
+            disabled={{}}
         />}
     </div>
 );

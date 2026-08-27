@@ -231,34 +231,10 @@ onMutate: async (activityData) => {
     checkScheduled()
   },[activity, isFetching, nameMail, notificationInterval, showNotification])
 
-  useEffect(() => {
-    if(!activity.other || !companies)
-      return
-    const getManagersDayReport = (activity) => {
-      const report = []
-      const reportTime = activity.startDatetime.split(' ').slice(0,5)
-      const reportType = activity.type || ''
-      const reportPurpose = activity.purpose || ''
-      const activityCompanyName = activity.companyName || ''
-      const activityCompanyCity = companies.find(c => c.id === activity.companyId).city || ''
-      return
-    }
-    const reports = activity.other.reduce((acc, activity) => {
-      if(!activity.startDatetime && !activity.endDatetime && !activity.report) {
-        return acc
-      }
-      const dateId = Date.parse((new Date(activity.startDatetime)).toISOString().split('T')[0])
-      if (!acc[dateId]) {
-        acc[dateId] = {}
-        acc[dateId][activity.manager] = getManagersDayReport(activity)
-      }
-      return acc
-    })
-  })
+  
 
   if(activity && activity?.other){
-  console.log('activity hook', (new Date((activity.other[23808]).startDatetime).toISOString().split('T')[1]))
-  console.log(activity.other[23808].startDatetime.split(' ')[1].slice(0,5))
+  
   }
   const test = [1, 2]
 
