@@ -45,6 +45,8 @@ export default function PersistentDrawerLeft() {
         return !isContactsLoading;
         case 'События':
         return !isActivityLoading;
+        case 'Отчеты':
+        return !isActivityLoading;
       default:
         return true;
     }
