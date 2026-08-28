@@ -1,11 +1,11 @@
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 
 export function useTelegram() {
 
-    const tg = window.Telegram.WebApp;
-
-    const mainButton = (window.Telegram?.WebApp?.MainButton);
+    const tg = window.Telegram?.WebApp;
+    const mainButton = tg?.MainButton;
+    const mainButtonHandlerRef = useRef(null);
 
   //   useEffect(() => {
   //   if (!mainButton.current) return;
@@ -32,30 +32,25 @@ export function useTelegram() {
       textColor = '#ffffff',
       isActive = true,
       isVisible = true,
-      onClick,
-      offClick
+      onClick
     } = params;
-    // console.log('params', params)
-     mainButton.offClick();
     mainButton.setText(text);
     mainButton.setParams({
       text_color: textColor,
       
     });
 
-    // Удаляем предыдущий обработчик
-    mainButton.offClick(onClick);
+    if (mainButtonHandlerRef.current) {
+      mainButton.offClick(mainButtonHandlerRef.current);
+      mainButtonHandlerRef.current = null;
+    }
 
     if (onClick && isActive) {
       mainButton.onClick(onClick);
+      mainButtonHandlerRef.current = onClick;
       mainButton.enable();
     } else {
       mainButton.disable();
-    }
-
-    if(offClick){
-      console.log('tg offClick')
-      mainButton.offClick(onClick);
     }
 
     if (isVisible && !mainButton.isVisible) {
@@ -66,9 +61,13 @@ export function useTelegram() {
   }, [mainButton]);
 
    const hideButton = useCallback(() => {
+    if (!mainButton) return;
+    if (mainButtonHandlerRef.current) {
+      mainButton.offClick(mainButtonHandlerRef.current);
+      mainButtonHandlerRef.current = null;
+    }
     if (mainButton.isVisible) {
       mainButton.hide();
-      mainButton.offClick();
     }
   }, [mainButton]);
 
@@ -83,10 +82,10 @@ export function useTelegram() {
         tg,
         showButton, 
         hideButton,
-        initData: tg.initData,
-        dataunsafe: tg.initDataUnsafe,
-        user: tg.initDataUnsafe?.user,
-        chat_id: tg.initDataUnsafe.user.id.toString(),
-        queryId: tg.initDataUnsafe?.query_id,
+        initData: tg?.initData,
+        dataunsafe: tg?.initDataUnsafe,
+        user: tg?.initDataUnsafe?.user,
+        chat_id: tg?.initDataUnsafe?.user?.id?.toString(),
+        queryId: tg?.initDataUnsafe?.query_id,
     }
 }

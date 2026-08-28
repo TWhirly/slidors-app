@@ -4,11 +4,9 @@ import { CircularProgress } from '@mui/material';
 import styles from '../Companies/Companies.module.css';
 import { IconsLine } from './IconsLine.jsx';
 import { FilterModal } from './FilterModal';
-import { avatarGroup } from '../Companies/sx.js';
 import { DataContext } from '../../DataContext.jsx';
 import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
-import { useQueryClient } from '@tanstack/react-query';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters';
 import { getEmptyActivity } from './activity.js';
@@ -16,21 +14,16 @@ import { useTelegram } from '../../hooks/useTelegram.js';
 
 
 const Activities = () => {
-    const queryClient = useQueryClient();
-    const { regions: contextRegions } = useContext(DataContext);
     const { email } = useContext(DataContext);
     const navigate = useNavigate();
-    const avatarGroupStyle = avatarGroup();
     const [plannedExpand, setPlannedExpand] = useState(false);
     const [otherExpand, setOtherExpand] = useState(false);
     const [otherPage, setOtherPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const observerRef = useRef(null);
     const lastItemRef = useRef(null);
-    const [checked, setChecked] = useState(sessionStorage.getItem('checked') || true);
-    const [planned, setPlanned] = useState([]);
-    const [other, setOther] = useState([]);
+    const isCreatingDraftRef = useRef(false);
+    const [other] = useState([]);
     // const [displayedOtherActivities, setDisplayedOtherActivities] = useState([]);
     // const tg = window.Telegram.WebApp;
     // const params = new URLSearchParams(window.Telegram.WebApp.initData);
@@ -98,10 +91,6 @@ const Activities = () => {
         if (storedOtherExpand !== null) {
             setOtherExpand(storedOtherExpand === 'true');
         }
-        const storedChecked = sessionStorage.getItem('checked');
-        if (storedChecked !== null) {
-            setChecked(storedChecked === 'true');
-        }
     }, []);
 
     const handlePlannedExpand = () => {
@@ -154,14 +143,16 @@ const Activities = () => {
             }
         );
 
-        if (lastItemRef.current) {
-            observer.observe(lastItemRef.current);
+        const lastItem = lastItemRef.current;
+        if (lastItem) {
+            observer.observe(lastItem);
         }
 
         return () => {
-            if (lastItemRef.current) {
-                observer.unobserve(lastItemRef.current);
+            if (lastItem) {
+                observer.unobserve(lastItem);
             }
+            observer.disconnect();
         };
     }, [otherExpand, hasMore, isLoadingMore, loadMore]);
 
@@ -174,12 +165,6 @@ const Activities = () => {
             loadMore();
         }
     }, [hasMore, isLoadingMore, loadMore]);
-
-    const handleChange = (e) => {
-        // const { checked } = e.target;
-        setChecked(!checked);
-        sessionStorage.setItem('checked', !checked);
-    }
 
     const getPurporseColor = (status) => {
         
@@ -200,19 +185,24 @@ const Activities = () => {
     
 
     const handleAddActivity = () => {
+        if (isCreatingDraftRef.current) return;
+
+        isCreatingDraftRef.current = true;
         const emptyActivity = getEmptyActivity(email);
-        updateActivity({...emptyActivity, new: true});
-        navigate(`/activities/new/edit`, { state: {...emptyActivity, new: true} });
+        const draftActivity = { ...emptyActivity, new: true };
+        updateActivity(draftActivity);
+        navigate(`/activities/new/edit`, { state: draftActivity });
     };
 
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
 
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
+        const handleBackButton = () => navigate('/', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate]);
 

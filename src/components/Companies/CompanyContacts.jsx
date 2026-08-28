@@ -8,7 +8,7 @@ import { getContactIcons } from './Companies-helpers.js'
 const CompanyСontacts = (props) => {
     const [companyContacts, setCompanyContacts] = useState([]);
     const { contacts: allContacts, isLoading: isContactsLoading } = useContacts(props.chat_id)
-    console.log('propsActivity', props.id)
+    // console.log('propsActivity', props.id)
 
     const contactNameStyle = {
         whiteSpace: 'nowrap',

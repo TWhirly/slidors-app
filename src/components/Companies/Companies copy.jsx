@@ -27,7 +27,7 @@ const Companies = () => {
     const {tg , chat_id} = useTelegram()
     
     tg.BackButton.show();
-    console.log(email, 'email');
+    // console.log(email, 'email');
     
     useEffect(() => {
         // Load regionsWithCompanies from sessionStorage on component mount
@@ -61,7 +61,7 @@ const Companies = () => {
                 'Content-Type': 'text/plain'
             }
 
-        console.log('fetchRegions')
+        // console.log('fetchRegions')
         const params = {
             name: 'Ваше имя',
             chatID: chat_id,
@@ -99,7 +99,7 @@ const Companies = () => {
             const regionRowsHash = computeHash(JSON.stringify(regionRows));
 
             if (savedRegionsHash !== regionRowsHash) {
-                console.log('Data has changed, updating sessionStorage');
+                // console.log('Data has changed, updating sessionStorage');
 
                 // Build updatedRegions only if data has changed
                 const updatedRegions = regionRows.reduce((acc, company) => {
@@ -171,7 +171,7 @@ const Companies = () => {
                 sessionStorage.setItem('savedRegionHash', computeHash(JSON.stringify(regionRows))); // Save to sessionStorage
                 setRegionsWithCompanies(updatedRegions); // Update state
             } else {
-                console.log('No changes in data, rendering from sessionStorage');
+                // console.log('No changes in data, rendering from sessionStorage');
             }
 
             setLoading(false); // Stop loading
@@ -190,7 +190,7 @@ const Companies = () => {
       
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-        console.log(regionsWithCompanies.find(r => r.region === regionId));
+        // console.log(regionsWithCompanies.find(r => r.region === regionId));
     };
 
     const getStatusColor = (status) => {
@@ -254,7 +254,7 @@ const Companies = () => {
     };
 
     const handleSelectCompany = (company) => {
-        console.log('handleSelectCompany', company);
+        // console.log('handleSelectCompany', company);
         navigate(`/companies/${company.id}`, {
             state:
                 company

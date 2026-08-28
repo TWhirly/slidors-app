@@ -1,5 +1,5 @@
 // FilterModal.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './FilterModal.module.css';
 
 export const FilterModal = ({
@@ -17,12 +17,12 @@ export const FilterModal = ({
   if (!isOpen) return null;
 
   const updateFilter = (key, value) => {
-    console.log('filters', filters)
+    // console.log('filters', filters)
     const newFilters = { ...filters, [key]: value };
     onFiltersChange(newFilters);
     localStorage.setItem('eventFilters', JSON.stringify(newFilters));
   };
-  console.log('avialableRegions', avialableRegions)
+  // console.log('avialableRegions', avialableRegions)
 
   return (
     <div className={styles.mainContainer}>

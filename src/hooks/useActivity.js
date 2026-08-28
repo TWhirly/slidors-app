@@ -1,251 +1,179 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useNotification } from '../components/notifications/NotificationContext.jsx';
 import { useContext, useEffect, useState } from 'react';
-import { DataContext } from '../DataContext.jsx'
-import { useRegions } from './useRegions.js';
+import { useNotification } from '../components/notifications/NotificationContext.jsx';
+import { DataContext } from '../DataContext.jsx';
 
-export const useActivity = (chat_id) => {
-  const { showNotification } = useNotification();
-  const queryClient = useQueryClient();
-  const { name, email } = useContext(DataContext);
-  const [nameMail, setNameMail] = useState('');
-  const [reports, setReports] = useState([])
-  const notificationInterval = 1000 * 60 * 30 // за полчаса
-  const companies = useRegions(chat_id)
+const emptyActivities = { planned: [], other: [] };
 
-  useEffect(() => {
-    if(name && email)
-      setNameMail(`${name.name} (${email})`)
-  },[email, name])
-
-  const fetchActivity = async () => {
-     const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
-
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
-    let params = {
-      name: 'Ваше имя',
-      chatID: chat_id,
-      api: 'getActivitiesList'
-    };
-    params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
-    try{
- const response = await axios.post(
-                    apiUrl,
-                    params,
-                    headers
-                );
-    const sortedActivity = transformActivitySort(response.data);
-    // console.log('sortedActivity', sortedActivity);
-    return (sortedActivity);
-              }
-              catch(error) {
-                console.error(error)
-              }
-  };
-  
-
-   const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}${month}${day}`;
-  };
-
-  const transformActivitySort = (activities) => {
-    // console.log('Activity select function executed - TRANSFORMATION', activities, activities.length);
-   if (!Array.isArray(activities)) {
-    return { planned: [], other: [] };
-  }
-
-  // Разделяем массив на две группы
-  const planned = [];
-  const other = [];
-
-  activities.forEach(lead => {
-    if (lead.plan && lead.plan.trim() !== '') {
-      planned.push(lead);
-    } else {
-      other.push(lead);
-    }
-  });
-
-  // Сортируем массив с plan по дате и времени
-  planned.sort((a, b) => {
-    const aDateTime = createDateTime(a.plan, a.planTime);
-    const bDateTime = createDateTime(b.plan, b.planTime);
-    
-    return aDateTime - bDateTime;
-  });
-
-  // Сортируем массив без plan по endDatetime по убыванию
-  other.sort((a, b) => {
-    const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
-    const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
-    return bEnd - aEnd;
-  });
-
-  return {
-    planned,
-    other
-  };
-}
-
-// Вспомогательная функция для создания полной даты-времени
-function createDateTime(dateStr, timeStr) {
+const formatDate = (dateStr) => {
   const date = new Date(dateStr);
-  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+};
+
+const createDateTime = (dateStr, timeStr) => {
+  const date = new Date(dateStr);
+
   if (timeStr && timeStr.trim() !== '') {
     const [hours, minutes, seconds] = timeStr.split(':').map(Number);
     date.setHours(hours, minutes, seconds || 0, 0);
   } else {
     date.setHours(0, 0, 0, 0);
   }
-  
+
   return date.getTime();
+};
+
+const transformActivitySort = (activities) => {
+  if (!Array.isArray(activities)) return emptyActivities;
+
+  const planned = [];
+  const other = [];
+
+  activities.forEach((activity) => {
+    if (activity.plan && activity.plan.trim() !== '') {
+      planned.push(activity);
+    } else {
+      other.push(activity);
+    }
+  });
+
+  planned.sort((a, b) => createDateTime(a.plan, a.planTime) - createDateTime(b.plan, b.planTime));
+  other.sort((a, b) => {
+    const aEnd = a.endDatetime && a.endDatetime.trim() !== '' ? formatDate(a.endDatetime) : formatDate(a.startDatetime);
+    const bEnd = b.endDatetime && b.endDatetime.trim() !== '' ? formatDate(b.endDatetime) : formatDate(b.startDatetime);
+    return bEnd - aEnd;
+  });
+
+  return { planned, other };
+};
+
+const getAllActivities = (activities = emptyActivities) => [
+  ...(activities.planned || []),
+  ...(activities.other || [])
+];
+
+export const useActivity = (chat_id) => {
+  const { showNotification } = useNotification();
+  const queryClient = useQueryClient();
+  const { name, email } = useContext(DataContext);
+  const [nameMail, setNameMail] = useState('');
+  const queryKey = ['activity', chat_id];
+  const notificationInterval = 1000 * 60 * 30;
+
+  useEffect(() => {
+    if (name && email) {
+      setNameMail(`${name.name} (${email})`);
+    }
+  }, [email, name]);
+
+  const fetchActivity = async () => {
+    const apiUrl = process.env.REACT_APP_DEV === '1' ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL;
+    const config = {
+      headers: {
+        'Content-Type': process.env.REACT_APP_DEV === '1' ? 'application/json' : 'text/plain'
+      }
+    };
+    let params = { name: 'Ваше имя', chatID: chat_id, api: 'getActivitiesList' };
+    params = process.env.REACT_APP_DEV === '1' ? params : JSON.stringify(params);
+
+    const response = await axios.post(apiUrl, params, config);
+    return transformActivitySort(response.data);
   };
 
-  const { data: activity, isLoading, error, isSuccess, isFetching } = useQuery({
-    queryKey: ['activity'],
+  const updateCache = (activityData) => {
+    queryClient.setQueryData(queryKey, (currentActivities = emptyActivities) => {
+      const activities = getAllActivities(currentActivities);
+
+      if (activityData.delete) {
+        return transformActivitySort(activities.filter((activity) => activity.id !== activityData.id));
+      }
+
+      const nextActivities = activities.filter((activity) => activity.id !== activityData.id);
+      nextActivities.push(activityData);
+
+      if (activityData.finalize) {
+        return transformActivitySort(nextActivities.map((activity) => (
+          activity.id === activityData.finalize ? { ...activity, plan: '' } : activity
+        )));
+      }
+
+      return transformActivitySort(nextActivities);
+    });
+  };
+
+  const optimisticUpdateActivity = (activityData) => updateCache(activityData);
+
+  const { data: activity, isLoading, error, isFetching } = useQuery({
+    queryKey,
     queryFn: fetchActivity,
+    enabled: Boolean(chat_id),
     staleTime: 1000 * 60 * 30,
     refetchInterval: 1000 * 60 * 25,
     refetchIntervalInBackground: true
   });
 
-  // Функция для оптимистичного обновления события
-  const optimisticUpdateActivity = (activityData, isNewActivity = false) => {
-    const finalize = !!activityData.finalize
-    console.log('isNewActivity', isNewActivity)
-    queryClient.setQueryData(['activity'], (oldActivitites = {}) => {
-      const unitedActivities = [...oldActivitites.planned, ...oldActivitites.other]
-      if (isNewActivity) {
-          unitedActivities.push(activityData)
-      } 
-        if (finalize){
-          console.log('finalize')
-        const prevActivityIndex = unitedActivities.findIndex(activity => activity.id === activityData.finalize)
-        unitedActivities[prevActivityIndex] = {...unitedActivities[prevActivityIndex], plan: ''}
-        }
-        const activtyIndex = unitedActivities.findIndex(activity => activity.id === activityData.id)
-          unitedActivities[activtyIndex] = activityData
-      
-      return(transformActivitySort(unitedActivities)) 
-    });
-  };
-
   const updateActivityMutation = useMutation({
     mutationFn: async (activityData) => {
-      // console.log('mutationFn, contact', activityData);
-      console.log('updateActivity')
-       const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
-
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
-      let params = {
-        name: 'Ваше имя',
-        chatID: chat_id,
-        api: 'updateActivity',
-        activity: activityData
+      const apiUrl = process.env.REACT_APP_DEV === '1' ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL;
+      const config = {
+        headers: {
+          'Content-Type': process.env.REACT_APP_DEV === '1' ? 'application/json' : 'text/plain'
+        }
       };
-      params = process.env.REACT_APP_DEV === "1" ? params: JSON.stringify(params)
-      try{
-   const response = await axios.post(
-                    apiUrl,
-                    params,
-                    headers
-                );
+      let params = { name: 'Ваше имя', chatID: chat_id, api: 'updateActivity', activity: activityData };
+      params = process.env.REACT_APP_DEV === '1' ? params : JSON.stringify(params);
+
+      const response = await axios.post(apiUrl, params, config);
       return response.data;
-    }
-    catch(err)
-    {
-      console.error(err)
-    }
-  }
-    ,
-onMutate: async (activityData) => {
-      
-      const previousActivity = queryClient.getQueryData(['activity']) || [];
-      
-      // Оптимистичное обновление через функцию
-      // optimisticUpdateActivity(activityData, activityData.isNew);
-      
+    },
+    onMutate: async (activityData) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousActivity = queryClient.getQueryData(queryKey);
+      updateCache(activityData);
       return { previousActivity };
     },
-    onError: (error, activityData, context) => {
-      // Откатываем изменения при ошибке
-      queryClient.setQueryData(['activity'], context.previousActivity);
-      console.error('Failed to update contact:', error);
+    onError: (mutationError, activityData, context) => {
+      if (context?.previousActivity) {
+        queryClient.setQueryData(queryKey, context.previousActivity);
+      }
+      console.error('Не удалось сохранить событие:', mutationError);
     },
     onSuccess: (data, activityData) => {
-      console.log(activityData)
-      // Дополнительные действия при успехе
-       !activityData.new && showNotification(`Событие успешно сохранено! ${data}`, {fontSize: '0.8rem'});
-      console.log('Activity updated successfully:', data);
-      // checkScheduled()
+      if (!activityData.new && !activityData.delete) {
+        showNotification(`Событие успешно сохранено! ${data || ''}`, { fontSize: '0.8rem' });
+      }
     },
     onSettled: () => {
-      // Перезапрашиваем данные для синхронизации
-      queryClient.invalidateQueries({ queryKey: ['activity'] });
+      queryClient.invalidateQueries({ queryKey });
     }
   });
 
   useEffect(() => {
-    const checkScheduled = () => {
-    if (activity) {
-      
-      const nearTimePlanned = activity.planned
-      .filter(a => a.responsible === nameMail)
-      .filter(a => {
-        let timeMs
-        if(a.planTime !== '') {
-          const tA = a.planTime.split(':');
-          timeMs = tA[0]*60*60*1000 + tA[1]*60*1000 + tA[2]*1000
-        } else {
-          timeMs = 0
-        }
-        const dateMs = +(new Date(a.plan))
-        const nowMs = +(new Date())
-        // console.log(`check interval: ${nowMs - notificationInterval}, ${timeMs + dateMs}`)
-        return (nowMs + notificationInterval > timeMs + dateMs)
-      })
-      if (nearTimePlanned.length > 0)
+    const plannedActivities = activity?.planned || [];
+    const hasNearPlannedActivity = plannedActivities
+      .filter((item) => item.responsible === nameMail)
+      .some((item) => {
+        const [hours = 0, minutes = 0, seconds = 0] = (item.planTime || '00:00:00').split(':').map(Number);
+        const plannedTime = new Date(item.plan).getTime() + hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000;
+        return Date.now() + notificationInterval > plannedTime;
+      });
+
+    if (hasNearPlannedActivity) {
       showNotification('Есть запланированные события', {}, true);
-      // Perform other side effects here
-      // e.g., update a different state, show a toast, etc.
     }
-  }
-    // console.log('activity changes')
-    checkScheduled()
-  },[activity, isFetching, nameMail, notificationInterval, showNotification])
-
-  
-
-  if(activity && activity?.other){
-  
-  }
-  const test = [1, 2]
+  }, [activity, isFetching, nameMail, notificationInterval, showNotification]);
 
   return {
-    activity: activity || [],
+    activity: activity || emptyActivities,
     isLoading,
     updateActivity: updateActivityMutation.mutate,
     updateActivityAsync: updateActivityMutation.mutateAsync,
-    isUpdating: updateActivityMutation.isLoading,
-    optimisticUpdateActivity, // Экспортируем для ручного использования
-    test,
+    isUpdating: updateActivityMutation.isPending,
+    optimisticUpdateActivity,
     error
   };
 };

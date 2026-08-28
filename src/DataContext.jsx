@@ -2,8 +2,6 @@ import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTelegram } from './hooks/useTelegram';
 
-import { set } from 'lodash';
-
 export const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
@@ -24,13 +22,11 @@ export const DataProvider = ({ children }) => {
         if (!chat_id)
             return
         const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
+        const config = {
+            headers: {
+                'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
             }
+        };
 
         const fetchNames = async () => {
             let params = {
@@ -43,7 +39,7 @@ export const DataProvider = ({ children }) => {
                const response = await axios.post(
                     apiUrl,
                     params,
-                    headers
+                    config
                 );
                 setName(response.data || {});
                 setEmail(response.data.email || '');
@@ -65,7 +61,7 @@ export const DataProvider = ({ children }) => {
                 const response = await axios.post(
                     apiUrl,
                     params,
-                    headers
+                    config
                 );
                 // console.log('TS response', response.data);
                 setTypes(response.data.types || []);
@@ -78,8 +74,6 @@ export const DataProvider = ({ children }) => {
                 console.error('Error fetching types and statuses:', error);
             }
         };
-        fetchNames();
-        fetchTypesAndStatuses();
         Promise.all([fetchNames(), fetchTypesAndStatuses()]).then(() => {
             setLoading(false);
         });

@@ -1,4 +1,4 @@
-import { useQuery , useQueryClient , useMutation } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCallback } from 'react';
 
@@ -9,15 +9,13 @@ export const useRegions = (chat_id) => {
 
      const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
 
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
+        const config = {
+          headers: {
+            'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
+          }
+        };
 
-    console.log('fetchRegions executed');
+    // console.log('fetchRegions executed');
     let params = {
       chatID: chat_id,
       api: 'getCompanies'
@@ -28,7 +26,7 @@ export const useRegions = (chat_id) => {
     const response = await axios.post(
       apiUrl,
       params,
-      headers
+      config
     );
     return (response.data);
   };

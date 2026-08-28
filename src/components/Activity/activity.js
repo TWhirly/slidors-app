@@ -15,6 +15,7 @@ export const getEmptyActivity = (email, companyId = '', companyName = '', region
             'haveAdv?': '',
             'haveSample?': '',
             'haveTrainig?': '',
+            'isOnSite?': '',
             manager: email || '',
             plan: '',
             city: city,
@@ -47,6 +48,7 @@ export const checkIfInArray = (array, value = {}) => {
 }
 
 export const checkIfRequireFieldsFilled = (data) => {
+    if (!data) return false
     // if(
     //     !data.type ||
     //     !data.purpose ||
@@ -61,6 +63,8 @@ export const checkIfRequireFieldsFilled = (data) => {
     if (data.companyId.trim() === '')
         return false
     if (data.purpose === 'Проработка') {
+        if (data.status.trim() === '')
+            return false
         if (data['haveAdv?'].trim() === '')
             return false
         if (data['haveSample?'].trim() === '')
@@ -69,9 +73,10 @@ export const checkIfRequireFieldsFilled = (data) => {
             return false
         if (data['subscribed?'].trim() === '')
             return false
+        if (data['isOnSite?'].trim() === '')
+            return false
     }
         if (data['description'].trim() === '' && data.purpose !== 'Проработка'){
-            console.log('false here')
             return false}
         if (data['subscribed?'].trim() === 'Подписать' && data.companyWhatsapp === '' && data.companyTelegram === '')
             return false
@@ -94,3 +99,68 @@ export const answers = { status: statusAnswers, 'haveAdv?': advAnswers,
     'haveSample?': sampleAnswers, 'haveTrainig?': eduAnswers,
      'subscribed?': subscribeAnswers, 'isOnSite?': isOnSiteAnswers }
 
+export const calculateDuration = (startMs, endMs) => {
+  // Функция для склонения единиц времени
+  function declineTime(value, unit) {
+    const lastDigit = value % 10;
+    const lastTwoDigits = value % 100;
+
+    if (unit === 'hour') {
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'часов';
+      if (lastDigit === 1) return 'час';
+      if (lastDigit >= 2 && lastDigit <= 4) return 'часа';
+      return 'часов';
+    }
+
+    if (unit === 'minute') {
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'минут';
+      if (lastDigit === 1) return 'минута';
+      if (lastDigit >= 2 && lastDigit <= 4) return 'минуты';
+      return 'минут';
+    }
+
+    if (unit === 'second') {
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 19) return 'секунд';
+      if (lastDigit === 1) return 'секунда';
+      if (lastDigit >= 2 && lastDigit <= 4) return 'секунды';
+      return 'секунд';
+    }
+
+    return unit;
+  }
+
+  // Вычисляем разницу в миллисекундах
+  const diffMs = endMs - startMs;
+
+  // Проверяем, что конечная дата больше начальной
+  if (diffMs < 0) {
+    return "Ошибка: конечная дата должна быть больше начальной";
+  }
+
+  // Вычисляем составляющие времени
+  const seconds = Math.floor(diffMs / 1000) % 60;
+  const minutes = Math.floor(diffMs / (1000 * 60)) % 60;
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  // Формируем массив ненулевых компонентов
+  const parts = [];
+
+  if (hours > 0) {
+    const hoursText = declineTime(hours, 'hour');
+    parts.push(`${hours} ${hoursText}`);
+  }
+
+  if (minutes > 0) {
+    const minutesText = declineTime(minutes, 'minute');
+    parts.push(`${minutes} ${minutesText}`);
+  }
+
+  if (seconds > 0 || parts.length === 0) {
+    // Включаем секунды если они > 0 или если это единственный компонент (0 секунд)
+    const secondsText = declineTime(seconds, 'second');
+    parts.push(`${seconds} ${secondsText}`);
+  }
+
+  // Объединяем все части
+  return `продолжительность ${parts.join(' ')}`;
+}

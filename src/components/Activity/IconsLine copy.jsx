@@ -3,7 +3,7 @@ import styles from '../Companies/Companies.module.css'
 export const IconsLine = (props) => {
    
     // if (activity.id === '381e10b2')
-        console.log('haveAdv', props)
+    // console.log('haveAdv', props)
     return (<div >                                
          
         {(props.activity['haveAdv?'] === 'Нет, не хотят') && 

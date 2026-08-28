@@ -1,8 +1,7 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import styles from './CompanyDetails.module.css';
 
 const ITEM_HEIGHT = 48;

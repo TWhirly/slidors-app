@@ -22,7 +22,6 @@ import SnvManager from './components/Reports/SnvManager.jsx';
 import SubscribesReport from './components/Reports/SubscribesReport.jsx';
 import DailyReport from './components/Reports/DailyReport.jsx';
 import { NotificationProvider } from './components/notifications/NotificationContext.jsx';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 function App() {
 
@@ -40,6 +39,7 @@ function App() {
   // const { showNotification } = useNotification();
   const navigate = useNavigate();
   const { tg } = useTelegram();
+  const hasHandledInitialNavigation = React.useRef(false);
   // window.Telegram.WebApp.expand();
   window.Telegram.WebApp.disableVerticalSwipes()
   // console.log('init param ', window.Telegram.WebApp)
@@ -78,16 +78,18 @@ function App() {
   }, [tg])
 
   useEffect(() => {
+    if (hasHandledInitialNavigation.current) return;
+    hasHandledInitialNavigation.current = true;
+
     // Обработка Telegram WebApp параметров
     if (window.Telegram?.WebApp?.initData) {
-      const urlParams = new URLSearchParams(window.location.hash.substring(1));
       // const path = urlParams.get('tgWebAppStartParam') || '/';
       // console.log('tg params', path)
 
       // Перенаправляем на корректный путь
       navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   return (
     // <QueryClientProvider client={queryClient}>

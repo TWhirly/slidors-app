@@ -23,7 +23,7 @@ export const DataProvider = ({ children }) => {
 
     // const contacts = useContacts(chat_id || null);
     // const regionsWithComapnies = useRegions(chat_id || null);
-    console.log('Data provider call')
+    // console.log('Data provider call')
    
 
     
@@ -61,7 +61,7 @@ export const DataProvider = ({ children }) => {
                 process.env.REACT_APP_GOOGLE_SHEETS_URL,
                 JSON.stringify(params)
             );
-            console.log('TS response', response.data);
+            // console.log('TS response', response.data);
             setTypes(response.data.types || []);
             setStatuses(response.data.statuses || []);
             setTitles(response.data.titles || []);

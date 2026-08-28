@@ -13,7 +13,7 @@ const ContactEditForm = () => {
     const { email } = useContext(DataContext);
     const { state: contact } = useLocation();
     const isNewContact = contact?.new === true; // Явный флаг
-    console.log('contact', contact);
+    // console.log('contact', contact);
     const navigate = useNavigate();
 
 
@@ -36,14 +36,14 @@ const ContactEditForm = () => {
     const { emails, isContactsMailsLoading, updateEmails } = useEmail(id, null);
     const { updateContact, optimisticUpdateContact } = useContacts(chat_id);
 
-    console.log('emails', emails)
+    // console.log('emails', emails)
 
     useEffect(() => {
         if (isContactsMailsLoading)
             return
         
         const mails = emails.filter(item => item.contact === id)
-        console.log('mails', mails)
+        // console.log('mails', mails)
         if (mails.length > 0) {
             setLocalEmailInputs(mails)
         } else {
@@ -84,12 +84,13 @@ const ContactEditForm = () => {
 
 
     useEffect(() => {
+        const handleBackButton = () => navigate(contact.path || '/contacts/',
+            { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } });
         tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(contact.path || '/contacts/',
-            { state: contact.prevActivityData ? contact.prevActivityData : { contactId: contact.id, companyId: contact.companyId } }));; // Вернуться на предыдущую страницу'));
+        tg.BackButton.onClick(handleBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [contact.companyId, contact.id, contact.path, contact.prevActivityData, navigate, tg.BackButton]);
 
@@ -121,8 +122,8 @@ const ContactEditForm = () => {
     const handleSave = useCallback(() => {
         const currentFormData = formDataRef.current;
         setAllowSave(currentFormData.companyId && (currentFormData.firstName.length + currentFormData.lastName.length > 0))
-        console.log('allowSave', allowSave)
-        console.log('hasChanged', hasChanged)
+        // console.log('allowSave', allowSave)
+        // console.log('hasChanged', hasChanged)
         if (!allowSave) return;
         if (!hasChanged) {
             navigate(contact.path || '/contacts/',

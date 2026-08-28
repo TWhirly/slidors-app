@@ -26,7 +26,7 @@ export const useCompanyUpdate = (chat_id) => {
       return
     queryClientRef.current.cancelQueries(['regions'])
     const isNewCompany = companyData.new || false
-    console.log('optimistic')
+    // console.log('optimistic')
 
     // Обновляем данные в кэше
     const oldData = await queryClientRef.current.getQueryData(['regions']);
@@ -73,16 +73,14 @@ export const useCompanyUpdate = (chat_id) => {
       await optimisticUpdateCompanyRef.current(companyData)
       const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
 
-      const headers = process.env.REACT_APP_DEV === "1" ?
-        {
-          'Content-Type': 'application/json'
-        } :
-        {
-          'Content-Type': 'text/plain'
+      const config = {
+        headers: {
+          'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
         }
+      };
 
       setIsSaving(true)
-      console.log('upload')
+      // console.log('upload')
       let params = {
         name: 'Ваше имя',
         chatID: chat_id,
@@ -94,11 +92,11 @@ export const useCompanyUpdate = (chat_id) => {
       const response = await axios.post(
         apiUrl,
         params,
-        headers
+        config
       );
       setIsSaving(false);
       
-      console.log('response', response)
+      // console.log('response', response)
       await queryClientRef.current.invalidateQueries({ queryKey: ['regions'] })
       return response.data;
     }

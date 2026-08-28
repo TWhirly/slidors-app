@@ -11,13 +11,11 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     if (isNewContact) return [{ id: uuidv4(), mail: '' }];
      const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
 
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
+        const config = {
+          headers: {
+            'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
+          }
+        };
     let params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -27,9 +25,9 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
   const response = await axios.post(
                     apiUrl,
                     params,
-                    headers
+                    config
                 );
-    console.log('emails fetch', response.data)
+    // console.log('emails fetch', response.data)
     return response.data || [];
   }
 
@@ -37,12 +35,12 @@ export const useEmail = (companyId = null, contactId = null, isNewContact = fals
     if(isSaving)
       return
     // const oldEmails = (queryClient.getQueriesData(['emails']) || [])
-      console.log('company emails', companyEmails)
+      // console.log('company emails', companyEmails)
       queryClient.setQueryData(['emails'], (oldEmails) => {
         const companyEmailsIds = companyEmails.map(email => email.id)
-        console.log('old emails', oldEmails)
+        // console.log('old emails', oldEmails)
         const oldFilteredEmails = oldEmails.filter(email => !companyEmailsIds.includes(email.id)) // in case when some mails have been changed during company/contact editing
-        console.log('returned emails',[...oldFilteredEmails, companyEmails], 'old filtered emails', oldFilteredEmails)
+        // console.log('returned emails',[...oldFilteredEmails, companyEmails], 'old filtered emails', oldFilteredEmails)
         return ([...oldFilteredEmails, ...companyEmails])
       });
 

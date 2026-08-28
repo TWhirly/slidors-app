@@ -1,5 +1,5 @@
-﻿import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { Element } from 'react-scroll';
 import styles from '../Companies/Companies.module.css';
 import { useTelegram  } from '../../hooks/useTelegram.js';
@@ -7,8 +7,7 @@ import { useTelegram  } from '../../hooks/useTelegram.js';
 const ReportsMenu = () => {
 
     const navigate = useNavigate();
-    const location = useLocation();
-    const {tg , chat_id, showButton} = useTelegram()
+    const { tg } = useTelegram()
     tg.BackButton.show();
     const menuItems = [
         {name: 'Ежедневный отчёт', route: 'dailyReport'},
@@ -26,9 +25,10 @@ const ReportsMenu = () => {
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
+        const handleBackButton = () => navigate('/', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate, tg]);
 

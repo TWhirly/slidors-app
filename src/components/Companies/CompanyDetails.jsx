@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import styles from './CompanyDetails.module.css';
 import Skeleton from '@mui/material/Skeleton';
 import LongMenu from './CompanyDetailMenu';
@@ -28,6 +28,7 @@ const CompanyDetails = () => {
   const { companies } = useRegions(chat_id)
   const { activity, isLoading: isActivityLoading, updateActivity } = useActivity(chat_id)
   const { email } = useContext(DataContext)
+  const isCreatingDraftRef = useRef(false);
   // console.log('activity', activity, test)
   useEffect(() => {
     if (companies) {
@@ -40,7 +41,7 @@ const CompanyDetails = () => {
   useEffect(() => {
     if (!emails)
       return
-    console.log('emails', emails)
+    // console.log('emails', emails)
     const mails = emails.filter(item => item.company === id)
     setCompanyMails(mails)
   }, [emails, id])
@@ -49,20 +50,18 @@ const CompanyDetails = () => {
     const initBackButton = () => {
       if (!tg) return;
       tg.ready();
-      tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => {
-        // ✅ Используем returnPath из location.state
+      const handleBackButton = () => {
         navigate('/companies', { state: { companyId: id } });
-      });
+      };
+      tg.BackButton.onClick(handleBackButton);
+      return handleBackButton;
     };
 
-    initBackButton();
+    const handleBackButton = initBackButton();
 
     return () => {
-      if (tg) {
-        tg.BackButton.offClick();
-      }
+      if (handleBackButton) tg.BackButton.offClick(handleBackButton);
     };
   }, [id, navigate, returnPath, tg]);
 
@@ -95,14 +94,18 @@ const CompanyDetails = () => {
     }
 
     if (selectedOption === 'Добавить событие') {
+      if (isCreatingDraftRef.current) return;
+
+      isCreatingDraftRef.current = true;
       const emptyActivity = getEmptyActivity(email, id, company.name, company.region, company.city)
-      updateActivity({ ...emptyActivity, new: true })
-      navigate(`/activities/new/edit`, { state: { ...emptyActivity, path: `/companies/${id}`, prevComponent: company, new: true } });
+      const draftActivity = { ...emptyActivity, path: `/companies/${id}`, prevComponent: company, new: true };
+      updateActivity(draftActivity);
+      navigate(`/activities/new/edit`, { state: draftActivity });
     }
   };
 
   const handleSelectContact = (contact) => {
-    console.log('handleSelectCompany', contact);
+    // console.log('handleSelectCompany', contact);
     navigate(`/contacts/${contact.id}`, {
       state: {
         contactId: contact.id, companyId: id,

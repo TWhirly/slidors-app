@@ -1,5 +1,5 @@
 // FilterModal.jsx
-import React, { useState } from 'react';
+import React from 'react';
 import styles from '../Activity/FilterModal.module.css';
 
 export const ContactsFilterModal = ({
@@ -14,12 +14,12 @@ export const ContactsFilterModal = ({
   if (!isOpen) return null;
 
   const updateFilter = (key, value) => {
-    console.log('filters', filters)
+    // console.log('filters', filters)
     const newFilters = { ...filters, [key]: value };
     onFiltersChange(newFilters);
     localStorage.setItem('contactFilters', JSON.stringify(newFilters));
   };
-  console.log('avialablePositions', avialablePositions)
+  // console.log('avialablePositions', avialablePositions)
 
   return (
     <div className={styles.mainContainer}>

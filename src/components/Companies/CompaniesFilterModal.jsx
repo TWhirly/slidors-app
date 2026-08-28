@@ -26,17 +26,17 @@ export const CompaniesFilterModal = ({
     setAvialableCities(filteredCities.sort((a, b) => a.toLowerCase().localeCompare(b, 'ru')))
   }, [filters.region, regionCities])
 
-  console.log('regionCities', regionCities)
-  console.log('avialableCities', avialableCities)
+  // console.log('regionCities', regionCities)
+  // console.log('avialableCities', avialableCities)
 
   if (!isOpen) return null;
 
   const updateFilter = (key, value) => {
 
-    console.log(value)
+    // console.log(value)
     const newFilters = { ...filters, [key]: value };
     onFiltersChange(newFilters);
-    console.log('filters', filters)
+    // console.log('filters', filters)
     localStorage.setItem('companyFilters', JSON.stringify(newFilters));
   };
 

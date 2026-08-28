@@ -8,16 +8,14 @@ export const useContacts = (chat_id) => {
   const queryClient = useQueryClient();
 
   const fetchContacts = async () => {
-    console.log('getContactsList')
+    // console.log('getContactsList')
      const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
 
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
+        const config = {
+          headers: {
+            'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
+          }
+        };
     let params = {
       name: 'Ваше имя',
       chatID: chat_id,
@@ -27,7 +25,7 @@ export const useContacts = (chat_id) => {
 const response = await axios.post(
                     apiUrl,
                     params,
-                    headers
+                    config
                 );
     // console.log('contacts from server', response.data)
     return (response.data);
@@ -44,7 +42,7 @@ const response = await axios.post(
   };
 
   const transformToRegionsWithContacts = (regionRows) => {
-    console.log('Contacts select function executed - TRANSFORMATION', regionRows);
+    // console.log('Contacts select function executed - TRANSFORMATION', regionRows);
     if (!regionRows) return [];
     
     const contactsByRegion = {};
@@ -56,7 +54,7 @@ const response = await axios.post(
       contactsByRegion[contact.region].push(contact);
     });
 
-    console.log('contacts by region', contactsByRegion)
+    // console.log('contacts by region', contactsByRegion)
 
     return Object.entries(contactsByRegion).map(([region, contacts]) => {
       // console.log('reg', contacts)
@@ -87,8 +85,8 @@ const response = await axios.post(
   // Функция для оптимистичного обновления контакта
   const optimisticUpdateContact = (contactData, isNewContact = false) => {
     queryClient.setQueryData(['contacts'], (oldContacts = []) => {
-      console.log('isNewContact', isNewContact)
-      console.log('oldContacts h', oldContacts)
+      // console.log('isNewContact', isNewContact)
+      // console.log('oldContacts h', oldContacts)
       if (isNewContact) {
         // Для нового контакта - добавляем в соответствующий регион
         
@@ -104,16 +102,14 @@ const response = await axios.post(
 
   const updateContactMutation = useMutation({
     mutationFn: async (contactData) => {
-      console.log('mutationFn, contact', contactData);
+      // console.log('mutationFn, contact', contactData);
       const apiUrl = process.env.REACT_APP_DEV === "1" ? process.env.REACT_APP_LOCAL_URL : process.env.REACT_APP_GOOGLE_SHEETS_URL
 
-        const headers = process.env.REACT_APP_DEV === "1" ?
-            {
-                'Content-Type': 'application/json'
-            } :
-            {
-                'Content-Type': 'text/plain'
-            }
+        const config = {
+          headers: {
+            'Content-Type': process.env.REACT_APP_DEV === "1" ? 'application/json' : 'text/plain'
+          }
+        };
       let params = {
         name: 'Ваше имя',
         chatID: chat_id,
@@ -124,7 +120,7 @@ const response = await axios.post(
      const response = await axios.post(
                     apiUrl,
                     params,
-                    headers
+                    config
                 );
       return response.data;
     },
@@ -146,7 +142,7 @@ const response = await axios.post(
     onSuccess: (data, contactData) => {
       // Дополнительные действия при успехе
        showNotification(`Данные сохранены успешно!`);
-      console.log('Contact updated successfully:', data);
+      // console.log('Contact updated successfully:', data);
     },
     onSettled: () => {
       // Перезапрашиваем данные для синхронизации

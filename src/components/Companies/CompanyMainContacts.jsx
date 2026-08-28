@@ -2,12 +2,10 @@ import styles from './CompanyDetails.module.css';
 import { mainContactsIcons , formatNumber } from './Companies-helpers.js'
 
 const CompanyMainContacts = (props) => {
-    console.log('props', props)
+    // console.log('props', props)
     const tg = window.Telegram.WebApp;
     const company = props.company;
-    const showChecks = props.showChecks || true;
-    
-    console.log('company main contacts', company)
+    // console.log('company main contacts', company)
 
     return (
         <div> {company.phone1 && (

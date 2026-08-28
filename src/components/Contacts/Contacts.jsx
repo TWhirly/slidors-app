@@ -14,7 +14,6 @@ import { useContacts } from '../../hooks/useContacts';
 import { useContactFilters } from '../../hooks/useContactFilters.jsx';
 import { ContactsFilterModal } from './ContactsFilterModal.jsx'
 import { mainContactsIcons } from '../Companies/Companies-helpers.js';
-import { replace } from 'lodash';
 
 const Contacts = () => {
     const { regions: contextRegions } = useContext(DataContext);
@@ -23,14 +22,13 @@ const Contacts = () => {
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [loadingRegion, setLoadingRegion] = useState(null);
-    const [regionsWithCompanies, setRegionsWithConatcts] = useState([]);
     const phoneIcon = mainContactsIcons.phoneIcon
     const whatsappIcon = mainContactsIcons.whatsappIcon
     const telegramIcon = mainContactsIcons.telegramIcon
     const { contacts, transformToRegionsWithContacts, isLoading, error } = useContacts(chat_id);
     const filterIcon = require('../../icons/filter.png')
     const filterActiveIcon = require('../../icons/filterActive.png')
-    console.log('contacts component', contacts)
+    // console.log('contacts component', contacts)
     const {
         filters,
         setFilters,
@@ -74,7 +72,7 @@ const Contacts = () => {
     const tg = window.Telegram.WebApp;
    
     useEffect(() => {
-        console.log('savedSelectedRegion')
+        // console.log('savedSelectedRegion')
         const savedSelectedRegion = sessionStorage.getItem('selectedRegion');
 
         if (savedSelectedRegion) {
@@ -94,11 +92,11 @@ const Contacts = () => {
 
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId); // Save expanded region state
-        console.log(regionsWithCompanies.find(r => r.region === regionId));
+        // console.log(regionsWithCompanies.find(r => r.region === regionId));
     };
 
     const handleSelectContact = (contact) => {
-        console.log('handleSelectCompany', contact);
+        // console.log('handleSelectCompany', contact);
         navigate(`/contacts/${contact.id}`, {
             state: { contactId: contact.id }
         });
@@ -129,7 +127,7 @@ const Contacts = () => {
 
     const handleAddContact = () => {
         const emptyContact = getEmptyContact(selectedRegion || '');
-        navigate(`/contacts/new/edit`, { state: emptyContact, path: '/contacts' }, replace = true);
+        navigate(`/contacts/new/edit`, { state: emptyContact, replace: true });
     };
 
     const formatNumber = (number) => {
@@ -144,15 +142,16 @@ const Contacts = () => {
     };
 
     useEffect(() => {
+        const handleBackButton = () => navigate('/', { replace: true });
         tg.BackButton.show();
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true })); // Вернуться на предыдущую страницу'));
+        tg.BackButton.onClick(handleBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate, tg.BackButton]);
 
-    console.log('region rows', filteredContacts, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
+    // console.log('region rows', filteredContacts, 'loading region', loadingRegion, 'selected region', selectedRegion, 'isLoading', isLoading, 'error', error)
 
     if (isLoading) {
         return (
@@ -171,7 +170,7 @@ const Contacts = () => {
             </div>
         );
     }
-    console.log(regionsWithContacts);
+    // console.log(regionsWithContacts);
     return (
         <div className={styles.container}>
 

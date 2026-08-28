@@ -1,5 +1,5 @@
-﻿// FilterModal.jsx
-import React, { useState, useEffect } from 'react';
+// FilterModal.jsx
+import React from 'react';
 import styles from '../Activity/FilterModal.module.css';
 
 export const SnvFilter = ({
@@ -13,15 +13,15 @@ export const SnvFilter = ({
   avialableManagers,
   avialableTypes,
   avialableEventsGroupping,
-  disabled
+  disabled = {},
+  storageKey = 'eventFilters'
 }) => {
 
        
 
   if (!isOpen) return null;
-    
+
   const updateFilter = (key, value) => {
-    console.log('filters', filters)
     let newFilters
     if (key === 'specificDate') {
       // При установке specificDate - очищаем dateRange
@@ -41,10 +41,8 @@ export const SnvFilter = ({
       newFilters = { ...filters, [key]: value };
     }
     onFiltersChange(newFilters);
-    localStorage.setItem('eventFilters', JSON.stringify(newFilters));
+    localStorage.setItem(storageKey, JSON.stringify(newFilters));
   };
-  console.log('avialableRegions', avialableEventsGroupping)
-
   const handleSpecificDateChange = (e) => {
     const value = e.target.value;
     updateFilter('specificDate', value);
@@ -96,8 +94,7 @@ export const SnvFilter = ({
                   <input
                     type="checkbox"
                     checked={filters.groupBy === groupBy.key}
-                    onChange={(e) => {
-                      const newGroupping = e.target.value
+                    onChange={() => {
                         // ? {...filters.groupBy = groupBy.key}
                         // : filters.groupBy.filter(c => c !== groupBy.key);
                       updateFilter('groupBy', groupBy.key);

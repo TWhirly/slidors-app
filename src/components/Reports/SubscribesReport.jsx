@@ -1,25 +1,14 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import styles from './SnvManager.module.css';
 import { IconsLine } from '../Activity/IconsLine.jsx';
 import { SnvFilter } from './SnvFilter.jsx';
-import AddIcon from '@mui/icons-material/Add';
-import IconButton from '@mui/material/IconButton';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters.jsx';
 import { useTelegram } from '../../hooks/useTelegram.js';
 import filterIcon from '../../icons/filter.png'
 import filterActiveIcon from '../../icons/filter.png'
-
-const COLORS = {
-    primary: '#008ad1',      // Основной цвет (заголовки, акценты)
-    secondary: '#729fcf',    // Вторичный (подзаголовки, даты)
-    text: '#ffffff',         // Основной текст
-    muted: 'rgba(255,255,255,0.7)', // Второстепенный текст
-    hint: 'rgba(255,255,255,0.5)'    // Подсказки
-};
-
 
 const SubscribesReport = () => {
     const navigate = useNavigate();
@@ -151,7 +140,7 @@ const SubscribesReport = () => {
    
 
     const handleManagerExpand = (manager) => {
-        console.log('set expand', managerExpand)
+        // console.log('set expand', managerExpand)
        setManegerExpand(prev => 
         prev.includes(manager) ?
         prev.filter(m => m !== manager)
@@ -163,13 +152,14 @@ const SubscribesReport = () => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
 
-        tg.BackButton.onClick(() => navigate(('/reports'), { replace: true }));
+        const handleBackButton = () => navigate('/reports', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate]);
-    console.log(uniqueGroupCompanies, filters)
+    // console.log(uniqueGroupCompanies, filters)
     
 
     if (isLoading) {
@@ -291,11 +281,6 @@ const SubscribesReport = () => {
         <div className={`${styles.eventsContainer} ${activeFiltersCount > 0 ? styles.eventsContainerWithFilters : ''}`}>
             {Object.entries(grouppedEvents).map(([groupingField, events]) => {
                 const eventsAmount = events.length
-                const subscribeChannelsAmount = events.reduce((acc, event) => {
-                        acc+=Object.keys(event.subscribeChanges).length
-                        return acc
-                }, 0
-                )
                 const isExpanded = managerExpand.includes(groupingField)
                 
                 return (

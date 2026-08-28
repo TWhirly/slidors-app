@@ -30,14 +30,14 @@ function ContactDetails() {
   const { emails, isContactsMailsLoading } = useEmail(null, id);
   const { activity, isLoading: isActivityLoading } = useActivity(chat_id)
   tg.BackButton.isVisible = true
-  console.log('id', id);
+  // console.log('id', id);
   const { contacts } = useContacts(chat_id)
-  console.log('ActivityID', activity);
+  // console.log('ActivityID', activity);
 
   useEffect(() => {
     if (!emails)
       return
-    console.log('emails', emails)
+    // console.log('emails', emails)
     const mails = emails.filter(item => item.contact === id)
     setcontactMails(mails)
   }, [emails, id])
@@ -53,27 +53,23 @@ function ContactDetails() {
 
   useEffect(() => {
     if (activity && !isActivityLoading) {
-      console.log('contact activity', activity)
+      // console.log('contact activity', activity)
       const contactActivity = activity.other.filter(a => a.contactId === id);
       setContactActivity(contactActivity)
     }
   }, [activity, id, isActivityLoading])
 
   useEffect(() => {
-    const initializeBackButton = () => {
-      if (!tg) return;
+    if (!tg) return;
+    const handleBackButton = () => navigate(path || '/contacts/',
+      { state: { companyId: contact.companyId, contactId: contact.id, activityId } });
 
-      tg.ready(); // Ensure Telegram WebApp is fully initialized
-      tg.BackButton.isVisible = true;
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(path || '/contacts/',
-        { state: { companyId: contact.companyId, contactId: contact.id, activityId } }));
-    };
-
-    initializeBackButton();
+    tg.ready();
+    tg.BackButton.show();
+    tg.BackButton.onClick(handleBackButton);
 
     return () => {
-      tg.BackButton.offClick();
+      tg.BackButton.offClick(handleBackButton);
     };
   }, [activityId, contact.companyId, contact.id, navigate, path, tg]);
 
@@ -112,7 +108,7 @@ function ContactDetails() {
   };
 
 
-  console.log('contactActivity', contactActivity)
+  // console.log('contactActivity', contactActivity)
 
   if (!contact) {
     return <div>contact not found</div>;

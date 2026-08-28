@@ -9,18 +9,17 @@ import { useRegions } from '../../hooks/useRegions';
 import { useEmail } from '../../hooks/useEmail';
 import { initBackButton } from './Companies-helpers.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
-import { replace } from 'lodash';
 let cities = []
 const CompanyEditForm = () => {
-    console.log('first render')
+    // console.log('first render')
     const { state: company } = useLocation();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({ ...company });
     const formDataRef = useRef(formData);
     const [regions, setRegions] = useState([]);
     const [recyclers, setRecyclers] = useState([]);
-    const { regions: contextRegions, types, statuses, chat_id, provided } = useContext(DataContext);
-    const {optimisticUpdateCompany, upload, saving} = useCompanyUpdate(chat_id);
+    const { regions: contextRegions, types, statuses, chat_id } = useContext(DataContext);
+    const { upload } = useCompanyUpdate(chat_id);
     const { companies } = useRegions(chat_id);
     const [emailInputs, setEmailInputs] = useState([]);
     const { tg, showButton } = useTelegram();
@@ -30,11 +29,11 @@ const CompanyEditForm = () => {
     const [isValid, setIsValid] = useState(false)
     const uploadRef = useRef(upload)
     
-    console.log('isValid', isValid)
+    // console.log('isValid', isValid)
 
    
     useEffect(() => {
-        console.log('effect 1')
+        // console.log('effect 1')
         // if (!emailInputs || !initEmails)
         //         return
             const hasChanged = Object.keys(formData)
@@ -46,7 +45,7 @@ const CompanyEditForm = () => {
     },[company, emailInputs, formData, initEmails])
 
     useEffect(() => {
-        console.log('effect 2')
+        // console.log('effect 2')
         formDataRef.current = formData;
     }, [formData]);
     tg.setBottomBarColor("#131313");
@@ -54,7 +53,7 @@ const CompanyEditForm = () => {
     initBackButton(company, navigate, id);
 
     const handleSave = useCallback(() => {
-        console.log('Saving')
+        // console.log('Saving')
         const currentFormData = formDataRef.current
         try {
             uploadRef.current(currentFormData)
@@ -62,18 +61,18 @@ const CompanyEditForm = () => {
             console.error('Save failed:', error);
         }
         navigate('/companies')
-    }, [])
+    }, [navigate])
 
     const handleSaveRef = useRef(handleSave)
 
     useEffect(() => {
-        console.log('useEffect wo dep array')
+        // console.log('useEffect wo dep array')
         handleSaveRef.current = handleSave
         uploadRef.current = upload
     },[handleSave, upload])
 
     const updateCities = (region) => { 
-        console.log('effect 4')
+        // console.log('effect 4')
         if (region !== '') {
                 const citiesSet = new Set(companies.filter(company => company.region === region && company.city !== '')
                     .map(company => { return company.city }))
@@ -86,7 +85,7 @@ const CompanyEditForm = () => {
         
 
     useEffect(() => {
-        console.log('effect 5')
+        // console.log('effect 5')
         if (formData.type === 'Дилер') {
             setRecyclers(companies.filter(company => company.type === 'Переработчик')
                 .map(company => { return company.name })
@@ -119,7 +118,7 @@ const CompanyEditForm = () => {
     },[company, emailInputs, formData, handleSave, isValid, showButton])
 
     useEffect(() => {
-        console.log('effect 6')
+        // console.log('effect 6')
         if (!emails || emails.length === 0)
             return
         const mails = emails.filter(item => item.company === id)
@@ -150,7 +149,7 @@ const CompanyEditForm = () => {
     };
 
     useEffect(() => {
-        console.log('effect 7')
+        // console.log('effect 7')
         if (!contextRegions) return;
         const regions = contextRegions.map(item => (item.region));
         setRegions(regions);
@@ -200,7 +199,7 @@ const CompanyEditForm = () => {
                     allowAdds
                     list={cities}
                     name="city"
-                    value={formData.city || []}
+                    value={formData.city || ''}
                     onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
                     label="Город"
                 />
@@ -359,4 +358,3 @@ const CompanyEditForm = () => {
 };
 
 export default CompanyEditForm;
-

@@ -214,7 +214,7 @@ export const tgMainButtonSwitch = (allowSave, handleSave) => {
             tg.MainButton.offClick(handleSave);
             tg.MainButton.setText('Для сохранения заполните поля')
         }
-        console.log('tg button switch')
+        // console.log('tg button switch')
         tg.onEvent('mainButtonClicked', handleSave)
         return () => {
             tg.offEvent('mainButtonClicked', handleSave)

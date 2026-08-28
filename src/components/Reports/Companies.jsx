@@ -117,7 +117,7 @@ const Companies = () => {
             sessionStorage.removeItem('selectedRegion');
             return;
         }
-        console.log('regionId', regionId);
+        // console.log('regionId', regionId);
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId);
     };
@@ -142,9 +142,10 @@ const Companies = () => {
     useEffect(() => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
-        tg.BackButton.onClick(() => navigate(('/'), { replace: true }));
+        const handleBackButton = () => navigate('/', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate]);
 
@@ -154,7 +155,7 @@ const Companies = () => {
         }, 300);
         return () => clearTimeout(timer);
     }, [id, filteredCompanies]);
-    console.log('filteredCompanies', filteredCompanies)
+    // console.log('filteredCompanies', filteredCompanies)
 
     if (isLoading) {
         return (

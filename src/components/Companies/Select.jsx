@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useCallback, } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import debounce from 'lodash/debounce';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -7,14 +7,9 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Select from '@mui/material/Select';
-import { TextField } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
-import AddIcon from '@mui/icons-material/Add'
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
 const MenuProps = {
     PaperProps: {
         style: {
@@ -34,6 +29,7 @@ const BasicSelect = (props) => {
 
     // Используем props.list как основной источник данных
     const [localList, setLocalList] = useState(props.list || []);
+    const isMultiple = Boolean(props.multiple);
 
     // Синхронизируем localList при изменении props.list
     useEffect(() => {
@@ -59,6 +55,22 @@ const BasicSelect = (props) => {
             item.toString().toLowerCase().includes(debouncedSearchTerm.toLowerCase())
         );
     }, [props.searchable, props.useObjects, localList, debouncedSearchTerm]);
+
+    const optionValues = useMemo(() => new Set(
+        localList
+            .map((item) => props.useObjects ? item?.name : item)
+            .filter((item) => item !== undefined && item !== null && item !== '')
+    ), [localList, props.useObjects]);
+
+    const selectValue = useMemo(() => {
+        if (isMultiple) {
+            const values = Array.isArray(props.value) ? props.value : [];
+            return values.filter((value) => optionValues.has(value));
+        }
+
+        if (typeof props.value !== 'string' && typeof props.value !== 'number') return '';
+        return props.value === '' || optionValues.has(props.value) ? props.value : '';
+    }, [isMultiple, optionValues, props.value]);
 
     const handleClick = () => {
         if (search && !localList.includes(search)) {
@@ -189,14 +201,14 @@ const BasicSelect = (props) => {
                     disabled={props.disabled}
                     labelId={`${props.name}-label`}
                     id={props.name}
-                    multiple={props.multiple}
-                    value={props.value}
+                    multiple={isMultiple}
+                    value={selectValue}
                     onChange={handleChange}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     input={<OutlinedInput />}
                     renderValue={(selected) => typeof selected === 'string' ? selected : selected.join(', ')}
-                    IconComponent={props.value?.length > 0 ? null : ArrowDropDownIcon}
+                    IconComponent={selectValue?.length > 0 ? null : ArrowDropDownIcon}
                     // renderValue={() => 'fff'}
                     MenuProps={{
                         ...MenuProps,
@@ -282,6 +294,7 @@ const BasicSelect = (props) => {
                         </div>
                     }
                 >
+                    {!isMultiple && <MenuItem value="">&nbsp;</MenuItem>}
                     <button
                         disabled={props.disabled}
                         onClick={(e) => {
@@ -397,8 +410,8 @@ const BasicSelect = (props) => {
                             )}
                         </div>
                     )}
-                    {filteredList.length > 0 ? (
-                        filteredList.map((name, idx) => (
+                    {filteredList.filter((item) => item !== '').length > 0 ? (
+                        filteredList.filter((item) => item !== '').map((name, idx) => (
                             <MenuItem
                                 disabled={props.disabled}
                                 name={'name'}
@@ -409,10 +422,8 @@ const BasicSelect = (props) => {
                                 autoFocus={false}
 
                             >
-                                {props.multiple && <Checkbox checked={props.value?.includes(name) || false} />}
-                                <ListItemText primary={!props.useObjects ? name : name.name}
-                                    renderValue={() => 'rr'}
-                                />
+                                {isMultiple && <Checkbox checked={selectValue.includes(!props.useObjects ? name : name.name)} />}
+                                <ListItemText primary={!props.useObjects ? name : name.name} />
                             </MenuItem>
                         ))
                     ) : (

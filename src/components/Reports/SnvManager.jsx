@@ -1,23 +1,12 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import styles from './SnvManager.module.css';
 import { IconsLine } from '../Activity/IconsLine.jsx';
 import { SnvFilter } from './SnvFilter.jsx';
-import AddIcon from '@mui/icons-material/Add';
-import IconButton from '@mui/material/IconButton';
 import { useActivity } from '../../hooks/useActivity.js';
 import { useEventFilters } from '../../hooks/useEventFilters';
 import { useTelegram } from '../../hooks/useTelegram.js';
-
-const COLORS = {
-    primary: '#008ad1',      // Основной цвет (заголовки, акценты)
-    secondary: '#729fcf',    // Вторичный (подзаголовки, даты)
-    text: '#ffffff',         // Основной текст
-    muted: 'rgba(255,255,255,0.7)', // Второстепенный текст
-    hint: 'rgba(255,255,255,0.5)'    // Подсказки
-};
-
 
 const SnvManager = () => {
     const navigate = useNavigate();
@@ -109,7 +98,7 @@ const SnvManager = () => {
    
 
     const handleManagerExpand = (manager) => {
-        console.log('set expand', managerExpand)
+        // console.log('set expand', managerExpand)
        setManegerExpand(prev => 
         prev.includes(manager) ?
         prev.filter(m => m !== manager)
@@ -121,10 +110,11 @@ const SnvManager = () => {
         const tg = window.Telegram?.WebApp;
         if (!tg) return;
 
-        tg.BackButton.onClick(() => navigate(('/reports'), { replace: true }));
+        const handleBackButton = () => navigate('/reports', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
 
         return () => {
-            tg.BackButton.offClick();
+            tg.BackButton.offClick(handleBackButton);
         };
     }, [navigate]);
 

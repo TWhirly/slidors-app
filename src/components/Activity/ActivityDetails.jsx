@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState, useContext, act } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import styles from '../Companies/CompanyDetails.module.css';
 import LongMenu from '../Companies/CompanyDetailMenu';
 import { DataContext } from '../../DataContext.jsx';
@@ -15,8 +15,9 @@ const ActivityDetails = () => {
 
 
   const navigate = useNavigate();
-  const { state: { activityId: id, path } } = useLocation();
-  const [menuSelection, setMenuSelection] = useState(null);
+  const { state } = useLocation();
+  const id = state?.activityId;
+  const path = state?.path;
   const [contact, setContact] = useState({});
   const [activity, setActivity] = useState({});
   const [hasAtLeastOneField, setHasAtLeastOneField] = useState(false);
@@ -24,13 +25,13 @@ const ActivityDetails = () => {
   const phoneIcon = mainContactsIcons.phoneIcon
   const whatsappIcon = mainContactsIcons.whatsappIcon
   const telegramIcon = mainContactsIcons.telegramIcon
-  const { activity: activities, isLoading, updateActivity, optimisticUpdateActivity } = useActivity(chat_id)
+  const { activity: activities, updateActivity } = useActivity(chat_id)
   const { regionsWithContacts: contacts } = useContacts(chat_id)
   const [options, setOptions] = useState([])
   const { name, email } = useContext(DataContext)
+  const isCreatingDraftRef = useRef(false);
   // const getEmptyActivity = require('./ActivityDetails.jsx')
   // console.log(name)
-  tg.BackButton.isVisible = true
   useEffect(() => {
     if (activities) {
       let activity = []
@@ -63,16 +64,16 @@ const ActivityDetails = () => {
       if (!tg) return;
       // console.log('back button init', path)
       tg.ready(); // Ensure Telegram WebApp is fully initialized
-      tg.BackButton.isVisible = true;
       tg.BackButton.show();
-      tg.BackButton.onClick(() => navigate(path || '/activities/',
-        { replace: true }));
+      const handleBackButton = () => navigate(path || '/activities/', { replace: true });
+      tg.BackButton.onClick(handleBackButton);
+      return handleBackButton;
     };
 
-    initializeBackButton();
+    const handleBackButton = initializeBackButton();
 
     return () => {
-      tg.BackButton.offClick();
+      if (handleBackButton) tg.BackButton.offClick(handleBackButton);
     };
   }, [navigate, path, tg]);
 
@@ -83,10 +84,20 @@ const ActivityDetails = () => {
       navigate(`/activities/${activity.id}/edit`, { state: { ...activity, path: `/activities/${activity.id}`, new: false } });
     }
     if (selectedOption === 'Завершить') {
+      if (isCreatingDraftRef.current) return;
+
+      isCreatingDraftRef.current = true;
       const emptyActivity = getEmptyActivity(email, activity.companyId, activity.companyName,
         activity.region, activity.city)
-      updateActivity({ ...emptyActivity, new: true, toFinish: true })
-      navigate(`/activities/${activity.id}/edit`, { state: { ...emptyActivity, path: `/activities/${activity.id}`, finalize: activity.id, new: true } });
+      const draftActivity = {
+        ...emptyActivity,
+        path: `/activities/${activity.id}`,
+        finalize: activity.id,
+        new: true,
+        toFinish: true
+      };
+      updateActivity(draftActivity);
+      navigate(`/activities/${activity.id}/edit`, { state: draftActivity });
     }
     // if (selectedOption === 'Добавить контакт') {
 
@@ -186,7 +197,7 @@ const ActivityDetails = () => {
 
   useEffect(() => {
     if (activity) {
-      setHasAtLeastOneField(['haveAdv?', 'haveSample?', 'haveTraining?', 'subscribed?', 'status']
+      setHasAtLeastOneField(['haveAdv?', 'haveSample?', 'haveTrainig?', 'subscribed?', 'status', 'isOnSite?']
         .some(field => {
           const value = activity[field];
           return value && value.toString().trim() !== '';
@@ -204,9 +215,6 @@ const ActivityDetails = () => {
       }
     });
   };
-
-  console.log('activity', activity)
-  // console.log('tg.BackButton.onClick', tg.BackButton.onClick())
 
   if (!activity) {
     return <div>Activity not found</div>;
@@ -252,6 +260,7 @@ const ActivityDetails = () => {
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли образец?</div><div className={styles.companyRowVal}>{activity['haveSample?']}</div></div>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Проведено ли обучение?</div><div className={styles.companyRowVal}>{activity['haveTrainig?']}</div></div>
             <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Подписан ли на группу?</div><div className={styles.companyRowVal}>{activity['subscribed?']}</div></div>
+            <div className={styles.companyRowInfo}><div className={styles.companyRowHeader}>Есть ли карточка компании на сайте?</div><div className={styles.companyRowVal}>{activity['isOnSite?']}</div></div>
           </div>
         )}
 

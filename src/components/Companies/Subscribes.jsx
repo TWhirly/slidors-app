@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { CircularProgress } from '@mui/material';
 import { Element } from 'react-scroll';
 import styles from './Companies.module.css';
@@ -7,13 +7,12 @@ import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import { avatar, avatarGroup } from './sx.js';
 import { DataContext } from '../../DataContext.jsx';
-import AddIcon from '@mui/icons-material/Add';
 import IconButton from '@mui/material/IconButton';
 import { useRegions } from '../../hooks/useRegions.js';
 import { useCompanyFilters } from '../../hooks/useCompanyFilters.jsx';
 import { useCompanyUpdate } from '../../hooks/useCompanyUpdate.js';
 import { useTelegram } from '../../hooks/useTelegram.js';
-import { checkIcons, getCompanyTypeIcon, mainContactsIcons, getEmptyCompany } from './Companies-helpers.js'
+import { getCompanyTypeIcon, mainContactsIcons } from './Companies-helpers.js'
 import { CompaniesFilterModal } from './CompaniesFilterModal.jsx';
 import SubsctibesDetailMenu from './SubsctibesDetailMenu.jsx';
 
@@ -50,9 +49,8 @@ const STATUS_TOOLTIP = [
 ];
 
 const Subscribes = () => {
-    const { email, name,  regions: contextRegions } = useContext(DataContext);
+    const { name, regions: contextRegions } = useContext(DataContext);
     const navigate = useNavigate();
-    const location = useLocation();
     const avatarGroupStyle = avatarGroup();
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [selectedCompany, setSelectedCompany] = useState(null);
@@ -61,18 +59,12 @@ const Subscribes = () => {
     const [hasChanges, setHasChanges] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
     const { tg, chat_id, showButton } = useTelegram();
-    const { optimisticUpdateCompany, upload, saving } = useCompanyUpdate(chat_id);
+    const { upload } = useCompanyUpdate(chat_id);
     const uploadRef = useRef(upload);
     const formDataRef = useRef(null);
     const maxIcon = mainContactsIcons.maxIcon;
     const whatsappIcon = mainContactsIcons.whatsappIcon;
     const telegramIcon = mainContactsIcons.telegramIcon;
-
-    const id = location.state?.companyId || null;
-    
-    const ifcompanyHasContacts = (company) => {
-        return setCompanyHasContacts(company.phone1?.length + company.phone2?.length + company.whatsapp?.length + company.telegram?.length > 0);
-    };
 
     tg.BackButton.show();
 
@@ -88,7 +80,7 @@ const Subscribes = () => {
     }, [showButton]);
 
     const handleSave = useCallback(() => {
-        console.log('Saving', new Date());
+        // console.log('Saving', new Date());
         const saveTime = new Date();
         const currentFormData = {
             ...formDataRef.current,
@@ -112,22 +104,6 @@ const Subscribes = () => {
             console.error('Save failed:', error);
         }
     }, [companySubscribes, name.email, name.name]);
-
-    const scrollToSection = (sectionId, offset) => {
-        const element = document.getElementById(sectionId);
-        if (!element) {
-            console.error(`Элемент с id=${sectionId} не найден`);
-            return;
-        }
-
-        const elementPosition = element.getBoundingClientRect().top;
-        const scrollTop = window.pageYOffset || window.scrollY;
-        const offsetPosition = elementPosition + scrollTop - offset;
-
-        window.scrollTo({
-            top: offsetPosition,
-        });
-    };
 
     const {
         companies,
@@ -186,7 +162,7 @@ const Subscribes = () => {
             sessionStorage.removeItem('selectedRegion');
             return;
         }
-        console.log('regionId', regionId);
+        // console.log('regionId', regionId);
         setSelectedRegion(regionId);
         sessionStorage.setItem('selectedRegion', regionId);
     };
@@ -228,23 +204,12 @@ const Subscribes = () => {
         setHasChanges(true);
     };
 
-    const handleSelectCompany = (company) => {
-        navigate(`/companies/${company.id}`, {
-            state: { companyId: company.id, path: '/companies' }
-        });
-    };
-
     const collapseRegion = () => {
         if (hasChanges && selectedCompany) {
             handleSave();
         }
         setSelectedRegion(null);
         sessionStorage.removeItem('selectedRegion');
-    };
-
-    const handleAddCompany = () => {
-        const emptyCompany = getEmptyCompany(selectedRegion || '', email);
-        navigate(`/companies/new/edit`, { state: emptyCompany });
     };
 
     const handleTooltipToggle = () => {
@@ -260,19 +225,15 @@ const Subscribes = () => {
         return STATUS_EMOJIS[status] || '⬜';
     };
 
-    // useEffect(() => {
-    //     const tg = window.Telegram?.WebApp;
-    //     if (!tg) return;
-    //     tg.BackButton.onClick(() => {
-    //         if (hasChanges) {
-    //             handleSave();
-    //         }
-    //         navigate(('/'), { replace: true });
-    //     });
-    //     return () => {
-    //         tg.BackButton.offClick();
-    //     };
-    // }, [navigate, hasChanges, handleSave]);
+    useEffect(() => {
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+        const handleBackButton = () => navigate('/', { replace: true });
+        tg.BackButton.onClick(handleBackButton);
+        return () => {
+            tg.BackButton.offClick(handleBackButton);
+        };
+    }, [navigate, hasChanges, handleSave]);
 
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -307,12 +268,7 @@ const Subscribes = () => {
         };
     }, [hasChanges, handleSave, showTooltip]);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            scrollToSection(id, 35);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [id, filteredCompanies]);
+
 
     // console.log('filteredCompanies', filteredCompanies);
 
